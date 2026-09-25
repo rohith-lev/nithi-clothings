@@ -9,9 +9,6 @@ const nextConfig: NextConfig = {
       { protocol: "http", hostname: "localhost" },
     ],
   },
-  turbopack: {
-    root: "/home/adhurva/Projects/Website Builder/nithi-nextjs",
-  },
   allowedDevOrigins: [
     "localhost:3000",
     "127.0.0.1:3000",
