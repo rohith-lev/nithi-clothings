@@ -75,14 +75,14 @@ export default function Header() {
             : "bg-[#FAF8F1] border-b border-[#E8E2D5]"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20 lg:h-24">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24 gap-1 sm:gap-4">
             {/* Mobile Menu Toggle */}
-            <div className="flex items-center lg:hidden">
+            <div className="flex items-center lg:hidden shrink-0">
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 text-[#064E3B] hover:text-[#C9A227] transition-colors"
+                className="p-1.5 sm:p-2 text-[#064E3B] hover:text-[#C9A227] transition-colors rounded-lg focus:outline-none"
                 aria-label="Toggle Navigation"
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -96,7 +96,7 @@ export default function Header() {
             </div>
 
             {/* Prominent Nithi Collection Logo */}
-            <div className="flex-1 lg:flex-none flex justify-center lg:justify-start">
+            <div className="flex-1 lg:flex-none flex justify-center lg:justify-start min-w-0 px-0.5 sm:px-1">
               <BrandLogo variant="dark" size="md" showTagline={true} />
             </div>
 
@@ -171,12 +171,12 @@ export default function Header() {
             </nav>
 
             {/* Action Icons: Search, Wishlist, Account, Cart */}
-            <div className="flex items-center gap-1.5 sm:gap-3 text-[#171A18]">
+            <div className="flex items-center gap-0.5 sm:gap-2 text-[#171A18] shrink-0">
               {/* Search Button */}
               <button
                 type="button"
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors"
+                className="p-1.5 sm:p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors"
                 aria-label="Search Collection"
                 title="Search"
               >
@@ -185,10 +185,10 @@ export default function Header() {
                 </svg>
               </button>
 
-              {/* Wishlist Icon */}
+              {/* Wishlist Icon (visible on tablets/desktops; on mobile in drawer) */}
               <Link
                 to="/wishlist"
-                className="p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors relative"
+                className="hidden xs:flex p-1.5 sm:p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors relative"
                 aria-label="Wishlist"
                 title="Wishlist"
               >
@@ -196,16 +196,16 @@ export default function Header() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
                 {state.wishlist.length > 0 && (
-                  <span className="absolute top-1.5 right-1.5 bg-[#C9A227] text-[#171A18] text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-xs">
+                  <span className="absolute top-1 sm:top-1.5 right-1 sm:right-1.5 bg-[#C9A227] text-[#171A18] text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-xs">
                     {state.wishlist.length}
                   </span>
                 )}
               </Link>
 
-              {/* Customer Account & Tracking Icon */}
+              {/* Customer Account & Tracking Icon (visible on tablets/desktops; on mobile in drawer) */}
               <Link
                 to="/account"
-                className="p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors relative flex items-center gap-1.5"
+                className="hidden sm:flex p-1.5 sm:p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors relative items-center gap-1.5"
                 aria-label="My Account and Tracking"
                 title={isLoggedIn ? `Account: ${customer?.name}` : "Sign In & Track Orders"}
               >
@@ -222,7 +222,7 @@ export default function Header() {
               {/* Shopping Bag Icon with Bounce Micro-interaction */}
               <Link
                 to="/cart"
-                className={`p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors relative group ${
+                className={`p-1.5 sm:p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors relative group ${
                   cartAnimate ? "animate-cart-bounce" : ""
                 }`}
                 aria-label="Shopping Bag"
@@ -232,16 +232,16 @@ export default function Header() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 {cartCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 bg-[#064E3B] text-[#FAF8F1] text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-[#C9A227]">
+                  <span className="absolute top-1 sm:top-1.5 right-1 sm:right-1.5 bg-[#064E3B] text-[#FAF8F1] text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold border border-[#C9A227]">
                     {cartCount}
                   </span>
                 )}
               </Link>
 
-              {/* Admin Panel Quick Access */}
+              {/* Admin Panel Quick Access (hidden on mobile, available in drawer) */}
               <Link
                 to="/admin/products"
-                className="hidden sm:inline-flex items-center gap-1.5 bg-[#064E3B] hover:bg-[#0B3D2E] text-[#FAF8F1] text-[10px] font-bold uppercase tracking-wider px-3 py-2 rounded-xs border border-[#C9A227]/50 shadow-xs transition-colors"
+                className="hidden md:inline-flex items-center gap-1.5 bg-[#064E3B] hover:bg-[#0B3D2E] text-[#FAF8F1] text-[10px] font-bold uppercase tracking-wider px-3 py-2 rounded-xs border border-[#C9A227]/50 shadow-xs transition-colors shrink-0"
                 title="Admin Dashboard & Product Creator"
               >
                 <span>⚙️ Admin</span>
@@ -304,29 +304,31 @@ export default function Header() {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#FAF8F1] border-t border-[#E8E2D5] px-4 py-5 space-y-4">
-            <nav className="flex flex-col space-y-3 font-body text-sm font-semibold tracking-[0.1em] uppercase text-[#171A18]">
+          <div className="lg:hidden bg-[#FAF8F1] border-t border-[#E8E2D5] px-4 py-4 space-y-4 max-h-[calc(100vh-5rem)] overflow-y-auto shadow-lg animate-fade-in">
+            <nav className="flex flex-col space-y-2.5 font-body text-sm font-semibold tracking-[0.1em] uppercase text-[#171A18]">
               <Link
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50"
+                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between"
               >
-                Home
+                <span>Home</span>
+                <span className="text-[#C9A227] text-xs">→</span>
               </Link>
               <Link
                 to="/shop"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50"
+                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between"
               >
-                All Collections
+                <span>All Collections</span>
+                <span className="text-[#C9A227] text-xs">→</span>
               </Link>
-              <div className="pl-3 py-1 space-y-2 text-xs normal-case tracking-normal font-normal text-[#5C635E]">
+              <div className="pl-3 py-1 space-y-2 text-xs normal-case tracking-normal font-normal text-[#5C635E] border-l-2 border-[#C9A227]/40 ml-1">
                 {luxuryCollections.map((col) => (
                   <Link
                     key={col.name}
                     to={col.to}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block hover:text-[#064E3B]"
+                    className="block hover:text-[#064E3B] transition-colors"
                   >
                     ✦ {col.name}
                   </Link>
@@ -335,34 +337,37 @@ export default function Header() {
               <Link
                 to="/shop?filter=new"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50"
+                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between"
               >
-                New Arrivals
+                <span>New Arrivals</span>
+                <span className="text-[#C9A227] text-xs">→</span>
               </Link>
               <Link
                 to="/about"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50"
+                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between"
               >
-                About Us
+                <span>About Us</span>
+                <span className="text-[#C9A227] text-xs">→</span>
               </Link>
               <Link
                 to="/contact"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-1.5 hover:text-[#C9A227]"
+                className="py-1.5 hover:text-[#C9A227] flex items-center justify-between"
               >
-                Contact Us
+                <span>Contact Us</span>
+                <span className="text-[#C9A227] text-xs">→</span>
               </Link>
             </nav>
-            <div className="pt-2 border-t border-[#E8E2D5] flex items-center justify-between text-xs text-[#5C635E]">
+            <div className="pt-3 border-t border-[#E8E2D5] flex items-center justify-between text-xs text-[#5C635E]">
               <Link to="/account" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#064E3B] font-semibold flex items-center gap-1">
                 <span>👤</span> {isLoggedIn ? customer?.name.split(" ")[0] : "Sign In / Track"}
               </Link>
-              <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#064E3B]">
-                Wishlist ({state.wishlist.length})
+              <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#064E3B] flex items-center gap-1">
+                <span>🤍</span> Wishlist ({state.wishlist.length})
               </Link>
-              <Link to="/admin/products" onClick={() => setMobileMenuOpen(false)} className="text-[#064E3B] font-bold">
-                ⚙️ Admin
+              <Link to="/admin/products" onClick={() => setMobileMenuOpen(false)} className="text-[#064E3B] font-bold flex items-center gap-1">
+                <span>⚙️</span> Admin
               </Link>
             </div>
           </div>
