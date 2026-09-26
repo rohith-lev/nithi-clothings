@@ -244,7 +244,11 @@ export default function Header() {
                 className="hidden md:inline-flex items-center gap-1.5 bg-[#064E3B] hover:bg-[#0B3D2E] text-[#FAF8F1] text-[10px] font-bold uppercase tracking-wider px-3 py-2 rounded-xs border border-[#C9A227]/50 shadow-xs transition-colors shrink-0"
                 title="Admin Dashboard & Product Creator"
               >
-                <span>⚙️ Admin</span>
+                <svg className="w-3.5 h-3.5 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Admin</span>
               </Link>
             </div>
           </div>
@@ -360,14 +364,24 @@ export default function Header() {
               </Link>
             </nav>
             <div className="pt-3 border-t border-[#E8E2D5] flex items-center justify-between text-xs text-[#5C635E]">
-              <Link to="/account" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#064E3B] font-semibold flex items-center gap-1">
-                <span>👤</span> {isLoggedIn ? customer?.name.split(" ")[0] : "Sign In / Track"}
+              <Link to="/account" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#064E3B] font-semibold flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-[#064E3B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>{isLoggedIn ? customer?.name.split(" ")[0] : "Sign In / Track"}</span>
               </Link>
-              <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#064E3B] flex items-center gap-1">
-                <span>🤍</span> Wishlist ({state.wishlist.length})
+              <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#064E3B] flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                <span>Wishlist ({state.wishlist.length})</span>
               </Link>
-              <Link to="/admin/products" onClick={() => setMobileMenuOpen(false)} className="text-[#064E3B] font-bold flex items-center gap-1">
-                <span>⚙️</span> Admin
+              <Link to="/admin/products" onClick={() => setMobileMenuOpen(false)} className="text-[#064E3B] font-bold flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>Admin</span>
               </Link>
             </div>
           </div>

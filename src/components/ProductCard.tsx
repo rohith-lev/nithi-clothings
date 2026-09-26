@@ -131,7 +131,7 @@ export default function ProductCard({ product }: Props) {
         {/* Image Container with Desktop 2nd Image Switch & Smooth Zoom */}
         <Link
           to={`/product/${product.id}`}
-          className="relative block aspect-[3/4] overflow-hidden rounded-t-2xl bg-[#F3EFE3] select-none"
+          className="relative block aspect-[4/5] sm:aspect-[4/5] overflow-hidden rounded-t-2xl bg-[#F3EFE3] select-none"
         >
           {/* Primary Image */}
           <img
@@ -164,24 +164,24 @@ export default function ProductCard({ product }: Props) {
           )}
 
           {/* Configurable Badges */}
-          <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-col gap-1.5 items-start">
+          <div className="pointer-events-none absolute left-2 top-2 sm:left-3 sm:top-3 z-10 flex flex-col gap-1 sm:gap-1.5 items-start">
             {(product.newArrival || product.isNew) && (
-              <span className="rounded-full border border-[#C9A227]/40 bg-[#064E3B] px-3 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] text-[#FAF8F1] shadow-sm">
+              <span className="rounded-full border border-[#C9A227]/40 bg-[#064E3B] px-2 py-0.5 sm:px-3 text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.14em] sm:tracking-[0.16em] text-[#FAF8F1] shadow-sm">
                 NEW
               </span>
             )}
             {product.isBestSeller && (
-              <span className="rounded-full bg-[#C9A227] px-3 py-0.5 text-[9px] font-bold uppercase tracking-[0.16em] text-[#171A18] shadow-sm">
+              <span className="rounded-full bg-[#C9A227] px-2 py-0.5 sm:px-3 text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.14em] sm:tracking-[0.16em] text-[#171A18] shadow-sm">
                 BESTSELLER
               </span>
             )}
             {product.discount >= 25 && !product.isBestSeller && (
-              <span className="rounded-full bg-[#B89222] px-3 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-[#FAF8F1] shadow-sm">
+              <span className="rounded-full bg-[#B89222] px-2 py-0.5 sm:px-3 text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.12em] sm:tracking-[0.14em] text-[#FAF8F1] shadow-sm">
                 LIMITED
               </span>
             )}
             {product.discount > 0 && (
-              <span className="rounded-full border border-[#E8E2D5] bg-[#FFFFFF]/95 px-2.5 py-0.5 text-[9px] font-bold text-[#064E3B] shadow-2xs">
+              <span className="rounded-full border border-[#E8E2D5] bg-[#FFFFFF]/95 px-2 py-0.5 sm:px-2.5 text-[8px] sm:text-[9px] font-bold text-[#064E3B] shadow-2xs">
                 {product.discount}% OFF
               </span>
             )}
@@ -191,7 +191,7 @@ export default function ProductCard({ product }: Props) {
           <button
             type="button"
             onClick={handleToggleWishlist}
-            className={`absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-[#FFFFFF]/90 shadow-sm backdrop-blur-xs transition-all duration-200 hover:scale-110 ${
+            className={`absolute right-2 top-2 sm:right-3 sm:top-3 z-10 flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-[#FFFFFF]/90 shadow-sm backdrop-blur-xs transition-all duration-200 hover:scale-110 ${
               wishlistAnimate ? "animate-heart-pop" : ""
             } ${
               isWishlisted
@@ -202,7 +202,7 @@ export default function ProductCard({ product }: Props) {
             title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
             <svg
-              className="h-4 w-4 transition-transform duration-200"
+              className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform duration-200"
               fill={isWishlisted ? "currentColor" : "none"}
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -233,9 +233,11 @@ export default function ProductCard({ product }: Props) {
               type="button"
               onClick={handleAddToCart}
               disabled={isOutOfStock}
-              className="flex w-full items-center justify-center gap-1.5 bg-[#064E3B] py-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#FAF8F1] transition-colors hover:bg-[#0B3D2E] disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 bg-[#064E3B] py-3 text-xs font-semibold uppercase tracking-[0.18em] text-[#FAF8F1] transition-colors hover:bg-[#0B3D2E] disabled:opacity-50"
             >
-              <span>👜</span>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
               <span>{isOutOfStock ? "Out of Stock" : "Add to Cart"}</span>
             </button>
           </div>
@@ -243,68 +245,32 @@ export default function ProductCard({ product }: Props) {
           {/* Out of Stock Overlay */}
           {isOutOfStock && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#FAF8F1]/75 backdrop-blur-[1px]">
-              <span className="rounded-full bg-[#171A18] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#FAF8F1] shadow-md">
+              <span className="rounded-full bg-[#171A18] px-3 py-1 sm:px-4 sm:py-1.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.18em] text-[#FAF8F1] shadow-md">
                 Out of Stock
               </span>
             </div>
           )}
         </Link>
 
-        {/* Product Details */}
-        <div className="flex flex-1 flex-col justify-between space-y-2 bg-[#FFFFFF] p-4 rounded-b-2xl">
+        {/* Product Details - Compact on mobile to maximize photo display */}
+        <div className="flex flex-1 flex-col justify-between space-y-1.5 sm:space-y-2 bg-[#FFFFFF] p-2.5 sm:p-4 rounded-b-2xl">
           <div>
-            <div className="flex items-center justify-between text-[10px] font-medium uppercase tracking-wider text-[#5C635E]">
-              <span className="capitalize">{product.category}</span>
-              <span className="font-mono text-[#C9A227]">{product.sku || product.code}</span>
-            </div>
-
-            <Link to={`/product/${product.id}`} className="mt-1 block group/title">
-              <h3 className="font-display line-clamp-2 text-sm font-semibold leading-snug text-[#171A18] transition-colors group-hover/title:text-[#064E3B] sm:text-base">
+            <Link to={`/product/${product.id}`} className="block group/title">
+              <h3 className="font-display line-clamp-1 sm:line-clamp-2 text-xs sm:text-sm md:text-base font-semibold leading-snug text-[#171A18] transition-colors group-hover/title:text-[#064E3B]">
                 {product.name}
               </h3>
             </Link>
-
-            {/* Color Switcher Chips */}
-            {product.colors && product.colors.length > 0 && (
-              <div className="mt-2 flex flex-wrap items-center gap-1">
-                {product.colors.slice(0, 3).map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setSelectedColor(c);
-                    }}
-                    onMouseEnter={() => setSelectedColor(c)}
-                    className={`rounded-full border px-2.5 py-0.5 text-[9px] transition-all ${
-                      selectedColor === c
-                        ? "border-[#064E3B] bg-[#064E3B] font-bold text-[#FAF8F1]"
-                        : "border-[#E8E2D5] bg-[#FAF8F1] text-[#5C635E] hover:border-[#C9A227]"
-                    }`}
-                    title={`View ${c}`}
-                  >
-                    {c}
-                  </button>
-                ))}
-                {product.colors.length > 3 && (
-                  <span className="text-[9px] font-medium text-[#5C635E]">
-                    +{product.colors.length - 3}
-                  </span>
-                )}
-              </div>
-            )}
           </div>
 
           {/* Pricing & Stock indicators */}
-          <div className="border-t border-[#E8E2D5]/60 pt-2.5">
-            <div className="flex items-baseline justify-between">
-              <div className="flex items-baseline gap-2">
-                <span className="font-display text-base font-bold text-[#064E3B] sm:text-lg">
+          <div className="border-t border-[#E8E2D5]/60 pt-1.5 sm:pt-2.5">
+            <div className="flex items-baseline justify-between gap-1 flex-wrap">
+              <div className="flex items-baseline gap-1.5 sm:gap-2">
+                <span className="font-display text-sm sm:text-base md:text-lg font-bold text-[#064E3B]">
                   ₹{effectiveFinalPrice.toLocaleString("en-IN")}
                 </span>
                 {basePrice > effectiveFinalPrice && (
-                  <span className="text-xs font-normal text-[#5C635E] line-through">
+                  <span className="text-[11px] sm:text-xs font-normal text-[#5C635E] line-through">
                     ₹{basePrice.toLocaleString("en-IN")}
                   </span>
                 )}
@@ -312,7 +278,7 @@ export default function ProductCard({ product }: Props) {
 
               {/* Genuine Live Stock Indicator */}
               {product.stock > 0 && product.stock <= 5 && (
-                <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-bold text-amber-700">
+                <span className="rounded-full bg-amber-50 px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[9px] font-bold text-amber-700 whitespace-nowrap">
                   Only {product.stock} left
                 </span>
               )}

@@ -76,8 +76,10 @@ export default function CircularOfferBadge() {
 
           {/* Center Icon & Sale Tag */}
           <div className="relative z-10 flex flex-col items-center justify-center text-center">
-            <span className="text-xs">✨</span>
-            <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#FAF8F1] leading-none mt-0.5">
+            <svg className="w-4 h-4 text-[#C9A227]" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.2L12 16.8 5.7 21.2 8 14 2 9.4h7.6L12 2z" />
+            </svg>
+            <span className="text-[9px] font-extrabold uppercase tracking-wider text-[#FAF8F1] leading-none mt-1">
               OFFER
             </span>
           </div>

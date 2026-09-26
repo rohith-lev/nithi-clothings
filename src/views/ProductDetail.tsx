@@ -253,14 +253,14 @@ export default function ProductDetail() {
                   SKU: {product.sku || product.code}
                 </span>
               </div>
-              <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-[#064E3B] mt-1 leading-tight">
+              <h1 className="font-display text-xl sm:text-2xl lg:text-4xl font-bold text-[#064E3B] mt-1 leading-snug">
                 {product.name}
               </h1>
             </div>
 
             {/* Price & Badges (Dynamically multiplied by quantity) */}
-            <div className="flex flex-wrap items-baseline gap-3 pb-3 border-b border-[#E8E2D5]">
-              <span className="font-display text-3xl font-bold text-[#064E3B]">
+            <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3 pb-3 border-b border-[#E8E2D5]">
+              <span className="font-display text-2xl sm:text-3xl font-bold text-[#064E3B]">
                 ₹{(effectivePrice * quantity).toLocaleString("en-IN")}
               </span>
               {mrp > effectivePrice && (
@@ -451,43 +451,45 @@ export default function ProductDetail() {
 
             {/* Main Action Buttons & Wishlist */}
             <div className="space-y-3 pt-2">
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  disabled={isSizeOutOfStock}
-                  className={`flex-1 rounded-xl py-4 text-xs font-bold uppercase tracking-[0.2em] shadow-md transition-all ${
-                    addedToCart
-                      ? "bg-[#C9A227] text-[#171A18]"
+              <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
+                <div className="flex-1 flex gap-2 sm:gap-3">
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    disabled={isSizeOutOfStock}
+                    className={`flex-1 rounded-xl py-3.5 sm:py-4 px-3 text-xs font-bold uppercase tracking-[0.14em] sm:tracking-[0.2em] shadow-md transition-all text-center ${
+                      addedToCart
+                        ? "bg-[#C9A227] text-[#171A18]"
+                        : isSizeOutOfStock
+                        ? "bg-stone-300 text-stone-500 cursor-not-allowed"
+                        : "bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E]"
+                    }`}
+                  >
+                    {addedToCart
+                      ? "✓ Added to Bag!"
                       : isSizeOutOfStock
-                      ? "bg-stone-300 text-stone-500 cursor-not-allowed"
-                      : "bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E]"
-                  }`}
-                >
-                  {addedToCart
-                    ? "✓ Added to Bag!"
-                    : isSizeOutOfStock
-                    ? "Out of Stock for Selected Size"
-                    : `Add to Bag • ₹${(effectivePrice * quantity).toLocaleString("en-IN")}`}
-                </button>
+                      ? "Out of Stock"
+                      : `Add to Bag • ₹${(effectivePrice * quantity).toLocaleString("en-IN")}`}
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={handleBuyNow}
-                  disabled={isSizeOutOfStock}
-                  className={`flex-1 rounded-xl py-4 text-xs font-bold uppercase tracking-[0.2em] transition-all shadow-md ${
-                    isSizeOutOfStock
-                      ? "bg-stone-200 text-stone-400 cursor-not-allowed"
-                      : "bg-[#C9A227] text-[#171A18] hover:bg-[#E2C467]"
-                  }`}
-                >
-                  Buy Now
-                </button>
+                  <button
+                    type="button"
+                    onClick={handleBuyNow}
+                    disabled={isSizeOutOfStock}
+                    className={`flex-1 rounded-xl py-3.5 sm:py-4 px-3 text-xs font-bold uppercase tracking-[0.14em] sm:tracking-[0.2em] transition-all shadow-md text-center ${
+                      isSizeOutOfStock
+                        ? "bg-stone-200 text-stone-400 cursor-not-allowed"
+                        : "bg-[#C9A227] text-[#171A18] hover:bg-[#E2C467]"
+                    }`}
+                  >
+                    Buy Now
+                  </button>
+                </div>
 
                 <button
                   type="button"
                   onClick={handleToggleWishlist}
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl border border-[#E8E2D5] bg-[#FFFFFF] transition-all hover:scale-105 shadow-xs ${
+                  className={`hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-[#E8E2D5] bg-[#FFFFFF] transition-all hover:scale-105 shadow-xs ${
                     wishlistAnimate ? "animate-heart-pop" : ""
                   } ${isWishlisted ? "text-rose-600 border-rose-300" : "text-[#171A18]"}`}
                   title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}

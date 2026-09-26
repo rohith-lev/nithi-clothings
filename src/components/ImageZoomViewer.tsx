@@ -93,7 +93,7 @@ export default function ImageZoomViewer({
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         onClick={() => setIsFullscreen(true)}
-        className="relative aspect-[3/4] w-full cursor-zoom-in overflow-hidden rounded-3xl border border-[#E8E2D5] bg-[#F3EFE3] group shadow-sm"
+        className="relative aspect-[4/5] sm:aspect-[3/4] w-full cursor-zoom-in overflow-hidden rounded-2xl sm:rounded-3xl border border-[#E8E2D5] bg-[#F3EFE3] group shadow-sm"
       >
         <img
           src={currentImage}

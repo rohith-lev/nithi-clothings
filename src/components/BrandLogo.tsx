@@ -81,7 +81,7 @@ export default function BrandLogo({
       {!emblemOnly && (
         <div className="flex flex-col justify-center leading-none min-w-0">
           <span
-            className={`font-display font-bold uppercase whitespace-nowrap text-sm sm:text-base lg:text-xl tracking-[0.12em] sm:tracking-[0.16em] lg:tracking-[0.18em] ${primaryTextColor} transition-colors group-hover:text-[#C9A227]`}
+            className={`font-display font-bold uppercase whitespace-nowrap text-[13px] xs:text-sm sm:text-base lg:text-xl tracking-[0.08em] xs:tracking-[0.12em] sm:tracking-[0.16em] lg:tracking-[0.18em] ${primaryTextColor} transition-colors group-hover:text-[#C9A227]`}
           >
             Nithi Collection
           </span>

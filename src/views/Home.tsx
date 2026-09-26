@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
 import { useStoreProducts } from "../services/storefront";
 import ProductCard from "../components/ProductCard";
@@ -9,6 +9,37 @@ export default function Home() {
   const activeProducts = products.filter((p) => p.status === "ACTIVE" || (!p.status && p.stock > 0));
 
   const [activeTab, setActiveTab] = useState<"featured" | "bestseller" | "new">("featured");
+
+  // Scroll Reveal Intersection Observer
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+          }
+        });
+      },
+      {
+        threshold: 0.12,
+        rootMargin: "0px 0px -40px 0px",
+      }
+    );
+
+    const elements = root.querySelectorAll(
+      ".reveal-on-scroll, .reveal-on-scroll-scale, .reveal-up, .reveal-down, .reveal-left, .reveal-right, .reveal-scale"
+    );
+    elements.forEach((el) => observer.observe(el));
+
+    return () => {
+      elements.forEach((el) => observer.unobserve(el));
+    };
+  }, []);
 
   // Editorial category collections
   const luxuryCollections = [
@@ -80,29 +111,45 @@ export default function Home() {
 
   const whyChooseUs = [
     {
-      icon: "⚜️",
+      icon: (
+        <svg className="w-5 h-5 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+        </svg>
+      ),
       title: "Artisanal Craftsmanship",
       desc: "Fine tailoring, durable dyes, and master stitchwork built for lasting elegance.",
     },
     {
-      icon: "🌿",
+      icon: (
+        <svg className="w-5 h-5 text-[#064E3B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      ),
       title: "100% Breathable Fabrics",
       desc: "Pure combed cotton, mulmul, and handpicked silks designed for tropical comfort.",
     },
     {
-      icon: "⚡",
+      icon: (
+        <svg className="w-5 h-5 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      ),
       title: "Express Pan-India Delivery",
       desc: "Rapid dispatch with Cash on Delivery and complimentary shipping above ₹999.",
     },
     {
-      icon: "💬",
+      icon: (
+        <svg className="w-5 h-5 text-[#064E3B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+      ),
       title: "WhatsApp Personal Concierge",
       desc: "Direct stylist assistance on WhatsApp for size selection and order guidance.",
     },
   ];
 
   return (
-    <div className="bg-[#FAF8F1] text-[#171A18] font-body relative">
+    <div ref={containerRef} className="bg-[#FAF8F1] text-[#171A18] font-body relative overflow-x-hidden">
       {/* Circular Floating Offer Badge */}
       <CircularOfferBadge />
 
@@ -116,14 +163,18 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#064E3B]/95 via-[#064E3B]/80 to-[#0B3D2E]/40" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(201,162,39,0.18),transparent_60%)]" />
+
+          {/* Ambient Decorative Glowing Orbs for Luxury Depth */}
+          <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#C9A227]/10 blur-3xl animate-hero-glow" />
+          <div className="pointer-events-none absolute -bottom-24 right-1/4 w-80 h-80 rounded-full bg-[#064E3B]/40 blur-2xl animate-hero-glow [animation-delay:3s]" />
         </div>
 
         {/* Hero Text & CTA Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full animate-fade-in-up">
           <div className="max-w-2xl text-[#FAF8F1] space-y-6">
             {/* Top luxury badge */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#FAF8F1]/10 border border-[#C9A227]/50 backdrop-blur-sm shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-pulse" />
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#FAF8F1]/10 border border-[#C9A227]/50 backdrop-blur-sm shadow-sm transition-transform duration-500 hover:scale-105">
+              <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-ping" />
               <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#C9A227]">
                 Authentic Indian Couture & Daily Wear
               </span>
@@ -145,14 +196,14 @@ export default function Home() {
             <div className="pt-2 flex flex-wrap items-center gap-4">
               <Link
                 to="/shop"
-                className="px-8 py-3.5 bg-[#C9A227] hover:bg-[#E2C467] text-[#064E3B] font-bold text-xs uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-black/20 transition-all hover:scale-[1.02] flex items-center gap-2"
+                className="group px-8 py-3.5 bg-[#C9A227] hover:bg-[#E2C467] text-[#064E3B] font-bold text-xs uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl flex items-center gap-2"
               >
                 <span>Shop Collection</span>
-                <span>→</span>
+                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
               </Link>
               <Link
                 to="/shop?filter=new"
-                className="px-8 py-3.5 border border-[#FAF8F1]/40 hover:border-[#C9A227] hover:bg-[#FAF8F1]/10 text-[#FAF8F1] font-semibold text-xs uppercase tracking-[0.2em] rounded-xl backdrop-blur-xs transition-all"
+                className="px-8 py-3.5 border border-[#FAF8F1]/40 hover:border-[#C9A227] hover:bg-[#FAF8F1]/10 text-[#FAF8F1] font-semibold text-xs uppercase tracking-[0.2em] rounded-xl backdrop-blur-xs transition-all duration-300 hover:scale-[1.02]"
               >
                 Explore New Arrivals
               </Link>
@@ -160,18 +211,35 @@ export default function Home() {
 
             {/* Highlights Bar */}
             <div className="pt-6 grid grid-cols-3 gap-6 border-t border-[#C9A227]/25 max-w-md text-[#FAF8F1]">
-              <div>
+              <div className="transition-transform duration-300 hover:-translate-y-1">
                 <span className="font-display text-2xl lg:text-3xl font-bold text-[#C9A227]">100%</span>
                 <p className="text-[10px] text-[#FAF8F1]/70 uppercase tracking-wider mt-0.5">Pure Cotton</p>
               </div>
-              <div>
+              <div className="transition-transform duration-300 hover:-translate-y-1">
                 <span className="font-display text-2xl lg:text-3xl font-bold text-[#C9A227]">50k+</span>
                 <p className="text-[10px] text-[#FAF8F1]/70 uppercase tracking-wider mt-0.5">Happy Shoppers</p>
               </div>
-              <div>
+              <div className="transition-transform duration-300 hover:-translate-y-1">
                 <span className="font-display text-2xl lg:text-3xl font-bold text-[#C9A227]">Pan-India</span>
                 <p className="text-[10px] text-[#FAF8F1]/70 uppercase tracking-wider mt-0.5">COD Delivery</p>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Floating Luxury Couture Badge Card on Desktop */}
+        <div className="hidden lg:block absolute right-12 xl:right-20 top-1/2 -translate-y-1/2 z-20 pointer-events-none animate-hero-float">
+          <div className="bg-[#FFFFFF]/10 backdrop-blur-md border border-[#C9A227]/40 p-5 rounded-2xl shadow-2xl max-w-xs text-[#FAF8F1] space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-pulse" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[#C9A227]">Signature Edit</span>
+            </div>
+            <p className="font-display text-lg font-semibold leading-snug">
+              Pure Mulmul Cotton & Banarasi Weaves
+            </p>
+            <div className="flex items-center justify-between text-[11px] text-[#FAF8F1]/80 pt-2 border-t border-[#FAF8F1]/15">
+              <span>Handcrafted in India</span>
+              <span className="text-[#C9A227] font-bold">100% Authentic</span>
             </div>
           </div>
         </div>
@@ -179,7 +247,7 @@ export default function Home() {
 
       {/* 2. CURATED CATEGORIES SECTION */}
       <section className="py-16 lg:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-12 reveal-up">
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="w-8 h-[1px] bg-[#C9A227]" />
             <span className="text-xs uppercase tracking-[0.28em] text-[#C9A227] font-semibold">
@@ -195,13 +263,13 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Categories Grid */}
+        {/* Categories Grid with Staggered Scale Reveal */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4 overflow-x-auto pb-2">
-          {luxuryCollections.map((col) => (
+          {luxuryCollections.map((col, idx) => (
             <Link
               key={col.id}
               to={col.to}
-              className="group relative overflow-hidden rounded-2xl border border-[#E8E2D5] bg-[#FFFFFF] shadow-xs hover:shadow-lg transition-all duration-500 flex flex-col"
+              className={`group relative overflow-hidden rounded-2xl border border-[#E8E2D5] bg-[#FFFFFF] shadow-xs hover:shadow-lg transition-all duration-500 flex flex-col hover:-translate-y-1 reveal-scale reveal-delay-${(idx % 6) + 1}`}
             >
               <div className="aspect-[3/4] overflow-hidden bg-[#F3EFE3] relative rounded-2xl">
                 <img
@@ -230,7 +298,7 @@ export default function Home() {
       <section className="py-16 bg-[#F3EFE3]/50 border-y border-[#E8E2D5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-4 mb-10">
-            <div>
+            <div className="reveal-left">
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="w-6 h-[1px] bg-[#C9A227]" />
                 <span className="text-xs uppercase tracking-[0.25em] text-[#C9A227] font-semibold">
@@ -243,7 +311,7 @@ export default function Home() {
             </div>
             <Link
               to="/shop?filter=new"
-              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#064E3B] hover:text-[#C9A227] transition-colors pb-1 border-b border-[#064E3B]"
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#064E3B] hover:text-[#C9A227] transition-colors pb-1 border-b border-[#064E3B] reveal-right"
             >
               <span>View All</span>
               <span>→</span>
@@ -251,8 +319,10 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {(newArrivals.length > 0 ? newArrivals : activeProducts.slice(0, 4)).map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {(newArrivals.length > 0 ? newArrivals : activeProducts.slice(0, 4)).map((product, idx) => (
+              <div key={product.id} className={`reveal-up reveal-delay-${(idx % 4) + 1}`}>
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         </div>
@@ -261,7 +331,7 @@ export default function Home() {
       {/* 4. TRENDING NOW SECTION */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between gap-4 mb-10">
-          <div>
+          <div className="reveal-left">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-6 h-[1px] bg-[#C9A227]" />
               <span className="text-xs uppercase tracking-[0.25em] text-[#C9A227] font-semibold">
@@ -274,7 +344,7 @@ export default function Home() {
           </div>
           <Link
             to="/shop?filter=sale"
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#064E3B] hover:text-[#C9A227] transition-colors pb-1 border-b border-[#064E3B]"
+            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#064E3B] hover:text-[#C9A227] transition-colors pb-1 border-b border-[#064E3B] reveal-right"
           >
             <span>Explore Offers</span>
             <span>→</span>
@@ -282,8 +352,10 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {(trendingProducts.length > 0 ? trendingProducts : activeProducts.slice(0, 4)).map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {(trendingProducts.length > 0 ? trendingProducts : activeProducts.slice(0, 4)).map((product, idx) => (
+            <div key={product.id} className={`reveal-up reveal-delay-${(idx % 4) + 1}`}>
+              <ProductCard product={product} />
+            </div>
           ))}
         </div>
       </section>
@@ -292,7 +364,7 @@ export default function Home() {
       <section className="py-16 bg-[#F3EFE3]/40 border-y border-[#E8E2D5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-            <div>
+            <div className="reveal-left">
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="w-6 h-[1px] bg-[#C9A227]" />
                 <span className="text-xs uppercase tracking-[0.25em] text-[#C9A227] font-semibold">
@@ -305,7 +377,7 @@ export default function Home() {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center gap-2 bg-[#FFFFFF] p-1.5 rounded-xl border border-[#E8E2D5] text-xs font-semibold uppercase tracking-wider shadow-2xs">
+            <div className="flex items-center gap-2 bg-[#FFFFFF] p-1.5 rounded-xl border border-[#E8E2D5] text-xs font-semibold uppercase tracking-wider shadow-2xs reveal-right">
               <button
                 type="button"
                 onClick={() => setActiveTab("featured")}
@@ -343,12 +415,14 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-            {displayedProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {displayedProducts.map((product, idx) => (
+              <div key={product.id} className={`reveal-up reveal-delay-${(idx % 4) + 1}`}>
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
 
-          <div className="mt-12 text-center">
+          <div className="mt-12 text-center reveal-up">
             <Link
               to="/shop"
               className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#FFFFFF] border-2 border-[#064E3B] text-[#064E3B] hover:bg-[#064E3B] hover:text-[#FAF8F1] text-xs font-bold uppercase tracking-[0.2em] rounded-xl shadow-xs transition-all"
@@ -361,7 +435,7 @@ export default function Home() {
       </section>
 
       {/* 6. PROMOTIONAL COMBO BANNER */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 reveal-scale">
         <div className="relative overflow-hidden rounded-3xl bg-[#064E3B] text-[#FAF8F1] p-8 sm:p-12 lg:p-16 border border-[#C9A227]/40 shadow-xl">
           <div className="relative z-10 max-w-xl space-y-4">
             <span className="inline-block rounded-full bg-[#C9A227] px-4 py-1 text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#171A18]">
@@ -391,7 +465,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {whyChooseUs.map((item, idx) => (
-              <div key={idx} className="flex items-start gap-4 p-5 rounded-2xl bg-[#FAF8F1] border border-[#E8E2D5]/70 shadow-2xs">
+              <div
+                key={idx}
+                className={`flex items-start gap-4 p-5 rounded-2xl bg-[#FAF8F1] border border-[#E8E2D5]/70 shadow-2xs hover:border-[#C9A227]/50 hover:shadow-md transition-all duration-300 reveal-up reveal-delay-${idx + 1}`}
+              >
                 <span className="text-2xl shrink-0 p-3 rounded-full bg-[#FFFFFF] border border-[#E8E2D5] shadow-2xs">
                   {item.icon}
                 </span>

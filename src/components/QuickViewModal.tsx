@@ -149,10 +149,10 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
           ✕
         </button>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 items-start">
+        <div className="grid grid-cols-1 gap-5 sm:gap-6 sm:grid-cols-2 items-start">
           {/* Left: Image & Thumbnails */}
           <div className="space-y-3">
-            <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-[#E8E2D5] bg-[#F3EFE3] shadow-xs">
+            <div className="relative aspect-[4/5] sm:aspect-[3/4] overflow-hidden rounded-2xl border border-[#E8E2D5] bg-[#F3EFE3] shadow-xs">
               <img
                 src={activePhoto}
                 alt={product.name}
@@ -252,8 +252,9 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                   Out of Stock
                 </span>
               ) : product.stock <= 5 ? (
-                <span className="inline-block rounded-full bg-amber-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-800">
-                  ⚡ Only {product.stock} Left in Stock
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-800">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  Only {product.stock} Left in Stock
                 </span>
               ) : (
                 <span className="inline-block text-[11px] font-medium text-emerald-700">

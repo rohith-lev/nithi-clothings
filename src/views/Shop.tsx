@@ -145,9 +145,11 @@ export default function Shop() {
             <button
               type="button"
               onClick={() => setMobileFiltersOpen(true)}
-              className="lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] text-xs font-bold uppercase tracking-wider shadow-sm"
+              className="lg:hidden flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] text-xs font-bold uppercase tracking-wider shadow-sm"
             >
-              <span>⚙️</span>
+              <svg className="w-3.5 h-3.5 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
               <span>Filter & Sort</span>
             </button>
 
@@ -297,7 +299,13 @@ export default function Shop() {
               <ProductGridSkeleton count={6} />
             ) : filtered.length === 0 ? (
               <div className="rounded-2xl border border-[#E8E2D5] bg-[#FFFFFF] p-12 text-center shadow-xs">
-                <div className="text-4xl mb-3">🔍</div>
+                <div className="flex justify-center mb-3">
+                  <div className="w-12 h-12 rounded-full bg-[#064E3B]/10 flex items-center justify-center text-[#064E3B]">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                </div>
                 <h3 className="font-display text-xl font-bold text-[#064E3B] mb-2">
                   No matching garments found
                 </h3>
