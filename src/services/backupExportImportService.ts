@@ -90,6 +90,54 @@ export async function generateExcelBackup(): Promise<Buffer> {
   return XLSX.write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;
 }
 
+export async function generateCustomersOnlyExcel(): Promise<Buffer> {
+  const customers = await Customer.find().lean();
+  const wb = XLSX.utils.book_new();
+
+  const customersSheetData = (customers as Array<Record<string, unknown>>).map((c, idx) => ({
+    "S.No": idx + 1,
+    "Customer ID": c.customerId || `CUST-${idx + 1}`,
+    "Full Name": c.name || "",
+    "Mobile / Phone": c.phone || "",
+    "Email Address": c.email || "",
+    "Address": c.address || "",
+    "City": c.city || "",
+    "State": c.state || "",
+    "Pincode": c.pincode || "",
+    "Total Orders Placed": (c.totalOrders || 0) as number,
+    "Total Amount Spent (₹)": (c.totalSpent || 0) as number,
+    "Account Status": (c.status || "ACTIVE") as string,
+    "Registered Date": c.registrationDate
+      ? new Date(c.registrationDate as string).toLocaleDateString("en-IN")
+      : "",
+  }));
+
+  const sheet = XLSX.utils.json_to_sheet(
+    customersSheetData.length > 0
+      ? customersSheetData
+      : [
+          {
+            "S.No": 1,
+            "Customer ID": "CUST-001",
+            "Full Name": "Sample Customer",
+            "Mobile / Phone": "+91 9876543210",
+            "Email Address": "customer@example.com",
+            "Address": "Main Road, Gandhi Nagar",
+            "City": "Chennai",
+            "State": "Tamil Nadu",
+            "Pincode": "600001",
+            "Total Orders Placed": 1,
+            "Total Amount Spent (₹)": 1499,
+            "Account Status": "ACTIVE",
+            "Registered Date": new Date().toLocaleDateString("en-IN"),
+          },
+        ]
+  );
+
+  XLSX.utils.book_append_sheet(wb, sheet, "Customer Details");
+  return XLSX.write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;
+}
+
 export function validateImportData(records: Record<string, unknown>[], targetCollection = "products") {
   const errors: string[] = [];
   const validRecords: Record<string, unknown>[] = [];

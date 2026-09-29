@@ -128,9 +128,9 @@ export default function Footer() {
             <ul className="space-y-2 text-xs text-[#FAF8F1]/80">
               {[
                 { label: "Home", to: "/" },
-                { label: "All Collections", to: "/shop" },
-                { label: "Sarees & Silks", to: "/shop?category=sarees" },
-                { label: "Ethnic Wear", to: "/shop?category=ethnic-wear" },
+                { label: "Shop Catalogue", to: "/shop" },
+                { label: "Nighties", to: "/shop?category=nighty" },
+                { label: "Salwar Sets", to: "/shop?category=salwar-set" },
                 { label: "New Arrivals", to: "/shop?filter=new" },
                 { label: "Best Sellers", to: "/shop?filter=bestseller" },
                 { label: "Special Offers", to: "/shop?filter=sale" },

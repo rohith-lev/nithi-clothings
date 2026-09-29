@@ -86,12 +86,13 @@ export default function AdminCustomers() {
 
         <div className="flex items-center gap-2">
           <a
-            href="/api/admin/export/excel"
+            href="/api/admin/export/customers"
             target="_blank"
             rel="noreferrer"
             className="px-4 py-2.5 bg-[#041D16] text-[#DFC15E] rounded-xl text-xs font-bold border border-[#C9A227]/40 hover:bg-black transition-all shadow-xs flex items-center gap-1.5"
+            title="Download Customer Contact & Order History Details as Excel"
           >
-            <span>📥 Export Customers (.xlsx)</span>
+            <span>📥 Export Customer Details (.xlsx)</span>
           </a>
         </div>
       </div>

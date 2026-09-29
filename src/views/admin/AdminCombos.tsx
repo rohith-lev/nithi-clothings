@@ -33,18 +33,33 @@ export default function AdminCombos() {
     loadCombos();
   }, []);
 
+  const handleToggleStatus = async (c: ComboOffer) => {
+    const updatedStatus = c.status === "active" ? "inactive" : "active";
+    await adminApi.saveComboOffer({ ...c, status: updatedStatus });
+    await loadCombos();
+    window.dispatchEvent(new Event("nithi_combo_updated"));
+    setToast(
+      updatedStatus === "active"
+        ? `Offer "${c.name}" is now Published on storefront!`
+        : `Offer "${c.name}" is now Unpublished (Hidden).`
+    );
+    setTimeout(() => setToast(null), 3000);
+  };
+
   const handleSave = async () => {
     const id = form.id || `combo-${Date.now()}`;
     await adminApi.saveComboOffer({ ...form, id });
     await loadCombos();
+    window.dispatchEvent(new Event("nithi_combo_updated"));
     setShowAddModal(false);
-    setToast("Combo offer created successfully.");
+    setToast("Combo offer created & published successfully.");
     setTimeout(() => setToast(null), 3000);
   };
 
   const handleDelete = async (id: string) => {
     await adminApi.deleteComboOffer(id);
     await loadCombos();
+    window.dispatchEvent(new Event("nithi_combo_updated"));
     setToast("Combo offer removed.");
     setTimeout(() => setToast(null), 3000);
   };
@@ -67,11 +82,11 @@ export default function AdminCombos() {
               Combo Bundles & Multi-Pack Deals
             </h1>
             <span className="px-2.5 py-0.5 rounded-full bg-[#FAF8F1] border border-[#C9A227]/40 text-[#8A5F38] text-xs font-bold font-mono">
-              {combos.length} Active Deals
+              {combos.filter((c) => c.status === "active").length} Published / {combos.length} Total
             </span>
           </div>
           <p className="text-xs text-stone-500 mt-1">
-            Configure multi-piece discount tiers (e.g. Buy 4 Nighties for ₹1,999) with automated checkout deductions and free shipping triggers.
+            Configure multi-piece discount tiers (e.g. Buy 4 Nighties for ₹1,999) with automated customer popup notifications and checkout deductions.
           </p>
         </div>
 
@@ -88,22 +103,49 @@ export default function AdminCombos() {
         {combos.map((c) => (
           <div
             key={c.id}
-            className="bg-white rounded-3xl border border-stone-200 p-6 shadow-2xs hover:shadow-md transition-all admin-hover-lift space-y-4 text-xs"
+            className={`bg-white rounded-3xl border ${
+              c.status === "active" ? "border-[#C9A227]/60 shadow-sm" : "border-stone-200 opacity-75"
+            } p-6 shadow-2xs hover:shadow-md transition-all admin-hover-lift space-y-4 text-xs`}
           >
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between items-start gap-2">
               <div>
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold text-[10px] uppercase tracking-wider">
-                  ● {c.status}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] uppercase tracking-wider ${
+                      c.status === "active"
+                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                        : "bg-stone-100 text-stone-600 border border-stone-200"
+                    }`}
+                  >
+                    ● {c.status === "active" ? "PUBLISHED (POPUP ACTIVE)" : "DRAFT (HIDDEN)"}
+                  </span>
+                  <span className="text-[10px] font-bold text-[#C9A227] uppercase tracking-wider bg-[#FAF8F1] px-2 py-0.5 rounded-md border border-[#E8E2D5]">
+                    {c.category || "Nighty"}
+                  </span>
+                </div>
                 <h3 className="font-display font-bold text-lg text-stone-900 mt-2">{c.name}</h3>
               </div>
-              <button
-                onClick={() => handleDelete(c.id)}
-                className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
-                title="Delete Combo"
-              >
-                <TrashIcon size={15} />
-              </button>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleToggleStatus(c)}
+                  className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-colors border ${
+                    c.status === "active"
+                      ? "bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100"
+                      : "bg-[#064E3B] text-white border-[#064E3B] hover:bg-[#0B3D2E]"
+                  }`}
+                  title={c.status === "active" ? "Click to Unpublish / Hide" : "Click to Publish on Website"}
+                >
+                  {c.status === "active" ? "Unpublish" : "Publish"}
+                </button>
+                <button
+                  onClick={() => handleDelete(c.id)}
+                  className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors"
+                  title="Delete Combo"
+                >
+                  <TrashIcon size={15} />
+                </button>
+              </div>
             </div>
 
             <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-2">
@@ -121,13 +163,13 @@ export default function AdminCombos() {
               </div>
               <div className="flex justify-between text-emerald-700 font-bold pt-1 border-t border-stone-200">
                 <span>Customer Instant Benefit:</span>
-                <span>Save ₹{c.discountValue}</span>
+                <span>Save ₹{c.discountValue || (c.normalTotal - c.comboPrice)}</span>
               </div>
             </div>
 
             <div className="flex items-center justify-between text-[11px] text-stone-500 pt-2 border-t border-stone-100">
               <span className="font-semibold text-emerald-800">🚚 Free Shipping: {c.freeShipping ? "Included" : "Excluded"}</span>
-              <span className="font-mono">Valid until: {c.endDate}</span>
+              <span className="font-mono">Valid until: {c.endDate || "Unlimited"}</span>
             </div>
           </div>
         ))}
@@ -175,6 +217,34 @@ export default function AdminCombos() {
                   value={form.comboPrice}
                   onChange={(e) => setForm({ ...form, comboPrice: Number(e.target.value) })}
                   className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl font-bold text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block font-bold text-stone-700 mb-1.5">Target Garment Category</label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl font-medium text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                >
+                  <option value="nighty">Nighties</option>
+                  <option value="night-dress">Night Dress</option>
+                  <option value="unstitched-salwar">Unstitched Salwar</option>
+                  <option value="cord-set">Coord Sets</option>
+                  <option value="kurtis">Kurtis & Tops</option>
+                  <option value="salwar-set">Salwar Sets</option>
+                  <option value="maxi">Maxi Gowns</option>
+                </select>
+              </div>
+              <div>
+                <label className="block font-bold text-stone-700 mb-1.5">Original Total (₹)</label>
+                <input
+                  type="number"
+                  value={form.normalTotal}
+                  onChange={(e) => setForm({ ...form, normalTotal: Number(e.target.value) })}
+                  className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl font-medium text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
                 />
               </div>
             </div>

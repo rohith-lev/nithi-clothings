@@ -23,3 +23,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    await connectToDatabase();
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (id) {
+      await ComboOffer.deleteOne({ id });
+    }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
+  }
+}
+

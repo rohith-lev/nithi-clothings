@@ -263,25 +263,39 @@ export default function ProductCard({ product }: Props) {
           </div>
 
           {/* Pricing & Stock indicators */}
-          <div className="border-t border-[#E8E2D5]/60 pt-1.5 sm:pt-2.5">
-            <div className="flex items-baseline justify-between gap-1 flex-wrap">
+          <div className="border-t border-[#E8E2D5]/60 pt-2 flex items-center justify-between gap-1.5">
+            <div className="flex flex-col">
               <div className="flex items-baseline gap-1.5 sm:gap-2">
                 <span className="font-display text-sm sm:text-base md:text-lg font-bold text-[#064E3B]">
                   ₹{effectiveFinalPrice.toLocaleString("en-IN")}
                 </span>
                 {basePrice > effectiveFinalPrice && (
-                  <span className="text-[11px] sm:text-xs font-normal text-[#5C635E] line-through">
+                  <span className="text-[10px] sm:text-xs font-normal text-[#5C635E] line-through">
                     ₹{basePrice.toLocaleString("en-IN")}
                   </span>
                 )}
               </div>
-
-              {/* Genuine Live Stock Indicator */}
               {product.stock > 0 && product.stock <= 5 && (
-                <span className="rounded-full bg-amber-50 px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[9px] font-bold text-amber-700 whitespace-nowrap">
+                <span className="text-[8px] sm:text-[9px] font-bold text-amber-700">
                   Only {product.stock} left
                 </span>
               )}
+            </div>
+
+            {/* Mobile Quick Action Button */}
+            <div className="sm:hidden shrink-0">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                className="w-8 h-8 rounded-full bg-[#064E3B] text-[#FAF8F1] flex items-center justify-center shadow-xs active:scale-90 transition-transform disabled:opacity-40 disabled:bg-stone-300"
+                aria-label={isOutOfStock ? "Out of Stock" : "Add to Cart"}
+                title="Add to Cart"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>

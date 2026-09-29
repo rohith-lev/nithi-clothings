@@ -155,6 +155,12 @@ export default function AdminStorageManager() {
     showToast("Downloading Multi-Sheet Excel Backup (.xlsx)...");
   };
 
+  // Handle Customer Only Excel Download
+  const handleDownloadCustomersExcel = () => {
+    window.open("/api/admin/export/customers", "_blank");
+    showToast("Downloading Customer Details (.xlsx)...");
+  };
+
   // Handle JSON Backup Download
   const handleDownloadJson = () => {
     window.open("/api/admin/export/json", "_blank");
@@ -262,10 +268,18 @@ export default function AdminStorageManager() {
 
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <button
+              onClick={handleDownloadCustomersExcel}
+              className="px-4 py-2.5 bg-[#064E3B] text-[#FAF8F1] rounded-xl text-xs font-bold hover:bg-[#0B3D2E] shadow-sm flex items-center gap-1.5 border border-[#C9A227]/40"
+              title="Export Customer Profiles, Addresses, and Purchase History without Products"
+            >
+              <span>👤 Export Customers (.xlsx)</span>
+            </button>
+            <button
               onClick={handleDownloadExcel}
               className="px-4 py-2.5 bg-gradient-to-r from-[#C9A227] to-[#DFC15E] text-[#041D16] rounded-xl text-xs font-bold hover:brightness-110 shadow-md flex items-center gap-2 uppercase tracking-wider"
+              title="Download Complete Full Database Backup (All Tables)"
             >
-              <span>📥 Download Excel Backup</span>
+              <span>📥 Full System Backup (.xlsx)</span>
             </button>
             <button
               onClick={handleDownloadJson}

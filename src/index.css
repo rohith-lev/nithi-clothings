@@ -94,6 +94,51 @@ body {
   box-shadow: 0 0 15px rgba(201, 162, 39, 0.15);
 }
 
+/* Interactive Letter Tracking, Zoom & Color Animation for Menu Bar */
+.nav-letter-tracker {
+  display: inline-flex;
+  align-items: center;
+  user-select: none;
+  cursor: pointer;
+}
+
+.nav-letter-tracker .letter-char {
+  display: inline-block;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease, text-shadow 0.2s ease;
+  will-change: transform, color;
+}
+
+/* Mouse hover over individual letter */
+.nav-letter-tracker .letter-char:hover {
+  transform: scale(1.3) translateY(-2px);
+  color: #C9A227 !important;
+  text-shadow: 0 0 12px rgba(201, 162, 39, 0.55), 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* Mobile & desktop active touch state */
+.nav-letter-tracker:active .letter-char,
+.nav-letter-tracker .letter-char:active {
+  transform: scale(1.18);
+  color: #B89222 !important;
+}
+
+/* Mobile Menu & Drawer Touch Zoom Animation */
+.mobile-touch-zoom {
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease, text-shadow 0.2s ease, background-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.mobile-touch-zoom:hover {
+  color: #C9A227 !important;
+}
+
+.mobile-touch-zoom:active {
+  transform: scale(1.06) translateX(4px);
+  color: #C9A227 !important;
+  text-shadow: 0 0 12px rgba(201, 162, 39, 0.4);
+}
+
 /* Admin Glassmorphism & Modern UI Accents */
 .admin-glass-card {
   background: rgba(255, 255, 255, 0.95);

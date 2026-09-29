@@ -58,6 +58,16 @@ export default function Shop() {
       });
     }
 
+    const subParam = searchParams.get("sub") || searchParams.get("subcategory") || "";
+    if (subParam) {
+      const targetSub = subParam.toLowerCase().trim();
+      list = list.filter((p) => {
+        const pSub = (p.subcategory || "").toLowerCase();
+        const pName = (p.name || "").toLowerCase();
+        return pSub === targetSub || pSub.includes(targetSub) || targetSub.includes(pSub) || pName.includes(targetSub);
+      });
+    }
+
     if (filterParam === "new") list = list.filter((p) => p.newArrival || p.isNew);
     if (filterParam === "bestseller") list = list.filter((p) => p.isBestSeller);
     if (filterParam === "sale") list = list.filter((p) => p.discount >= 10);
@@ -231,7 +241,7 @@ export default function Shop() {
                       : "text-[#171A18] hover:text-[#064E3B] hover:bg-[#F3EFE3]/60"
                   }`}
                 >
-                  ✦ All Collections
+                  ✦ All Products
                 </button>
                 {categories.map((cat) => (
                   <button

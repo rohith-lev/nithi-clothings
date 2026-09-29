@@ -1,17 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useCart } from "../store/cart";
 import { useCustomerAuth } from "../services/customerAuth";
+import { useStoreCategories } from "../services/storefront";
+import type { Category } from "../types/store";
 import BrandLogo from "./BrandLogo";
 import MarqueeTicker from "./MarqueeTicker";
+import InteractiveNavText from "./InteractiveNavText";
 
 export default function Header() {
   const { cartCount, state } = useCart();
   const { customer, isLoggedIn } = useCustomerAuth();
+  const rawCategories = useStoreCategories();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [collectionsOpen, setCollectionsOpen] = useState(false);
+  const [activeDropdownCatId, setActiveDropdownCatId] = useState<string | null>(null);
+  const [mobileExpandedCatIds, setMobileExpandedCatIds] = useState<Record<string, boolean>>({});
   const [isScrolled, setIsScrolled] = useState(false);
   const [cartAnimate, setCartAnimate] = useState(false);
   const navigate = useNavigate();
@@ -24,6 +29,13 @@ export default function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close menus on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setSearchOpen(false);
+    setActiveDropdownCatId(null);
+  }, [location.pathname, location.search]);
 
   // Trigger bounce animation whenever cartCount changes
   useEffect(() => {
@@ -43,24 +55,47 @@ export default function Header() {
     }
   };
 
-  const navLinks = [
-    { label: "Home", to: "/" },
-    { label: "Collections", to: "/shop", hasDropdown: true },
-    { label: "New Arrivals", to: "/shop?filter=new" },
-    { label: "About Us", to: "/about" },
-    { label: "Contact", to: "/contact" },
-  ];
+  // Deduplicate and sanitize categories
+  const categoriesList = useMemo(() => {
+    const seen = new Set<string>();
+    const list: (Category & { cleanSubcategories: { id: string; name: string }[] })[] = [];
 
-  const luxuryCollections = [
-    { name: "Nighties", desc: "Pure Cotton, Smocking & Maternity", to: "/shop?category=nighty" },
-    { name: "Night Dress", desc: "2-Piece Sets & Sleepwear", to: "/shop?category=night-dress" },
-    { name: "Unstitched Salwar", desc: "Pure Cotton & Chanderi Silk Material", to: "/shop?category=unstitched-salwar" },
-    { name: "Coord Sets", desc: "Trendy 2-Piece Western & Ethnic", to: "/shop?category=cord-set" },
-    { name: "Kurtis & Tops", desc: "A-Line, Straight Cut & Anarkali", to: "/shop?category=kurtis" },
-    { name: "Salwar Sets", desc: "Ready to Wear Stitched Suits", to: "/shop?category=salwar-set" },
-    { name: "Maxi Gowns", desc: "Breezy Cotton Flared Daily Wear", to: "/shop?category=maxi" },
-    { name: "All Products", desc: "Complete Luxury Catalogue", to: "/shop" },
-  ];
+    for (const cat of rawCategories) {
+      const key = (cat.slug || cat.id || cat.name || "").toLowerCase().trim();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+
+      const cleanSubs: { id: string; name: string }[] = [];
+      const subSeen = new Set<string>();
+
+      if (Array.isArray(cat.subcategories)) {
+        for (const sub of cat.subcategories) {
+          const subName = typeof sub === "string" ? sub : sub?.name;
+          const subId = typeof sub === "string" ? sub : sub?.id || sub?.name;
+          if (subName && !subSeen.has(subName.toLowerCase().trim())) {
+            subSeen.add(subName.toLowerCase().trim());
+            cleanSubs.push({ id: subId, name: subName.trim() });
+          }
+        }
+      }
+
+      list.push({
+        ...cat,
+        cleanSubcategories: cleanSubs,
+      });
+    }
+
+    return list;
+  }, [rawCategories]);
+
+  const toggleMobileCategory = (catId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setMobileExpandedCatIds((prev) => ({
+      ...prev,
+      [catId]: !prev[catId],
+    }));
+  };
 
   return (
     <>
@@ -100,74 +135,101 @@ export default function Header() {
               <BrandLogo variant="dark" size="md" showTagline={true} />
             </div>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Clean, uncrowded layout */}
             <nav className="hidden lg:flex items-center gap-8 xl:gap-10 font-body text-xs font-semibold tracking-[0.14em] uppercase text-[#171A18]">
-              {navLinks.map((link) => {
-                if (link.hasDropdown) {
-                  return (
-                    <div
-                      key={link.label}
-                      className="relative group py-6"
-                      onMouseEnter={() => setCollectionsOpen(true)}
-                      onMouseLeave={() => setCollectionsOpen(false)}
-                    >
-                      <Link
-                        to={link.to}
-                        className="flex items-center gap-1.5 text-[#171A18] hover:text-[#064E3B] transition-colors relative py-1"
-                      >
-                        <span>{link.label}</span>
-                        <svg
-                          className={`w-3 h-3 text-[#C9A227] transition-transform duration-200 ${
-                            collectionsOpen ? "rotate-180" : ""
-                          }`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
-                        <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
-                      </Link>
+              {/* Home Link */}
+              <Link
+                to="/"
+                className="relative text-[#171A18] hover:text-[#064E3B] transition-colors py-1 group"
+              >
+                <InteractiveNavText text="Home" />
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
+              </Link>
 
-                      {/* Mega Dropdown */}
-                      <div className="absolute top-full -left-8 w-72 bg-[#FFFFFF] border border-[#E8E2D5] shadow-xl rounded-sm p-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                        <div className="p-2 border-b border-[#E8E2D5]/70 mb-1">
-                          <span className="text-[10px] font-bold text-[#C9A227] tracking-[0.2em] uppercase block">
-                            Luxury Ensembles
-                          </span>
-                        </div>
-                        <div className="space-y-0.5">
-                          {luxuryCollections.map((col) => (
-                            <Link
-                              key={col.name}
-                              to={col.to}
-                              className="block p-2.5 rounded-xs hover:bg-[#FAF8F1] transition-colors group/item"
-                            >
-                              <span className="font-display text-sm font-semibold text-[#064E3B] group-hover/item:text-[#C9A227] transition-colors block">
-                                {col.name}
-                              </span>
-                              <span className="text-[10px] text-[#5C635E] font-normal tracking-normal block mt-0.5">
-                                {col.desc}
-                              </span>
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={link.label}
-                    to={link.to}
-                    className="relative text-[#171A18] hover:text-[#064E3B] transition-colors py-1 group"
+              {/* Shop / Categories Dropdown */}
+              <div
+                className="relative group py-6"
+                onMouseEnter={() => setActiveDropdownCatId("all-shop")}
+                onMouseLeave={() => setActiveDropdownCatId(null)}
+              >
+                <Link
+                  to="/shop"
+                  className="flex items-center gap-1.5 text-[#171A18] hover:text-[#064E3B] transition-colors relative py-1"
+                >
+                  <InteractiveNavText text="Shop" />
+                  <svg
+                    className={`w-3 h-3 text-[#C9A227] transition-transform duration-200 ${
+                      activeDropdownCatId === "all-shop" ? "rotate-180" : "group-hover:rotate-180"
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    <span>{link.label}</span>
-                    <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
-                  </Link>
-                );
-              })}
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
+                </Link>
+
+                {/* Categories & Subcategories Dropdown */}
+                <div className="absolute top-full -left-6 w-80 bg-[#FFFFFF] border border-[#E8E2D5] shadow-2xl rounded-2xl p-3.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="p-2 border-b border-[#E8E2D5]/70 mb-1.5 flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-[#C9A227] tracking-[0.2em] uppercase block">
+                      Garment Categories
+                    </span>
+                    <Link
+                      to="/shop"
+                      className="text-[10px] font-semibold text-[#064E3B] hover:underline"
+                    >
+                      View All →
+                    </Link>
+                  </div>
+                  <div className="space-y-1 max-h-96 overflow-y-auto pr-1">
+                    {categoriesList.map((cat) => {
+                      const catSlug = cat.slug || cat.id;
+                      return (
+                        <div key={cat.id || cat.slug} className="group/item">
+                          <Link
+                            to={`/shop?category=${encodeURIComponent(catSlug)}`}
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-[#FAF8F1] transition-colors mobile-touch-zoom"
+                          >
+                            <span className="font-display text-sm font-semibold text-[#064E3B] group-hover/item:text-[#C9A227] transition-colors">
+                              <InteractiveNavText text={cat.name} />
+                            </span>
+                            {cat.cleanSubcategories.length > 0 && (
+                              <span className="text-[10px] text-[#5C635E] font-normal">
+                                {cat.cleanSubcategories.length} styles
+                              </span>
+                            )}
+                          </Link>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Standard Static Links */}
+              <Link
+                to="/shop?filter=new"
+                className="relative text-[#171A18] hover:text-[#064E3B] transition-colors py-1 group whitespace-nowrap"
+              >
+                <InteractiveNavText text="New Arrivals" />
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
+              </Link>
+              <Link
+                to="/about"
+                className="relative text-[#171A18] hover:text-[#064E3B] transition-colors py-1 group whitespace-nowrap"
+              >
+                <InteractiveNavText text="About Us" />
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
+              </Link>
+              <Link
+                to="/contact"
+                className="relative text-[#171A18] hover:text-[#064E3B] transition-colors py-1 group whitespace-nowrap"
+              >
+                <InteractiveNavText text="Contact" />
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
+              </Link>
             </nav>
 
             {/* Action Icons: Search, Wishlist, Account, Cart */}
@@ -309,57 +371,108 @@ export default function Header() {
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="lg:hidden bg-[#FAF8F1] border-t border-[#E8E2D5] px-4 py-4 space-y-4 max-h-[calc(100vh-5rem)] overflow-y-auto shadow-lg animate-fade-in">
-            <nav className="flex flex-col space-y-2.5 font-body text-sm font-semibold tracking-[0.1em] uppercase text-[#171A18]">
+            <nav className="flex flex-col space-y-1.5 font-body text-sm font-semibold tracking-[0.08em] uppercase text-[#171A18]">
+              {/* Home */}
               <Link
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between"
+                className="py-2 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between mobile-touch-zoom"
               >
-                <span>Home</span>
+                <InteractiveNavText text="Home" />
                 <span className="text-[#C9A227] text-xs">→</span>
               </Link>
-              <Link
-                to="/shop"
-                onClick={() => setMobileMenuOpen(false)}
-                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between"
-              >
-                <span>All Collections</span>
-                <span className="text-[#C9A227] text-xs">→</span>
-              </Link>
-              <div className="pl-3 py-1 space-y-2 text-xs normal-case tracking-normal font-normal text-[#5C635E] border-l-2 border-[#C9A227]/40 ml-1">
-                {luxuryCollections.map((col) => (
+
+              {/* Dynamic Database Categories */}
+              {categoriesList.map((cat) => {
+                const catSlug = cat.slug || cat.id;
+                const hasSubs = cat.cleanSubcategories.length > 0;
+                const isExpanded = Boolean(mobileExpandedCatIds[cat.id]);
+
+                if (hasSubs) {
+                  return (
+                    <div key={cat.id || cat.slug} className="border-b border-[#E8E2D5]/50 py-1">
+                      <div className="flex items-center justify-between py-1">
+                        <Link
+                          to={`/shop?category=${encodeURIComponent(catSlug)}`}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex-1 hover:text-[#064E3B] transition-colors mobile-touch-zoom"
+                        >
+                          <InteractiveNavText text={cat.name} />
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={(e) => toggleMobileCategory(cat.id, e)}
+                          className="p-1.5 text-[#C9A227] hover:bg-[#F3EFE3] rounded-sm transition-colors active:scale-125"
+                          aria-label={`Toggle ${cat.name} subcategories`}
+                        >
+                          <svg
+                            className={`w-4 h-4 transition-transform duration-200 ${
+                              isExpanded ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* Subcategories Accordion */}
+                      {isExpanded && (
+                        <div className="pl-3 py-2 space-y-2 text-xs normal-case tracking-normal font-normal text-[#5C635E] border-l-2 border-[#C9A227]/40 ml-1 animate-fade-in">
+                          {cat.cleanSubcategories.map((sub) => (
+                            <Link
+                              key={sub.id || sub.name}
+                              to={`/shop?category=${encodeURIComponent(catSlug)}&sub=${encodeURIComponent(sub.name)}`}
+                              onClick={() => setMobileMenuOpen(false)}
+                              className="block py-1 hover:text-[#064E3B] transition-colors mobile-touch-zoom"
+                            >
+                              ✦ <InteractiveNavText text={sub.name} />
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                return (
                   <Link
-                    key={col.name}
-                    to={col.to}
+                    key={cat.id || cat.slug}
+                    to={`/shop?category=${encodeURIComponent(catSlug)}`}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="block hover:text-[#064E3B] transition-colors"
+                    className="py-2 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between mobile-touch-zoom"
                   >
-                    ✦ {col.name}
+                    <InteractiveNavText text={cat.name} />
+                    <span className="text-[#C9A227] text-xs">→</span>
                   </Link>
-                ))}
-              </div>
+                );
+              })}
+
+              {/* Standard Static Links */}
               <Link
                 to="/shop?filter=new"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between"
+                className="py-2 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between mobile-touch-zoom"
               >
-                <span>New Arrivals</span>
+                <InteractiveNavText text="New Arrivals" />
                 <span className="text-[#C9A227] text-xs">→</span>
               </Link>
               <Link
                 to="/about"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-1.5 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between"
+                className="py-2 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between mobile-touch-zoom"
               >
-                <span>About Us</span>
+                <InteractiveNavText text="About Us" />
                 <span className="text-[#C9A227] text-xs">→</span>
               </Link>
               <Link
                 to="/contact"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-1.5 hover:text-[#C9A227] flex items-center justify-between"
+                className="py-2 hover:text-[#C9A227] flex items-center justify-between mobile-touch-zoom"
               >
-                <span>Contact Us</span>
+                <InteractiveNavText text="Contact Us" />
                 <span className="text-[#C9A227] text-xs">→</span>
               </Link>
             </nav>
