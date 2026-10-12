@@ -20,6 +20,8 @@ export default function AdminInventory() {
 
   // Quick Restock State
   const [restockProduct, setRestockProduct] = useState<Product | null>(null);
+  const [selectedRestockSize, setSelectedRestockSize] = useState<string>("ALL");
+  const [restockAction, setRestockAction] = useState<"ADD" | "SET" | "REMOVE">("ADD");
   const [restockQty, setRestockQty] = useState(25);
   const [restockReason, setRestockReason] = useState("Batch Replenishment - Tiruppur Unit");
 
@@ -45,16 +47,19 @@ export default function AdminInventory() {
     if (!restockProduct) return;
     const res = await adminApi.adjustStock(
       restockProduct.id,
-      "ADD",
+      restockAction,
       restockQty,
       restockReason,
-      "Super Admin"
+      "Super Admin",
+      selectedRestockSize === "ALL" ? undefined : selectedRestockSize
     );
     if (res.success) {
-      setToast(res.message || "Stock added successfully.");
+      setToast(res.message || "Stock updated successfully.");
       setRestockProduct(null);
-      loadData();
+      await loadData();
       setTimeout(() => setToast(null), 3000);
+    } else {
+      alert(`Stock update failed: ${res.error}`);
     }
   };
 
@@ -64,7 +69,7 @@ export default function AdminInventory() {
     if (onlyLow && p.stock > thresh) return false;
     if (search) {
       const q = search.toLowerCase();
-      return p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q);
+      return p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)) || (p.code && p.code.toLowerCase().includes(q));
     }
     return true;
   });
@@ -180,7 +185,30 @@ export default function AdminInventory() {
                         </div>
                       </td>
                       <td className="p-4 font-mono font-bold text-stone-600">{p.sku}</td>
-                      <td className="p-4 font-bold text-stone-900 text-sm">{p.stock} units</td>
+                      <td className="p-4">
+                        <div className="font-bold text-stone-900 text-sm">{p.stock} units</div>
+                        {p.sizeOptions && p.sizeOptions.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {p.sizeOptions.map((so) => {
+                              const soStock = Number(so.stock) || 0;
+                              return (
+                                <span
+                                  key={so.size}
+                                  className={`text-[9px] px-1.5 py-0.5 rounded font-mono font-bold border ${
+                                    soStock <= 0
+                                      ? "bg-rose-50 text-rose-800 border-rose-200"
+                                      : soStock <= 5
+                                      ? "bg-amber-50 text-amber-800 border-amber-200"
+                                      : "bg-stone-50 text-stone-700 border-stone-200"
+                                  }`}
+                                >
+                                  {so.size}: {soStock}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </td>
                       <td className="p-4 text-amber-700 font-semibold">{inv?.reservedStock || 0}</td>
                       <td className="p-4 text-emerald-800 font-bold text-sm">{Math.max(0, p.stock - (inv?.reservedStock || 0))}</td>
                       <td className="p-4">
@@ -212,11 +240,16 @@ export default function AdminInventory() {
                       </td>
                       <td className="p-4 text-right">
                         <button
-                          onClick={() => setRestockProduct(p)}
-                          className="px-3.5 py-2 rounded-xl bg-[#064E3B] hover:bg-[#0B3D2E] text-white font-bold text-xs shadow-xs transition-all inline-flex items-center gap-1.5"
+                          onClick={() => {
+                            setRestockProduct(p);
+                            setSelectedRestockSize(p.sizeOptions && p.sizeOptions.length > 0 ? p.sizeOptions[0].size : "ALL");
+                            setRestockAction("ADD");
+                            setRestockQty(10);
+                          }}
+                          className="px-3.5 py-2 rounded-xl bg-[#064E3B] hover:bg-[#0B3D2E] text-white font-bold text-xs shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
                         >
                           <PlusIcon size={14} />
-                          <span>Restock</span>
+                          <span>Update Stock</span>
                         </button>
                       </td>
                     </tr>
@@ -228,14 +261,14 @@ export default function AdminInventory() {
         </div>
       </div>
 
-      {/* Quick Restock Modal */}
+      {/* Quick Restock / Stock Adjustment Modal */}
       {restockProduct && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-md w-full p-6 sm:p-7 text-stone-800 text-xs space-y-4 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <div>
                 <h3 className="font-display font-bold text-lg text-stone-900">
-                  Warehouse Inward Stock
+                  Update Garment Inventory
                 </h3>
                 <p className="text-stone-500 text-xs mt-0.5">
                   {restockProduct.name} ({restockProduct.sku})
@@ -249,45 +282,85 @@ export default function AdminInventory() {
               </button>
             </div>
 
-            <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-center justify-between">
-              <span className="text-emerald-900 font-semibold">Current Available:</span>
-              <span className="text-emerald-900 font-bold text-base">{restockProduct.stock} units</span>
+            {/* Current Size-Wise Breakdown */}
+            <div className="p-3.5 bg-stone-50 rounded-2xl border border-stone-200 space-y-2">
+              <div className="flex items-center justify-between font-bold text-stone-900">
+                <span>Total Available Stock:</span>
+                <span className="text-[#064E3B] text-base">{restockProduct.stock} units</span>
+              </div>
+              {restockProduct.sizeOptions && restockProduct.sizeOptions.length > 0 && (
+                <div className="pt-2 border-t border-stone-200/60 flex flex-wrap gap-1.5">
+                  {restockProduct.sizeOptions.map((so) => (
+                    <span
+                      key={so.size}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
+                        so.stock <= 0 ? "bg-rose-50 border-rose-200 text-rose-800" : "bg-white border-stone-200 text-stone-700"
+                      }`}
+                    >
+                      {so.size}: {so.stock}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Quick Stepper Presets */}
+            {/* Choose Size Option */}
+            {restockProduct.sizeOptions && restockProduct.sizeOptions.length > 0 && (
+              <div>
+                <label className="block font-bold text-stone-700 mb-1.5">Select Size / Variant to Update</label>
+                <select
+                  value={selectedRestockSize}
+                  onChange={(e) => setSelectedRestockSize(e.target.value)}
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl font-bold text-stone-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                >
+                  <option value="ALL">All Sizes (Distribute Proportional / Overall)</option>
+                  {restockProduct.sizeOptions.map((so) => (
+                    <option key={so.size} value={so.size}>
+                      Size {so.size} (Current Available: {so.stock} units)
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Choose Action */}
             <div>
-              <label className="block font-bold text-stone-700 mb-1.5">Preset Batches</label>
+              <label className="block font-bold text-stone-700 mb-1.5">Stock Operation</label>
               <div className="flex gap-2">
-                {[10, 25, 50, 100].map((qty) => (
+                {[
+                  { id: "ADD", label: "+ Add Stock" },
+                  { id: "SET", label: "= Set Exact Stock" },
+                  { id: "REMOVE", label: "- Deduct Stock" },
+                ].map((act) => (
                   <button
-                    key={qty}
+                    key={act.id}
                     type="button"
-                    onClick={() => setRestockQty(qty)}
-                    className={`flex-1 py-1.5 rounded-xl border text-xs font-bold transition-all ${
-                      restockQty === qty
-                        ? "bg-[#041D16] text-[#DFC15E] border-[#041D16]"
+                    onClick={() => setRestockAction(act.id as any)}
+                    className={`flex-1 py-2 rounded-xl border text-xs font-bold transition-all ${
+                      restockAction === act.id
+                        ? "bg-[#041D16] text-[#DFC15E] border-[#041D16] shadow-2xs"
                         : "bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100"
                     }`}
                   >
-                    +{qty}
+                    {act.label}
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <label className="block font-bold text-stone-700 mb-1.5">Custom Quantity to Add</label>
+              <label className="block font-bold text-stone-700 mb-1.5">Quantity</label>
               <input
                 type="number"
                 min={1}
                 value={restockQty}
-                onChange={(e) => setRestockQty(Number(e.target.value))}
+                onChange={(e) => setRestockQty(Math.max(0, Number(e.target.value)))}
                 className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-base font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
               />
             </div>
 
             <div>
-              <label className="block font-bold text-stone-700 mb-1.5">Source / Inward Batch Note</label>
+              <label className="block font-bold text-stone-700 mb-1.5">Adjustment Reason / Note</label>
               <input
                 type="text"
                 value={restockReason}
@@ -298,16 +371,18 @@ export default function AdminInventory() {
 
             <div className="flex justify-end gap-3 pt-3 border-t border-stone-100">
               <button
+                type="button"
                 onClick={() => setRestockProduct(null)}
                 className="px-4 py-2.5 border border-stone-300 rounded-xl text-stone-700 font-semibold hover:bg-stone-50"
               >
                 Cancel
               </button>
               <button
+                type="button"
                 onClick={handleRestock}
                 className="px-5 py-2.5 bg-[#064E3B] hover:bg-[#0B3D2E] text-white rounded-xl font-bold shadow-sm"
               >
-                Confirm Inward +{restockQty} Units
+                {restockAction === "ADD" ? `Add +${restockQty} Units` : restockAction === "SET" ? `Set to ${restockQty} Units` : `Deduct -${restockQty} Units`}
               </button>
             </div>
           </div>

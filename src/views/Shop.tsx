@@ -1,28 +1,209 @@
-import { useState, useMemo } from "react";
-import { useSearchParams, Link } from "react-router";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useParams, useSearchParams, useNavigate, Link } from "react-router";
 import type { Category } from "../types/store";
 import { useStoreProducts, useStoreCategories } from "../services/storefront";
 import ProductCard from "../components/ProductCard";
 import MobileFilterDrawer from "../components/MobileFilterDrawer";
 import RecentlyViewedSection from "../components/RecentlyViewedSection";
+import CircularCategoryBrowser from "../components/CircularCategoryBrowser";
+import SEO from "../components/SEO";
 import { useRecentlyViewed } from "../utils/recentlyViewed";
 import { ProductGridSkeleton } from "../components/SkeletonLoaders";
 
 type SortOption = "featured" | "newest" | "price-asc" | "price-desc" | "rating" | "discount";
 
 export default function Shop() {
+  const { slug, sub: routeSub } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const navigate = useNavigate();
   const categories = useStoreCategories();
   const allProducts = useStoreProducts();
   const recentProducts = useRecentlyViewed(allProducts);
 
-  const categoryParam = searchParams.get("category") || "";
+  const categoryParam = slug || searchParams.get("category") || "";
+  const subParam = routeSub || searchParams.get("sub") || searchParams.get("subcategory") || "";
   const filterParam = searchParams.get("filter") || "";
   const searchQuery = searchParams.get("q") || "";
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [sort, setSort] = useState<SortOption>("featured");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const productGridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (subParam && productGridRef.current) {
+      productGridRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [subParam]);
+
+  const isCategoryMatch = (cat: Category, target: string): boolean => {
+    if (!cat || !target) return false;
+    const targetNorm = target.toLowerCase().trim();
+    const targetClean = targetNorm.replace(/[^a-z0-9]/g, "");
+
+    const cId = (cat.id || "").toLowerCase().trim();
+    const cSlug = (cat.slug || "").toLowerCase().trim();
+    const cName = (cat.name || "").toLowerCase().trim();
+    const cClean = cName.replace(/[^a-z0-9]/g, "");
+    const cIdClean = cId.replace(/[^a-z0-9]/g, "");
+    const cSlugClean = cSlug.replace(/[^a-z0-9]/g, "");
+
+    if (
+      cId === targetNorm ||
+      cSlug === targetNorm ||
+      cName === targetNorm ||
+      cName.replace(/[^a-z0-9]+/g, "-") === targetNorm ||
+      cClean === targetClean ||
+      cIdClean === targetClean ||
+      cSlugClean === targetClean
+    ) {
+      return true;
+    }
+
+    if (
+      targetClean.startsWith("night") &&
+      !targetClean.includes("dress") &&
+      cClean.startsWith("night") &&
+      !cClean.includes("dress")
+    ) {
+      return true;
+    }
+
+    if (
+      (targetClean.includes("nightdress") || targetClean === "nightdress") &&
+      (cClean.includes("nightdress") || cClean === "nightdress")
+    ) {
+      return true;
+    }
+
+    if (targetClean.includes("kurti") && cClean.includes("kurti")) {
+      return true;
+    }
+
+    if (
+      (targetClean.includes("salwar") || targetClean.includes("chudi")) &&
+      (cClean.includes("salwar") || cClean.includes("chudi"))
+    ) {
+      if (
+        targetClean.includes("unstitched") ||
+        targetClean.includes("material") ||
+        targetClean.includes("chudi")
+      ) {
+        return cClean.includes("unstitched") || cClean.includes("material");
+      }
+      if (targetClean.includes("set")) {
+        return cClean.includes("set");
+      }
+    }
+
+    if (
+      (targetClean.includes("cord") || targetClean.includes("coord")) &&
+      (cClean.includes("cord") || cClean.includes("coord"))
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const matchesSubcategory = (productSubcategory: string | undefined, targetSub: string, product?: any): boolean => {
+    if (!targetSub) return true;
+    const targetNorm = targetSub.toLowerCase().trim();
+    const targetClean = targetNorm.replace(/[^a-z0-9]/g, "");
+    const targetSlug = targetNorm.replace(/[^a-z0-9]+/g, "-");
+
+    if (!productSubcategory || typeof productSubcategory !== "string") {
+      if (product) {
+        const pNameClean = (product.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        const pDescClean = (product.description || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+        if (pNameClean.includes(targetClean) || pDescClean.includes(targetClean)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    const pSub = productSubcategory.toLowerCase().trim();
+    const pSubClean = pSub.replace(/[^a-z0-9]/g, "");
+    const pSubSlug = pSub.replace(/[^a-z0-9]+/g, "-");
+
+    // Negative constraints to prevent false-positive overlap between distinct models
+    if (targetClean.includes("zipless") && !pSubClean.includes("zipless")) {
+      return false;
+    }
+    if (!targetClean.includes("zipless") && targetClean.includes("zip") && pSubClean.includes("zipless")) {
+      return false;
+    }
+    if (targetClean.includes("nonfeeding") && !pSubClean.includes("nonfeeding")) {
+      return false;
+    }
+    if (!targetClean.includes("nonfeeding") && targetClean.includes("feeding") && pSubClean.includes("nonfeeding")) {
+      return false;
+    }
+
+    // 1. Direct, Slug, or Clean match of entire subcategory string
+    if (
+      pSub === targetNorm ||
+      pSubClean === targetClean ||
+      pSubSlug === targetSlug
+    ) {
+      return true;
+    }
+
+    // 2. Parse parentGroup and item (e.g. "Normal Nighty (55 inches) - Zip nighty")
+    let pGroup = "";
+    let pItem = pSub;
+    if (pSub.includes(" - ")) {
+      const parts = pSub.split(" - ");
+      pGroup = parts[0].trim();
+      pItem = parts.slice(1).join(" - ").trim();
+    }
+
+    const pGroupClean = pGroup.replace(/[^a-z0-9]/g, "");
+    const pGroupSlug = pGroup.replace(/[^a-z0-9]+/g, "-");
+    const pItemClean = pItem.replace(/[^a-z0-9]/g, "");
+    const pItemSlug = pItem.replace(/[^a-z0-9]+/g, "-");
+
+    if (
+      (pGroup && (pGroup === targetNorm || pGroupClean === targetClean || pGroupSlug === targetSlug)) ||
+      (pItem && (pItem === targetNorm || pItemClean === targetClean || pItemSlug === targetSlug))
+    ) {
+      return true;
+    }
+
+    // 3. Clean string inclusion
+    if (
+      pSubClean === targetClean ||
+      pItemClean === targetClean ||
+      pGroupClean === targetClean ||
+      pSubClean.includes(targetClean) ||
+      pItemClean.includes(targetClean) ||
+      (pGroupClean && pGroupClean.includes(targetClean))
+    ) {
+      return true;
+    }
+
+    // 4. Token match
+    const keywords = targetNorm
+      .replace(/[()\-]/g, " ")
+      .split(/\s+/)
+      .filter((w) => w.length >= 3 && !["model", "wear", "inch", "inches"].includes(w));
+    if (
+      keywords.length > 0 &&
+      keywords.every((kw) => pSub.includes(kw) || (product?.name && product.name.toLowerCase().includes(kw)))
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const activeCatObj = useMemo(() => {
+    if (!categoryParam) return null;
+    return categories.find((c) => isCategoryMatch(c, categoryParam)) || null;
+  }, [categories, categoryParam]);
+
+  const categoryDisplayName = activeCatObj ? activeCatObj.name : categoryParam;
 
   const filtered = useMemo(() => {
     let list = allProducts.filter((p) => p.status === "ACTIVE" || (!p.status && p.stock > 0));
@@ -41,31 +222,72 @@ export default function Shop() {
     }
 
     if (categoryParam) {
-      const activeCatObj = categories.find((c) => c.id === categoryParam || c.slug === categoryParam);
-      const targetName = (activeCatObj ? activeCatObj.name : categoryParam).toLowerCase();
-      const targetSlug = (activeCatObj ? activeCatObj.slug : categoryParam).toLowerCase();
+      const targetClean = (activeCatObj?.name || categoryParam).toLowerCase().replace(/[^a-z0-9]/g, "");
+      const targetSlugClean = (activeCatObj?.slug || categoryParam).toLowerCase().replace(/[^a-z0-9]/g, "");
+      const targetNorm = categoryParam.toLowerCase().trim();
 
       list = list.filter((p) => {
-        const pCat = (p.category || "").toLowerCase();
-        const pSub = (p.subcategory || "").toLowerCase();
-        return (
-          pCat === targetName ||
-          pCat === targetSlug ||
-          pCat.replace(/\s+/g, "-") === targetSlug ||
-          pSub === targetName ||
-          pSub.includes(targetName)
-        );
+        if (!p.category) return false;
+        const pCat = p.category.toLowerCase().trim();
+        const pCatClean = pCat.replace(/[^a-z0-9]/g, "");
+        const pCatSlug = pCat.replace(/[^a-z0-9]+/g, "-");
+
+        if (
+          pCat === targetNorm ||
+          pCatClean === targetClean ||
+          pCatClean === targetSlugClean ||
+          pCatSlug === targetSlugClean ||
+          (activeCatObj && (pCat === activeCatObj.name.toLowerCase() || pCat === activeCatObj.slug.toLowerCase()))
+        ) {
+          return true;
+        }
+
+        if (
+          targetClean.startsWith("night") &&
+          !targetClean.includes("dress") &&
+          pCatClean.startsWith("night") &&
+          !pCatClean.includes("dress")
+        ) {
+          return true;
+        }
+
+        if (targetClean.includes("nightdress") && pCatClean.includes("nightdress")) {
+          return true;
+        }
+
+        if (targetClean.includes("kurti") && pCatClean.includes("kurti")) {
+          return true;
+        }
+
+        if (
+          (targetClean.includes("salwar") || targetClean.includes("chudi")) &&
+          (pCatClean.includes("salwar") || pCatClean.includes("chudi"))
+        ) {
+          if (
+            targetClean.includes("unstitched") ||
+            targetClean.includes("material") ||
+            targetClean.includes("chudi")
+          ) {
+            return pCatClean.includes("unstitched") || pCatClean.includes("material");
+          }
+          if (targetClean.includes("set")) {
+            return pCatClean.includes("set");
+          }
+        }
+
+        if (
+          (targetClean.includes("cord") || targetClean.includes("coord")) &&
+          (pCatClean.includes("cord") || pCatClean.includes("coord"))
+        ) {
+          return true;
+        }
+
+        return false;
       });
     }
 
-    const subParam = searchParams.get("sub") || searchParams.get("subcategory") || "";
     if (subParam) {
-      const targetSub = subParam.toLowerCase().trim();
-      list = list.filter((p) => {
-        const pSub = (p.subcategory || "").toLowerCase();
-        const pName = (p.name || "").toLowerCase();
-        return pSub === targetSub || pSub.includes(targetSub) || targetSub.includes(pSub) || pName.includes(targetSub);
-      });
+      list = list.filter((p) => matchesSubcategory(p.subcategory, subParam, p));
     }
 
     if (filterParam === "new") list = list.filter((p) => p.newArrival || p.isNew);
@@ -97,12 +319,14 @@ export default function Shop() {
     }
 
     return list;
-  }, [allProducts, categoryParam, filterParam, searchQuery, sort, priceRange, selectedSizes]);
+  }, [allProducts, activeCatObj, categoryParam, subParam, filterParam, searchQuery, sort, priceRange, selectedSizes]);
 
   const pageTitle = searchQuery
     ? `Search: "${searchQuery}"`
     : categoryParam
-    ? categories.find((c) => c.id === categoryParam)?.name || "Products"
+    ? subParam
+      ? `${subParam}`
+      : categoryDisplayName
     : filterParam === "new"
     ? "New Arrivals"
     : filterParam === "bestseller"
@@ -119,6 +343,7 @@ export default function Shop() {
     );
 
   const clearAllFilters = () => {
+    navigate("/shop");
     setSearchParams({});
     setPriceRange([0, 5000]);
     setSelectedSizes([]);
@@ -126,17 +351,49 @@ export default function Shop() {
   };
 
   const hasActiveFilters = Boolean(
-    categoryParam || filterParam || searchQuery || selectedSizes.length > 0 || priceRange[1] < 5000
+    categoryParam || subParam || filterParam || searchQuery || selectedSizes.length > 0 || priceRange[1] < 5000
   );
+
+  const shopSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${pageTitle} | Nithi Clothings`,
+    description: `Browse our exclusive collection of ${pageTitle.toLowerCase()} crafted with 100% breathable pure cotton and premium designs at Nithi Clothings.`,
+    url: typeof window !== "undefined" ? window.location.href : "https://nithiclothings.com/shop",
+  };
 
   return (
     <div className="bg-[#FAF8F1] min-h-screen font-body">
+      <SEO
+        title={`${pageTitle} - Pure Cotton Nighties & Ethnic Wear`}
+        description={`Explore ${pageTitle} at Nithi Clothings. Handcrafted pure cotton nighties, feeding nighties, and loungewear with all-India shipping & COD.`}
+        canonical={categoryParam ? `/category/${encodeURIComponent(categoryParam)}` : "/shop"}
+        structuredData={shopSchema}
+      />
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8">
         {/* Breadcrumb */}
-        <nav className="text-xs text-[#5C635E] mb-6 flex items-center gap-1.5">
+        <nav className="text-xs text-[#5C635E] mb-6 flex items-center gap-1.5 flex-wrap">
           <Link to="/" className="hover:text-[#064E3B]">Home</Link>
           <span>/</span>
-          <span className="text-[#171A18] font-semibold">{pageTitle}</span>
+          {categoryParam ? (
+            <>
+              <Link to="/shop" className="hover:text-[#064E3B]">Shop</Link>
+              <span>/</span>
+              {subParam ? (
+                <>
+                  <Link to={`/category/${encodeURIComponent(categoryParam)}`} className="hover:text-[#064E3B]">
+                    {categoryDisplayName}
+                  </Link>
+                  <span>/</span>
+                  <span className="text-[#171A18] font-semibold">{subParam}</span>
+                </>
+              ) : (
+                <span className="text-[#171A18] font-semibold">{categoryDisplayName}</span>
+              )}
+            </>
+          ) : (
+            <span className="text-[#171A18] font-semibold">{pageTitle}</span>
+          )}
         </nav>
 
         {/* Page Header */}
@@ -182,19 +439,78 @@ export default function Shop() {
           </div>
         </div>
 
+        {/* Circular Category & Subcategory Interactive Display */}
+        <CircularCategoryBrowser
+          categories={categories}
+          products={allProducts}
+          selectedCategory={categoryParam}
+          selectedSubcategory={subParam}
+          showSubcategories={true}
+          onSelectCategory={(catId) => {
+            if (!catId) {
+              const params = new URLSearchParams(searchParams);
+              params.delete("category");
+              params.delete("sub");
+              params.delete("subcategory");
+              setSearchParams(params);
+              navigate("/shop");
+            } else {
+              navigate(`/category/${encodeURIComponent(catId)}`);
+            }
+          }}
+          onSelectSubcategory={(subName) => {
+            const currentCat = activeCatObj?.slug || activeCatObj?.id || categoryParam;
+            if (currentCat) {
+              if (subName) {
+                navigate(`/category/${encodeURIComponent(currentCat)}/${encodeURIComponent(subName)}`);
+              } else {
+                navigate(`/category/${encodeURIComponent(currentCat)}`);
+              }
+            } else {
+              const params = new URLSearchParams(searchParams);
+              if (subName) {
+                params.set("sub", subName);
+              } else {
+                params.delete("sub");
+                params.delete("subcategory");
+              }
+              setSearchParams(params);
+            }
+          }}
+          title="Select Category"
+          subtitle="Explore all handpicked categories and styles"
+        />
+
         {/* Active Filter Chips */}
         {hasActiveFilters && (
           <div className="flex flex-wrap items-center gap-2 mb-6 text-xs">
             <span className="text-[#5C635E] font-medium">Active Filters:</span>
             {categoryParam && (
               <span className="inline-flex items-center gap-1 rounded-full bg-[#064E3B] px-3.5 py-1 text-[11px] font-bold text-[#FAF8F1] shadow-xs">
-                Category: {categories.find((c) => c.id === categoryParam)?.name || categoryParam}
+                Category: {categoryDisplayName}
+                <button
+                  type="button"
+                  onClick={() => navigate("/shop")}
+                  className="ml-1 hover:text-[#C9A227]"
+                >
+                  ✕
+                </button>
+              </span>
+            )}
+            {subParam && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#064E3B] px-3.5 py-1 text-[11px] font-bold text-[#FAF8F1] shadow-xs">
+                Style: {subParam}
                 <button
                   type="button"
                   onClick={() => {
-                    const params = new URLSearchParams(searchParams);
-                    params.delete("category");
-                    setSearchParams(params);
+                    if (categoryParam) {
+                      navigate(`/category/${encodeURIComponent(categoryParam)}`);
+                    } else {
+                      const params = new URLSearchParams(searchParams);
+                      params.delete("sub");
+                      params.delete("subcategory");
+                      setSearchParams(params);
+                    }
                   }}
                   className="ml-1 hover:text-[#C9A227]"
                 >
@@ -234,7 +550,7 @@ export default function Shop() {
               </h3>
               <div className="space-y-1 text-xs">
                 <button
-                  onClick={() => setSearchParams({})}
+                  onClick={() => navigate("/shop")}
                   className={`block w-full text-left py-2 px-3 rounded-xl transition-colors ${
                     !categoryParam && !filterParam
                       ? "bg-[#064E3B] text-[#FAF8F1] font-semibold"
@@ -243,19 +559,26 @@ export default function Shop() {
                 >
                   ✦ All Products
                 </button>
-                {categories.map((cat) => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSearchParams({ category: cat.id })}
-                    className={`block w-full text-left py-2 px-3 rounded-xl transition-colors ${
-                      categoryParam === cat.id
-                        ? "bg-[#064E3B] text-[#FAF8F1] font-semibold"
-                        : "text-[#171A18] hover:text-[#064E3B] hover:bg-[#F3EFE3]/60"
-                    }`}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
+                {categories.map((cat) => {
+                  const isCatSelected =
+                    Boolean(categoryParam) &&
+                    ((cat.id && cat.id.toLowerCase() === categoryParam.toLowerCase()) ||
+                      (cat.slug && cat.slug.toLowerCase() === categoryParam.toLowerCase()) ||
+                      (cat.name && cat.name.toLowerCase() === categoryParam.toLowerCase()));
+                  return (
+                    <button
+                      key={cat.id || cat.slug || cat.name}
+                      onClick={() => navigate(`/category/${encodeURIComponent(cat.slug || cat.id || cat.name)}`)}
+                      className={`block w-full text-left py-2 px-3 rounded-xl transition-colors ${
+                        isCatSelected
+                          ? "bg-[#064E3B] text-[#FAF8F1] font-semibold"
+                          : "text-[#171A18] hover:text-[#064E3B] hover:bg-[#F3EFE3]/60"
+                      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -304,7 +627,7 @@ export default function Shop() {
           </aside>
 
           {/* Product Grid Area */}
-          <main className="lg:col-span-3">
+          <main ref={productGridRef} id="shop-product-grid" className="lg:col-span-3 scroll-mt-24">
             {allProducts.length === 0 ? (
               <ProductGridSkeleton count={6} />
             ) : filtered.length === 0 ? (
@@ -350,8 +673,29 @@ export default function Shop() {
         onClose={() => setMobileFiltersOpen(false)}
         selectedCategory={categoryParam}
         onSelectCategory={(cat) => {
-          if (cat) setSearchParams({ category: cat });
-          else setSearchParams({});
+          if (cat) {
+            navigate(`/category/${encodeURIComponent(cat)}`);
+          } else {
+            navigate("/shop");
+          }
+        }}
+        selectedSubcategory={subParam}
+        onSelectSubcategory={(sub) => {
+          if (categoryParam) {
+            if (sub) {
+              navigate(`/category/${encodeURIComponent(categoryParam)}/${encodeURIComponent(sub)}`);
+            } else {
+              navigate(`/category/${encodeURIComponent(categoryParam)}`);
+            }
+          } else {
+            const params = new URLSearchParams(searchParams);
+            if (sub) params.set("sub", sub);
+            else {
+              params.delete("sub");
+              params.delete("subcategory");
+            }
+            setSearchParams(params);
+          }
         }}
         selectedSizes={selectedSizes}
         onToggleSize={toggleSize}

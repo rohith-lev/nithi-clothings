@@ -1,27 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Category from "@/lib/models/Category";
-import { getAuthUser } from "@/lib/auth";
+import { requireAdmin, escapeRegex } from "@/lib/auth";
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  getAuthUser(request);
+  const { errorResponse } = requireAdmin(request);
+  if (errorResponse) return errorResponse;
+
   try {
     await connectToDatabase();
     const { id } = await params;
-    const { name, parentGroup } = await request.json();
+    const safeId = escapeRegex(id.trim());
+    const body = await request.json().catch(() => ({}));
+    const { name, parentGroup } = body;
 
-    if (!name) {
+    if (!name || typeof name !== "string" || !name.trim()) {
       return NextResponse.json(
         { success: false, error: "Subcategory name is required" },
         { status: 400 }
       );
     }
 
-    const subId = `sub-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-    const category = await Category.findOne({ $or: [{ id }, { slug: id }] });
+    const cleanName = name.trim().slice(0, 100).replace(/[<>]/g, "");
+    const subId = `sub-${cleanName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+    const category = await Category.findOne({ $or: [{ id: safeId }, { slug: safeId }] });
 
     if (!category) {
       return NextResponse.json(
@@ -31,14 +36,14 @@ export async function POST(
     }
 
     const exists = (category.subcategories || []).some(
-      (s: { name: string }) => s.name.toLowerCase() === name.toLowerCase()
+      (s: { name: string }) => s.name.toLowerCase() === cleanName.toLowerCase()
     );
 
     if (!exists) {
       category.subcategories.push({
         id: subId,
-        name: name.trim(),
-        parentGroup: parentGroup || "",
+        name: cleanName,
+        parentGroup: typeof parentGroup === "string" ? parentGroup.slice(0, 100) : "",
       });
       await category.save();
     }

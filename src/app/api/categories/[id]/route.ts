@@ -1,19 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import Category from "@/lib/models/Category";
-import { getAuthUser } from "@/lib/auth";
+import { requireAdmin, escapeRegex } from "@/lib/auth";
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  getAuthUser(request);
+  const { errorResponse } = requireAdmin(request);
+  if (errorResponse) return errorResponse;
+
   try {
     await connectToDatabase();
     const { id } = await params;
-    const deleted = await Category.findOneAndDelete({
-      $or: [{ id }, { slug: id }],
-    });
+    const rawId = (id || "").trim();
+    if (!rawId) {
+      return NextResponse.json(
+        { success: false, error: "Category ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const safeId = escapeRegex(rawId);
+    const orClauses: any[] = [
+      { id: safeId },
+      { slug: safeId },
+      { id: new RegExp(`^${safeId}$`, "i") },
+      { slug: new RegExp(`^${safeId}$`, "i") },
+      { name: new RegExp(`^${safeId}$`, "i") },
+    ];
+
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      orClauses.push({ _id: rawId });
+    }
+
+    const deleted = await Category.findOneAndDelete({ $or: orClauses });
 
     if (!deleted) {
       return NextResponse.json(

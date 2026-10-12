@@ -5,6 +5,8 @@ export interface CartItemLike {
   quantity: number;
   selectedColor?: string;
   selectedSize?: string;
+  unitPrice?: number;
+  mrp?: number;
 }
 
 export interface PricingCalculationResult {
@@ -58,8 +60,14 @@ export function calculateOrderPricing(
 
   for (const it of items) {
     const qty = it.quantity || 1;
-    const cat = (it.product.category || "").toLowerCase();
-    const effPrice = it.product.finalPrice || (it.product.discount > 0 ? Math.round(it.product.price * (1 - it.product.discount / 100)) : it.product.price);
+    const cat = (it.product?.category || "").toLowerCase();
+    const effPrice = it.unitPrice !== undefined
+      ? it.unitPrice
+      : (it.product?.finalPrice !== undefined && it.product.finalPrice > 0
+          ? it.product.finalPrice
+          : (it.product?.discount && it.product.discount > 0
+              ? Math.round(it.product.price * (1 - it.product.discount / 100))
+              : (it.product?.price || 0)));
     
     cartSubtotal += effPrice * qty;
     totalUnits += qty;

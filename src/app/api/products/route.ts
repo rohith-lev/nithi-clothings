@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Product from "@/lib/models/Product";
+import Category from "@/lib/models/Category";
 import InventoryTransaction from "@/lib/models/InventoryTransaction";
 import AuditLog from "@/lib/models/AuditLog";
-import { getAuthUser } from "@/lib/auth";
+import { requireAdmin, escapeRegex } from "@/lib/auth";
 import fs from "fs";
 import path from "path";
+
+import { products as defaultProducts } from "@/data/products";
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,32 +18,82 @@ export async function GET(request: NextRequest) {
     const subcategory = searchParams.get("subcategory");
     const search = searchParams.get("search");
     const status = searchParams.get("status");
+    const activeOnly = searchParams.get("activeOnly") === "true";
+
+    const totalCount = await Product.countDocuments();
+    if (totalCount === 0 && Array.isArray(defaultProducts) && defaultProducts.length > 0) {
+      try {
+        await Product.insertMany(defaultProducts);
+      } catch (seedErr) {
+        console.warn("Products initial seed error:", seedErr);
+      }
+    }
+
+    // Permanently purge any test/deleted Priya products from database
+    try {
+      await Product.deleteMany({
+        $or: [
+          { name: /priya/i },
+          { category: /priya/i },
+          { code: /priya/i },
+          { sku: /priya/i },
+          { id: /priya/i },
+        ],
+      });
+    } catch {}
 
     const filter: Record<string, unknown> = {};
 
+    if (activeOnly) {
+      filter.status = "ACTIVE";
+    }
+
     if (category && category !== "All") {
-      filter.category = new RegExp(`^${category}$`, "i");
+      const safeCat = escapeRegex(category.trim());
+      if (safeCat) filter.category = new RegExp(`^${safeCat}$`, "i");
     }
 
     if (subcategory && subcategory !== "All") {
-      filter.subcategory = new RegExp(`^${subcategory}$`, "i");
+      const safeSub = escapeRegex(subcategory.trim());
+      if (safeSub) {
+        filter.subcategory = new RegExp(`(^| - )${safeSub}$|^${safeSub}$`, "i");
+      }
     }
 
     if (status && status !== "All") {
-      filter.status = status;
+      filter.status = escapeRegex(status.trim());
     }
 
     if (search) {
-      const searchRegex = new RegExp(search, "i");
-      filter.$or = [
-        { name: searchRegex },
-        { code: searchRegex },
-        { sku: searchRegex },
-        { category: searchRegex },
-      ];
+      const safeSearch = escapeRegex(search.trim());
+      if (safeSearch) {
+        const searchRegex = new RegExp(safeSearch, "i");
+        filter.$or = [
+          { name: searchRegex },
+          { code: searchRegex },
+          { sku: searchRegex },
+          { category: searchRegex },
+        ];
+      }
     }
 
-    const products = await Product.find(filter).sort({ createdAt: -1 }).lean();
+    const rawProducts = await Product.find(filter).sort({ createdAt: -1 }).lean();
+    const FALLBACK_PRODUCT_IMAGE = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format";
+
+    const products = rawProducts.map((p: any) => {
+      const rawList = [p.coverImage, ...(Array.isArray(p.images) ? p.images : [])];
+      const valid = rawList
+        .filter((img): img is string => typeof img === "string" && img.trim().length > 0)
+        .filter((img) => !img.startsWith("blob:") && !img.includes("__LOCAL_") && img !== "null" && img !== "undefined" && img !== "[object Object]");
+      const cleanList = Array.from(new Set(valid));
+      const finalImages = cleanList.length > 0 ? cleanList : [FALLBACK_PRODUCT_IMAGE];
+      return {
+        ...p,
+        coverImage: finalImages[0],
+        images: finalImages,
+      };
+    });
+
     return NextResponse.json({ success: true, data: products });
   } catch (error) {
     return NextResponse.json(
@@ -51,7 +104,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const user = getAuthUser(request);
+  const { user, errorResponse } = requireAdmin(request);
+  if (errorResponse) return errorResponse;
   try {
     await connectToDatabase();
 
@@ -194,11 +248,81 @@ export async function POST(request: NextRequest) {
       productData.images = [productData.coverImage];
     }
 
+    // Clean immutable and internal fields before updating MongoDB
+    delete productData._id;
+    delete productData.__v;
+
+    // Normalize sizeOptions to prevent schema validation failure
+    if (Array.isArray(productData.sizeOptions)) {
+      productData.sizeOptions = productData.sizeOptions
+        .filter((so: any) => so && typeof so === "object" && typeof so.size === "string" && so.size.trim().length > 0)
+        .map((so: any) => ({
+          size: String(so.size).trim(),
+          price: Number(so.price) || Number(productData.price) || 0,
+          mrp: Number(so.mrp) || Number(productData.mrp) || 0,
+          stock: Math.max(0, Number(so.stock) || 0),
+          sku: so.sku ? String(so.sku).trim() : `${productData.sku || "NC"}-${String(so.size).trim()}`,
+        }));
+      productData.sizes = productData.sizeOptions.map((s: any) => s.size);
+    }
+
     const savedProduct = await Product.findOneAndUpdate(
       { id: productData.id },
       { $set: productData },
-      { upsert: true, new: true, runValidators: true }
+      { upsert: true, returnDocument: "after", runValidators: true }
     );
+
+    // Auto-sync category and subcategory to Category collection
+    try {
+      if (savedProduct.category && typeof savedProduct.category === "string" && savedProduct.category.trim()) {
+        const catName = savedProduct.category.trim();
+        const catSlug = catName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        const catId = `cat-${catSlug}`;
+
+        let categoryDoc = await Category.findOne({
+          $or: [{ name: new RegExp(`^${escapeRegex(catName)}$`, "i") }, { slug: catSlug }, { id: catId }],
+        });
+
+        if (!categoryDoc) {
+          categoryDoc = new Category({
+            id: catId,
+            name: catName,
+            slug: catSlug,
+            image: savedProduct.coverImage || "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format",
+            description: "",
+            subcategories: [],
+            isCustom: true,
+          });
+        }
+
+        if (savedProduct.subcategory && typeof savedProduct.subcategory === "string" && savedProduct.subcategory.trim()) {
+          let subName = savedProduct.subcategory.trim();
+          let parentGroup = "";
+
+          if (subName.includes(" - ")) {
+            const parts = subName.split(" - ");
+            parentGroup = parts[0].trim();
+            subName = parts.slice(1).join(" - ").trim();
+          }
+
+          const existingSub = (categoryDoc.subcategories || []).some(
+            (s: any) => s && s.name && s.name.toLowerCase().trim() === subName.toLowerCase().trim()
+          );
+
+          if (!existingSub) {
+            categoryDoc.subcategories.push({
+              id: `sub-${subName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+              name: subName,
+              parentGroup,
+            });
+          }
+        }
+
+        await categoryDoc.save();
+      }
+    } catch (catSyncErr) {
+      console.error("Non-fatal category auto-sync error:", catSyncErr);
+    }
 
     // Audit log & Inventory transaction recording
     try {
@@ -214,14 +338,14 @@ export async function POST(request: NextRequest) {
             previousStock: oldProduct.stock,
             newStock: savedProduct.stock,
             reason: "Manual admin product update",
-            changedBy: user.name || "Super Admin",
+            changedBy: user?.name || "Super Admin",
           }).save();
         }
 
         await new AuditLog({
           id: `log-${Date.now()}`,
           timestamp: new Date().toISOString(),
-          adminName: user.name || "Super Admin",
+          adminName: user?.name || "Super Admin",
           action: "UPDATE",
           targetType: "PRODUCT",
           targetId: savedProduct.id,
@@ -241,13 +365,13 @@ export async function POST(request: NextRequest) {
           previousStock: 0,
           newStock: savedProduct.stock || 0,
           reason: "Initial catalogue creation",
-          changedBy: user.name || "Super Admin",
+          changedBy: user?.name || "Super Admin",
         }).save();
 
         await new AuditLog({
           id: `log-${Date.now()}`,
           timestamp: new Date().toISOString(),
-          adminName: user.name || "Super Admin",
+          adminName: user?.name || "Super Admin",
           action: "CREATE",
           targetType: "PRODUCT",
           targetId: savedProduct.id,

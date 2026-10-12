@@ -1,85 +1,15 @@
-import { type Category, type SubCategory, CATEGORY_HIERARCHY } from "../data/products";
-export type { Category, SubCategory };
+import {
+  type Category,
+  type SubCategory,
+  type Product,
+  type ProductVariant,
+  type SizeOption,
+  type ColorOption,
+  CATEGORY_HIERARCHY,
+} from "../data/products";
+
+export type { Category, SubCategory, Product, ProductVariant, SizeOption, ColorOption };
 export { CATEGORY_HIERARCHY };
-
-export interface SizeOption {
-  size: string;
-  price: number;
-  mrp?: number;
-  stock: number;
-  sku?: string;
-}
-
-export interface ColorOption {
-  name: string;
-  hex?: string;
-  image: string;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  code: string;
-  sku: string;
-  category: string;
-  subcategory?: string;
-  brand: string;
-  price: number;
-  mrp: number;
-  discount: number;
-  finalPrice?: number;
-  discountType: "percentage" | "fixed";
-  discountValue: number;
-  images: string[];
-  coverImage?: string;
-  color?: string;
-  colors: string[];
-  colorOptions?: ColorOption[];
-  sizes: string[];
-  sizeOptions?: SizeOption[];
-  colorImages?: Record<string, string>;
-  variants?: ProductVariant[];
-  fabric: string;
-  material?: string;
-  length?: string;
-  pattern?: string;
-  sleeveType?: string;
-  neckType?: string;
-  description: string;
-  shortDescription?: string;
-  care: string;
-  sizeChart?: string;
-  specialFeatures?: string;
-  inStock: boolean;
-  stock: number;
-  status: "ACTIVE" | "DRAFT" | "OUT OF STOCK" | "DISCONTINUED";
-  rating: number;
-  reviews: number;
-  isNew?: boolean;
-  newArrival?: boolean;
-  isBestSeller?: boolean;
-  seo: {
-    title: string;
-    metaDescription: string;
-    urlSlug: string;
-    focusKeyword: string;
-    socialImage?: string;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ProductVariant {
-  id: string;
-  productId?: string;
-  size: string;
-  color: string;
-  sku: string;
-  price: number;
-  stock: number;
-  image?: string;
-  status: "active" | "inactive";
-}
 
 export interface InventoryRecord {
   productId: string;
@@ -106,6 +36,7 @@ export interface InventoryTransaction {
 export interface ComboOffer {
   id: string;
   name: string;
+  description?: string;
   productIds: string[];
   category?: string;
   requiredQuantity: number;
@@ -113,6 +44,7 @@ export interface ComboOffer {
   discountValue: number;
   comboPrice: number;
   normalTotal: number;
+  image?: string;
   freeShipping: boolean;
   startDate: string;
   endDate: string;
@@ -173,6 +105,9 @@ export interface OrderRecord {
   paymentMethod: "COD" | "Online" | "UPI";
   shippingState: string;
   shippingAddress: string;
+  courierName?: string;
+  trackingId?: string;
+  dispatchDate?: string;
   createdAt: string;
 }
 
@@ -200,4 +135,5 @@ export interface SiteSettings {
   circularBadgeText?: string;
   circularBadgeLink?: string;
   freeShippingThreshold?: number;
+  storeAddress?: string;
 }

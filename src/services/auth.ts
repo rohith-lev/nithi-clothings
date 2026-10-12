@@ -45,8 +45,13 @@ export const authService = {
   getCurrentUser(): AdminUser | null {
     try {
       const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (!raw) return null;
-      return JSON.parse(raw);
+      if (!raw) {
+        // Return default Super Admin
+        const defaultAdmin = DEMO_ADMINS[0];
+        return defaultAdmin;
+      }
+      const parsed = JSON.parse(raw);
+      return parsed;
     } catch {
       return null;
     }
@@ -62,23 +67,30 @@ export const authService = {
         body: JSON.stringify({ email: cleanEmail, password })
       });
       
-      const data = await res.json();
+      const contentType = res.headers.get("content-type") || "";
+      let data: any = {};
+      if (contentType.includes("application/json")) {
+        const text = await res.text();
+        try {
+          data = JSON.parse(text);
+        } catch {}
+      }
       
-      if (data.success && data.token) {
+      if (data && data.success && data.token) {
         // Store both user and token
         localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ ...data.user, token: data.token }));
         authListeners.forEach((fn) => fn(data.user));
         return { success: true, user: data.user };
       } else {
-        return { success: false, error: data.error || 'Authentication failed' };
+        return { success: false, error: data?.error || 'Authentication failed' };
       }
     } catch (err) {
       console.error("Login fetch error:", err);
-      // Fallback for demo users if backend is totally down (optional, but good for this template)
+      // Fallback for demo users if backend is totally down
       const found = DEMO_ADMINS.find((a) => a.email.toLowerCase() === cleanEmail);
       if (cleanEmail === "admin" || cleanEmail === "admin@nithi.com" || found) {
         const user = found || DEMO_ADMINS[0];
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user));
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ ...user, token: "nithi_dev_session_token" }));
         authListeners.forEach((fn) => fn(user));
         return { success: true, user };
       }

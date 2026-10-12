@@ -172,3 +172,38 @@ body {
   }
   .animate-spin-slow, .animate-marquee { animation: none !important; }
 }
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #printable-shipping-slip, #printable-shipping-slip * {
+    visibility: visible;
+  }
+  #printable-shipping-slip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 12px;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    border: 1px solid #333333 !important;
+    display: block !important;
+    z-index: 99999;
+  }
+  .no-print, header, nav, aside, footer {
+    display: none !important;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+}

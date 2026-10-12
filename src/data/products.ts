@@ -65,6 +65,13 @@ export interface Product {
   isNew?: boolean;
   newArrival?: boolean;
   isBestSeller?: boolean;
+  seo?: {
+    title?: string;
+    metaDescription?: string;
+    urlSlug?: string;
+    focusKeyword?: string;
+    socialImage?: string;
+  };
   createdAt?: string;
   updatedAt?: string;
 }
@@ -73,6 +80,7 @@ export interface SubCategory {
   id: string;
   name: string;
   parentGroup?: string;
+  image?: string;
 }
 
 export interface Category {
@@ -80,7 +88,12 @@ export interface Category {
   name: string;
   slug: string;
   image: string;
+  description?: string;
   subcategories?: SubCategory[];
+  isCustom?: boolean;
+  isActive?: boolean;
+  showOnHome?: boolean;
+  priority?: number;
 }
 
 export const CATEGORY_HIERARCHY: Record<string, { groups?: { name: string; items: string[] }[]; items?: string[] }> = {
@@ -192,13 +205,13 @@ export const categories: Category[] = [
     id: "kurtis",
     name: "Kurtis(Tops)",
     slug: "kurtis",
-    image: "https://images.unsplash.com/photo-1614886137799-70a90b8ab7a5?w=600&h=700&fit=crop&auto=format",
+    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&h=700&fit=crop&auto=format",
   },
   {
     id: "salwar-set",
     name: "Salwar set",
     slug: "salwar-set",
-    image: "https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?w=600&h=700&fit=crop&auto=format",
+    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&h=700&fit=crop&auto=format",
   },
   {
     id: "maxi",

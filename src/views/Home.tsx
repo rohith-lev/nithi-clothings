@@ -1,10 +1,14 @@
-import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router";
-import { useStoreProducts } from "../services/storefront";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { Link, useNavigate } from "react-router";
+import { useStoreProducts, useStoreCategories } from "../services/storefront";
 import ProductCard from "../components/ProductCard";
 import CircularOfferBadge from "../components/CircularOfferBadge";
+import CircularCategoryBrowser from "../components/CircularCategoryBrowser";
+import SEO from "../components/SEO";
 
 export default function Home() {
+  const navigate = useNavigate();
+  const categories = useStoreCategories();
   const products = useStoreProducts();
   const activeProducts = products.filter((p) => p.status === "ACTIVE" || (!p.status && p.stock > 0));
 
@@ -41,60 +45,34 @@ export default function Home() {
     };
   }, []);
 
-  // Editorial category collections
-  const luxuryCollections = [
-    {
-      id: "nighty",
-      name: "Nighties",
-      subtitle: "Pure Cotton, Smocking & Maternity",
-      image: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=700&h=900&fit=crop&auto=format",
-      to: "/shop?category=nighty",
-    },
-    {
-      id: "night-dress",
-      name: "Night Dress",
-      subtitle: "2-Piece Sets & Sleepwear",
-      image: "https://images.unsplash.com/photo-1617019114583-affb34d1b3cd?w=700&h=900&fit=crop&auto=format",
-      to: "/shop?category=night-dress",
-    },
-    {
-      id: "unstitched-salwar",
-      name: "Unstitched Salwar",
-      subtitle: "Pure Cotton & Chanderi Silk Material",
-      image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=700&h=900&fit=crop&auto=format",
-      to: "/shop?category=unstitched-salwar",
-    },
-    {
-      id: "cord-set",
-      name: "Coord Sets",
-      subtitle: "Trendy 2-Piece Western & Ethnic",
-      image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=700&h=900&fit=crop&auto=format",
-      to: "/shop?category=cord-set",
-    },
-    {
-      id: "kurtis",
-      name: "Kurtis & Tops",
-      subtitle: "A-Line, Straight Cut & Anarkali",
-      image: "https://images.unsplash.com/photo-1609357605129-26f69add5d6e?w=700&h=900&fit=crop&auto=format",
-      to: "/shop?category=kurtis",
-    },
-    {
-      id: "salwar-set",
-      name: "Salwar Sets",
-      subtitle: "Ready to Wear Stitched Suits",
-      image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=700&h=900&fit=crop&auto=format",
-      to: "/shop?category=salwar-set",
-    },
-    {
-      id: "maxi",
-      name: "Maxi Gowns",
-      subtitle: "Breezy Cotton Flared Daily Wear",
-      image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=700&h=900&fit=crop&auto=format",
-      to: "/shop?category=maxi",
-    },
-  ];
+  // Filter categories enabled for Home Page and sort by priority order
+  const homeCategories = useMemo(() => {
+    return categories
+      .filter((cat) => cat && cat.isActive !== false && cat.showOnHome !== false)
+      .sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
+  }, [categories]);
 
-  // Specific curated product subsets
+  // Total products belonging to currently enabled Home Page categories
+  const homeCategoryProducts = useMemo(() => {
+    if (homeCategories.length === 0) return activeProducts;
+    const activeNames = homeCategories.map((c) => (c.name || "").toLowerCase().trim());
+    const activeSlugs = homeCategories.map((c) => (c.slug || "").toLowerCase().trim());
+    const activeIds = homeCategories.map((c) => (c.id || "").toLowerCase().trim());
+
+    return activeProducts.filter((p) => {
+      if (!p || !p.category) return false;
+      const pCat = p.category.toLowerCase().trim();
+      const pCatSlug = pCat.replace(/[^a-z0-9]+/g, "-");
+      return (
+        activeNames.includes(pCat) ||
+        activeSlugs.includes(pCat) ||
+        activeIds.includes(pCat) ||
+        activeSlugs.includes(pCatSlug)
+      );
+    });
+  }, [activeProducts, homeCategories]);
+
+  // Specific curated product subsets for non-filtered default home view
   const newArrivals = activeProducts.filter((p) => p.newArrival || p.isNew).slice(0, 8);
   const bestsellers = activeProducts.filter((p) => p.isBestSeller).slice(0, 8);
   const trendingProducts = activeProducts.filter((p) => p.discount >= 15 || p.isBestSeller || p.rating >= 4.7).slice(0, 8);
@@ -150,6 +128,11 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="bg-[#FAF8F1] text-[#171A18] font-body relative overflow-x-hidden">
+      <SEO
+        title="Pure Cotton Nighties, Feeding Nighties & Ethnic Loungewear"
+        description="Shop online at Nithi Clothings for 100% pure cotton nighties, nursing zip nighties, and daily ethnic wear. Breathable quality fabrics with all-India cash on delivery."
+        canonical="/"
+      />
       {/* Circular Floating Offer Badge */}
       <CircularOfferBadge />
 
@@ -187,30 +170,29 @@ export default function Home() {
             </h1>
 
             {/* Supporting Copy */}
-            <p className="text-sm sm:text-base text-[#FAF8F1]/85 leading-relaxed font-normal max-w-xl">
-              Immerse yourself in authentic Indian fashion. Handpicked pure cotton nightwear, artisanal
-              salwar sets, and celebratory drapes designed for effortless beauty and everyday comfort.
+            <p className="text-sm sm:text-base text-[#FAF8F1]/90 max-w-lg leading-relaxed font-light">
+              Immerse yourself in authentic pure cotton nighties, nursing maternity wear, and ethnic ensembles handcrafted for timeless comfort.
             </p>
 
-            {/* Call to Actions */}
-            <div className="pt-2 flex flex-wrap items-center gap-4">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link
                 to="/shop"
-                className="group px-8 py-3.5 bg-[#C9A227] hover:bg-[#E2C467] text-[#064E3B] font-bold text-xs uppercase tracking-[0.2em] rounded-xl shadow-lg shadow-black/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl flex items-center gap-2"
+                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-[#C9A227] text-[#171A18] font-bold text-xs uppercase tracking-[0.2em] shadow-lg hover:bg-[#E5BE4B] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
               >
-                <span>Shop Collection</span>
-                <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+                <span>Shop All Collections</span>
+                <span className="ml-2">→</span>
               </Link>
               <Link
-                to="/shop?filter=new"
-                className="px-8 py-3.5 border border-[#FAF8F1]/40 hover:border-[#C9A227] hover:bg-[#FAF8F1]/10 text-[#FAF8F1] font-semibold text-xs uppercase tracking-[0.2em] rounded-xl backdrop-blur-xs transition-all duration-300 hover:scale-[1.02]"
+                to="/category/nighty"
+                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-[#FAF8F1]/10 text-[#FAF8F1] border border-[#FAF8F1]/30 font-semibold text-xs uppercase tracking-[0.2em] backdrop-blur-sm hover:bg-[#FAF8F1] hover:text-[#064E3B] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
               >
-                Explore New Arrivals
+                <span>Nighty Special</span>
               </Link>
             </div>
 
-            {/* Highlights Bar */}
-            <div className="pt-6 grid grid-cols-3 gap-6 border-t border-[#C9A227]/25 max-w-md text-[#FAF8F1]">
+            {/* Trust Badges in Hero */}
+            <div className="pt-8 border-t border-[#FAF8F1]/15 grid grid-cols-3 gap-4 max-w-md">
               <div className="transition-transform duration-300 hover:-translate-y-1">
                 <span className="font-display text-2xl lg:text-3xl font-bold text-[#C9A227]">100%</span>
                 <p className="text-[10px] text-[#FAF8F1]/70 uppercase tracking-wider mt-0.5">Pure Cotton</p>
@@ -245,9 +227,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. CURATED CATEGORIES SECTION */}
-      <section className="py-16 lg:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12 reveal-up">
+      {/* 2. DYNAMIC "SELECT CATEGORY" DISCOVERY SHOWCASE (Navigation Only) */}
+      <section className="py-12 lg:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-8 reveal-up">
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="w-8 h-[1px] bg-[#C9A227]" />
             <span className="text-xs uppercase tracking-[0.28em] text-[#C9A227] font-semibold">
@@ -256,42 +238,28 @@ export default function Home() {
             <span className="w-8 h-[1px] bg-[#C9A227]" />
           </div>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#064E3B] tracking-tight">
-            Explore Collections
+            Select Category
           </h2>
           <p className="text-xs sm:text-sm text-[#5C635E] mt-2.5 leading-relaxed">
-            From breathable nightwear to festive silk sets, discover pieces tailored to elevate your daily grace.
+            Click any collection to explore matching styles, exclusive patterns, and handcrafted designs.
           </p>
         </div>
 
-        {/* Categories Grid with Staggered Scale Reveal */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4 overflow-x-auto pb-2">
-          {luxuryCollections.map((col, idx) => (
-            <Link
-              key={col.id}
-              to={col.to}
-              className={`group relative overflow-hidden rounded-2xl border border-[#E8E2D5] bg-[#FFFFFF] shadow-xs hover:shadow-lg transition-all duration-500 flex flex-col hover:-translate-y-1 reveal-scale reveal-delay-${(idx % 6) + 1}`}
-            >
-              <div className="aspect-[3/4] overflow-hidden bg-[#F3EFE3] relative rounded-2xl">
-                <img
-                  src={col.image}
-                  alt={col.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#064E3B]/90 via-[#064E3B]/25 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-
-                <div className="absolute bottom-0 inset-x-0 p-3 text-center text-[#FAF8F1]">
-                  <h3 className="font-display text-sm sm:text-base font-bold group-hover:text-[#C9A227] transition-colors leading-tight">
-                    {col.name}
-                  </h3>
-                  <p className="text-[9px] text-[#FAF8F1]/80 font-medium tracking-wide mt-0.5 line-clamp-1">
-                    {col.subtitle}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {/* Category Cards - Only Category Discovery, Click to Navigate to Separate Category Page */}
+        <CircularCategoryBrowser
+          categories={homeCategories}
+          products={homeCategoryProducts}
+          showSubcategories={false}
+          onSelectCategory={(targetIdentifier) => {
+            if (!targetIdentifier) {
+              navigate("/shop");
+            } else {
+              navigate(`/category/${encodeURIComponent(targetIdentifier)}`);
+            }
+          }}
+          title="Select Category"
+          subtitle="Explore our handcrafted collections designed for daily luxury"
+        />
       </section>
 
       {/* 3. NEW ARRIVALS SECTION */}
@@ -421,68 +389,28 @@ export default function Home() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="mt-12 text-center reveal-up">
-            <Link
-              to="/shop"
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#FFFFFF] border-2 border-[#064E3B] text-[#064E3B] hover:bg-[#064E3B] hover:text-[#FAF8F1] text-xs font-bold uppercase tracking-[0.2em] rounded-xl shadow-xs transition-all"
+      {/* 6. BRAND VALUE PILLARS */}
+      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          {whyChooseUs.map((pillar, idx) => (
+            <div
+              key={pillar.title}
+              className={`p-6 rounded-2xl bg-[#FFFFFF] border border-[#E8E2D5] shadow-xs hover:border-[#C9A227] hover:shadow-md transition-all duration-300 reveal-up reveal-delay-${idx + 1}`}
             >
-              <span>View Entire Catalogue</span>
-              <span>→</span>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. PROMOTIONAL COMBO BANNER */}
-      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 reveal-scale">
-        <div className="relative overflow-hidden rounded-3xl bg-[#064E3B] text-[#FAF8F1] p-8 sm:p-12 lg:p-16 border border-[#C9A227]/40 shadow-xl">
-          <div className="relative z-10 max-w-xl space-y-4">
-            <span className="inline-block rounded-full bg-[#C9A227] px-4 py-1 text-[10px] font-extrabold uppercase tracking-[0.2em] text-[#171A18]">
-              Limited Time Combo Offer
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold leading-tight">
-              Buy Any 3 Cotton Nighties & Get Free Express Shipping
-            </h2>
-            <p className="text-sm text-[#FAF8F1]/85 leading-relaxed">
-              Mix and match colors and patterns across our pure combed cotton collection. Save instantly with bundled pricing.
-            </p>
-            <div className="pt-2">
-              <Link
-                to="/shop?category=nighty"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#C9A227] px-7 py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-[#064E3B] hover:bg-[#E2C467] transition-all shadow-md"
-              >
-                <span>Shop Nighty Combos</span>
-                <span>→</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 7. WHY CHOOSE NITHI COLLECTION */}
-      <section className="py-16 bg-[#FFFFFF] border-t border-[#E8E2D5]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {whyChooseUs.map((item, idx) => (
-              <div
-                key={idx}
-                className={`flex items-start gap-4 p-5 rounded-2xl bg-[#FAF8F1] border border-[#E8E2D5]/70 shadow-2xs hover:border-[#C9A227]/50 hover:shadow-md transition-all duration-300 reveal-up reveal-delay-${idx + 1}`}
-              >
-                <span className="text-2xl shrink-0 p-3 rounded-full bg-[#FFFFFF] border border-[#E8E2D5] shadow-2xs">
-                  {item.icon}
-                </span>
-                <div>
-                  <h3 className="font-display text-base font-bold text-[#064E3B] mb-1">
-                    {item.title}
-                  </h3>
-                  <p className="text-xs text-[#5C635E] leading-relaxed">
-                    {item.desc}
-                  </p>
-                </div>
+              <div className="w-12 h-12 rounded-xl bg-[#FAF8F1] border border-[#E8E2D5] flex items-center justify-center mb-4">
+                {pillar.icon}
               </div>
-            ))}
-          </div>
+              <h3 className="font-display text-base font-bold text-[#064E3B] mb-2">
+                {pillar.title}
+              </h3>
+              <p className="text-xs text-[#5C635E] leading-relaxed">
+                {pillar.desc}
+              </p>
+            </div>
+          ))}
         </div>
       </section>
     </div>

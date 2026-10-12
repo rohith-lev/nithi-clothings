@@ -5,6 +5,7 @@ const subCategorySchema = new Schema(
     id: { type: String, required: true },
     name: { type: String, required: true },
     parentGroup: { type: String, default: "" },
+    image: { type: String, default: "" },
   },
   { _id: false }
 );
@@ -20,6 +21,9 @@ const categorySchema = new Schema({
   description: { type: String, default: "" },
   subcategories: { type: [subCategorySchema], default: [] },
   isCustom: { type: Boolean, default: true },
+  isActive: { type: Boolean, default: true },
+  showOnHome: { type: Boolean, default: true },
+  priority: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

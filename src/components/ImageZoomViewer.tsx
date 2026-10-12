@@ -15,11 +15,14 @@ export default function ImageZoomViewer({
   onSelectIndex,
   alt,
 }: ImageZoomViewerProps) {
-  const rawImage = images[selectedIndex] || images[0] || FALLBACK_ZOOM_IMG;
-  const currentImage =
-    rawImage && !rawImage.startsWith("blob:") && !rawImage.includes("__LOCAL_")
-      ? rawImage
-      : FALLBACK_ZOOM_IMG;
+  // Sanitize image array to remove any blank/dead URLs
+  const validImages = (images || [])
+    .filter((img): img is string => typeof img === "string" && img.trim().length > 0)
+    .filter((img) => !img.startsWith("blob:") && !img.includes("__LOCAL_") && img !== "null" && img !== "undefined" && img !== "[object Object]");
+
+  const activeGallery = validImages.length > 0 ? validImages : [FALLBACK_ZOOM_IMG];
+  const safeIdx = selectedIndex >= 0 && selectedIndex < activeGallery.length ? selectedIndex : 0;
+  const currentImage = activeGallery[safeIdx] || FALLBACK_ZOOM_IMG;
 
   // Desktop Hover Magnifier State
   const [isHovering, setIsHovering] = useState(false);
@@ -46,14 +49,14 @@ export default function ImageZoomViewer({
   const handleMouseLeave = () => setIsHovering(false);
 
   const nextImage = useCallback(() => {
-    if (images.length <= 1) return;
-    onSelectIndex((selectedIndex + 1) % images.length);
-  }, [images.length, onSelectIndex, selectedIndex]);
+    if (activeGallery.length <= 1) return;
+    onSelectIndex((safeIdx + 1) % activeGallery.length);
+  }, [activeGallery.length, onSelectIndex, safeIdx]);
 
   const prevImage = useCallback(() => {
-    if (images.length <= 1) return;
-    onSelectIndex((selectedIndex - 1 + images.length) % images.length);
-  }, [images.length, onSelectIndex, selectedIndex]);
+    if (activeGallery.length <= 1) return;
+    onSelectIndex((safeIdx - 1 + activeGallery.length) % activeGallery.length);
+  }, [activeGallery.length, onSelectIndex, safeIdx]);
 
   // Handle keyboard navigation in fullscreen
   useEffect(() => {
@@ -129,7 +132,7 @@ export default function ImageZoomViewer({
         </div>
 
         {/* Navigation Arrows overlay on main image */}
-        {images.length > 1 && (
+        {activeGallery.length > 1 && (
           <>
             <button
               type="button"
@@ -158,15 +161,15 @@ export default function ImageZoomViewer({
       </div>
 
       {/* Thumbnails Strip */}
-      {images.length > 1 && (
+      {activeGallery.length > 1 && (
         <div className="flex gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
-          {images.map((img, idx) => (
+          {activeGallery.map((img, idx) => (
             <button
               key={idx}
               type="button"
               onClick={() => onSelectIndex(idx)}
               className={`relative aspect-[3/4] w-16 sm:w-20 shrink-0 overflow-hidden rounded-xl border transition-all shadow-2xs ${
-                selectedIndex === idx
+                safeIdx === idx
                   ? "border-[#064E3B] ring-2 ring-[#C9A227]"
                   : "border-[#E8E2D5] opacity-70 hover:opacity-100"
               }`}
@@ -194,7 +197,7 @@ export default function ImageZoomViewer({
           {/* Top Bar Controls */}
           <div className="flex items-center justify-between text-[#FAF8F1] pb-3">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#C9A227]">
-              Photo {selectedIndex + 1} of {images.length}
+              Photo {safeIdx + 1} of {activeGallery.length}
             </span>
             <div className="flex items-center gap-3">
               <button
@@ -229,7 +232,7 @@ export default function ImageZoomViewer({
               onClick={() => setFullscreenZoomed(!fullscreenZoomed)}
             />
 
-            {images.length > 1 && (
+            {activeGallery.length > 1 && (
               <>
                 <button
                   type="button"
@@ -258,15 +261,15 @@ export default function ImageZoomViewer({
           </div>
 
           {/* Bottom Thumbnails */}
-          {images.length > 1 && (
+          {activeGallery.length > 1 && (
             <div className="flex justify-center gap-2 pt-3 overflow-x-auto">
-              {images.map((img, idx) => (
+              {activeGallery.map((img, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => onSelectIndex(idx)}
                   className={`h-12 w-10 sm:h-16 sm:w-12 rounded-lg overflow-hidden border transition-all ${
-                    selectedIndex === idx
+                    safeIdx === idx
                       ? "border-[#C9A227] ring-2 ring-[#C9A227]"
                       : "border-transparent opacity-50 hover:opacity-100"
                   }`}

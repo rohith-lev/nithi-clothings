@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import StorageSetting from "@/lib/models/StorageSetting";
+import { requireAdmin } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { errorResponse } = requireAdmin(request);
+  if (errorResponse) return errorResponse;
+
   try {
     await connectToDatabase();
     let settings = await StorageSetting.findOne({ id: "storage_config_main" }).lean();
@@ -21,13 +25,16 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const { errorResponse } = requireAdmin(request);
+  if (errorResponse) return errorResponse;
+
   try {
     await connectToDatabase();
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const updated = await StorageSetting.findOneAndUpdate(
       { id: "storage_config_main" },
       { $set: body },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
     );
     return NextResponse.json({
       success: true,

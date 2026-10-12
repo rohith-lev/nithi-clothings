@@ -27,23 +27,15 @@ const AVAILABLE_SIZES = [
   "XXXL",
 ];
 
-const PRESET_COLORS = [
-  { name: "Emerald Green", hex: "#044B36" },
-  { name: "Deep Navy", hex: "#0E2442" },
-  { name: "Ruby Red", hex: "#8E1616" },
-  { name: "Royal Purple", hex: "#4A154B" },
-  { name: "Rose Gold", hex: "#B76E79" },
-  { name: "Mustard Gold", hex: "#C9A227" },
-  { name: "Pastel Pink", hex: "#E8B4B8" },
-  { name: "Classic Black", hex: "#1A1A1A" },
-];
-
 export default function AdminProductsList() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(8);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [copiedSkuId, setCopiedSkuId] = useState<string | null>(null);
@@ -66,7 +58,6 @@ export default function AdminProductsList() {
     discount: number;
     stock: number;
     sizes: string[];
-    color: string;
     status: Product["status"];
     newArrival: boolean;
     isBestSeller: boolean;
@@ -75,7 +66,6 @@ export default function AdminProductsList() {
     discount: 0,
     stock: 0,
     sizes: [],
-    color: "",
     status: "ACTIVE",
     newArrival: false,
     isBestSeller: false,
@@ -96,7 +86,6 @@ export default function AdminProductsList() {
       discount: number;
       stock: number;
       sizes: string[];
-      color: string;
       status: Product["status"];
       newArrival: boolean;
       isBestSeller?: boolean;
@@ -125,22 +114,38 @@ export default function AdminProductsList() {
 
   const loadProducts = async () => {
     setLoading(true);
-    const filters: ProductFilters = {
-      search: searchQuery,
-      category: selectedCategory,
-      stockStatus: stockStatusFilter,
-      status: statusFilter,
-      isDiscounted: onlyDiscounted ? true : undefined,
-      isBestSeller: onlyBestSeller ? true : undefined,
-    };
-    const list = await adminApi.getProducts(filters, sortOption);
-    setProducts(list);
-    setLoading(false);
+    setFetchError(null);
+    try {
+      const filters: ProductFilters = {
+        search: searchQuery,
+        category: selectedCategory,
+        stockStatus: stockStatusFilter,
+        status: statusFilter,
+        isDiscounted: onlyDiscounted ? true : undefined,
+        isBestSeller: onlyBestSeller ? true : undefined,
+      };
+      const list = await adminApi.getProducts(filters, sortOption);
+      setProducts(list);
+    } catch (err: any) {
+      console.error("Error loading products:", err);
+      setFetchError(err.message || "Failed to load products from server.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
+    setPage(1);
     loadProducts();
   }, [searchQuery, selectedCategory, stockStatusFilter, statusFilter, sortOption, onlyDiscounted, onlyBestSeller]);
+
+  // Pagination Computations
+  const totalPages = Math.max(1, Math.ceil(products.length / pageSize));
+  const safePage = Math.min(page, totalPages);
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (safePage - 1) * pageSize;
+    return products.slice(startIndex, startIndex + pageSize);
+  }, [products, safePage, pageSize]);
 
   useEffect(() => {
     adminApi.getCategories().then((cats) => {
@@ -183,8 +188,7 @@ export default function AdminProductsList() {
       price: p.price,
       discount: p.discount || 0,
       stock: p.stock ?? 0,
-      sizes: p.sizes && p.sizes.length > 0 ? [...p.sizes] : ["Free Size"],
-      color: p.color || (p.colors && p.colors[0]) || "Green",
+      sizes: p.sizes && Array.isArray(p.sizes) ? [...p.sizes] : [],
       status: p.status || "ACTIVE",
       newArrival: p.newArrival ?? p.isNew ?? false,
       isBestSeller: p.isBestSeller ?? false,
@@ -213,7 +217,6 @@ export default function AdminProductsList() {
         discount: quickEditProduct.discount || 0,
         stock: quickEditProduct.stock ?? 0,
         sizes: [...(quickEditProduct.sizes || [])],
-        color: quickEditProduct.color || (quickEditProduct.colors && quickEditProduct.colors[0]) || "Green",
         status: quickEditProduct.status || "ACTIVE",
         newArrival: quickEditProduct.newArrival ?? quickEditProduct.isNew ?? false,
         isBestSeller: quickEditProduct.isBestSeller ?? false,
@@ -242,7 +245,6 @@ export default function AdminProductsList() {
         discount: p.discount || 0,
         stock: p.stock ?? 0,
         sizes: [...(p.sizes || [])],
-        color: p.color || (p.colors && p.colors[0]) || "Green",
         status: p.status || "ACTIVE",
         newArrival: p.newArrival ?? p.isNew ?? false,
         isBestSeller: p.isBestSeller ?? false,
@@ -322,7 +324,6 @@ export default function AdminProductsList() {
         discount: p.discount || 0,
         stock: p.stock ?? 0,
         sizes: [...(p.sizes || [])],
-        color: p.color || (p.colors && p.colors[0]) || "Green",
         status: p.status || "ACTIVE",
         newArrival: p.newArrival ?? p.isNew ?? false,
         isBestSeller: p.isBestSeller ?? false,
@@ -748,6 +749,23 @@ export default function AdminProductsList() {
         </div>
       )}
 
+      {/* Fetch Error Banner with Retry */}
+      {fetchError && (
+        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-center justify-between text-xs text-rose-800 shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span>⚠️</span>
+            <span>{fetchError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={loadProducts}
+            className="px-3.5 py-1.5 bg-rose-600 text-white rounded-xl font-bold hover:bg-rose-700 transition-colors shadow-xs"
+          >
+            Retry Loading
+          </button>
+        </div>
+      )}
+
       {/* Main Content Area: Table View vs Gallery Card View */}
       {viewMode === "table" ? (
         <div className="bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden transition-all">
@@ -805,7 +823,7 @@ export default function AdminProductsList() {
                     </td>
                   </tr>
                 ) : (
-                  products.map((p) => {
+                  paginatedProducts.map((p) => {
                     const isSelected = selectedIds.includes(p.id);
                     const isLow = (p.stock || 0) <= 10 && (p.stock || 0) > 0;
                     const isOut = (p.stock || 0) <= 0;
@@ -861,18 +879,6 @@ export default function AdminProductsList() {
                                 {p.name}
                               </Link>
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="inline-flex items-center gap-1.5 rounded-md bg-stone-100/90 border border-stone-200/70 px-1.5 py-0.5 text-[9px] font-medium text-stone-700">
-                                  <span
-                                    className="w-2 h-2 rounded-full inline-block border border-black/10 shrink-0"
-                                    style={{
-                                      backgroundColor:
-                                        PRESET_COLORS.find(
-                                          (c) => c.name.toLowerCase() === (p.color || "").toLowerCase()
-                                        )?.hex || "#666",
-                                      }}
-                                  />
-                                  <span>{p.color || (p.colors && p.colors[0]) || "Standard"}</span>
-                                </span>
                                 {p.isBestSeller && (
                                   <span className="inline-flex items-center gap-1 bg-[#FAF8F1] text-[#8A5F38] font-bold px-1.5 py-0.5 rounded text-[8px] border border-[#C9A227]/40 shadow-2xs">
                                     ⭐ BESTSELLER
@@ -1083,7 +1089,7 @@ export default function AdminProductsList() {
       ) : (
         /* Visual Grid Card View */
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          {products.map((p) => {
+          {paginatedProducts.map((p) => {
             const finalPr = p.finalPrice || (p.discount > 0 ? Math.round(p.price * (1 - p.discount / 100)) : p.price);
             const isLow = (p.stock || 0) <= 10 && (p.stock || 0) > 0;
             const isOut = (p.stock || 0) <= 0;
@@ -1241,6 +1247,37 @@ export default function AdminProductsList() {
         </div>
       )}
 
+      {/* Pagination Controls */}
+      <div className="bg-white p-4 rounded-3xl border border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs text-xs">
+        <div className="text-stone-500 font-medium">
+          Showing <span className="font-bold text-stone-900">{products.length === 0 ? 0 : (safePage - 1) * pageSize + 1}</span> to{" "}
+          <span className="font-bold text-stone-900">{Math.min(safePage * pageSize, products.length)}</span> of{" "}
+          <span className="font-bold text-stone-900">{products.length}</span> items
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={safePage <= 1 || loading}
+            className="px-4 py-2 rounded-xl border border-stone-300 font-bold text-stone-700 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
+          >
+            ← Previous
+          </button>
+          <span className="px-3 py-1.5 rounded-lg bg-stone-100 font-bold font-mono text-stone-800">
+            Page {safePage} of {totalPages}
+          </span>
+          <button
+            type="button"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={safePage >= totalPages || loading}
+            className="px-4 py-2 rounded-xl border border-stone-300 font-bold text-stone-700 hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer shadow-2xs"
+          >
+            Next →
+          </button>
+        </div>
+      </div>
+
       {/* QUICK EDIT MODAL (Price, Discount, Sizes, Color, Stock, Undo Reset) */}
       {quickEditProduct && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
@@ -1307,28 +1344,16 @@ export default function AdminProductsList() {
                 </div>
               </div>
 
-              {/* Color & Stock */}
-              <div className="grid grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block font-bold text-stone-700 mb-1.5">Color / Shade</label>
-                  <input
-                    type="text"
-                    value={quickForm.color}
-                    onChange={(e) => setQuickForm({ ...quickForm, color: e.target.value })}
-                    placeholder="e.g. Emerald Green"
-                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900/10"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-stone-700 mb-1.5">Stock Quantity (Units)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={quickForm.stock}
-                    onChange={(e) => setQuickForm({ ...quickForm, stock: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl font-black text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900/10"
-                  />
-                </div>
+              {/* Stock Quantity */}
+              <div>
+                <label className="block font-bold text-stone-700 mb-1.5">Stock Quantity (Units)</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={quickForm.stock}
+                  onChange={(e) => setQuickForm({ ...quickForm, stock: Number(e.target.value) })}
+                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl font-black text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-stone-900/10"
+                />
               </div>
 
               {/* Available Sizes selection */}
@@ -1393,7 +1418,6 @@ export default function AdminProductsList() {
                       discount: originalQuickSnapshot.discount || 0,
                       stock: originalQuickSnapshot.stock ?? 0,
                       sizes: [...(originalQuickSnapshot.sizes || [])],
-                      color: originalQuickSnapshot.color || "Green",
                       status: originalQuickSnapshot.status || "ACTIVE",
                       newArrival: originalQuickSnapshot.newArrival ?? false,
                       isBestSeller: originalQuickSnapshot.isBestSeller ?? false,

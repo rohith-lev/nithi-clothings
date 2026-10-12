@@ -25,22 +25,61 @@ export default function AdminCategories() {
   const [formCatName, setFormCatName] = useState("");
   const [formCatSlug, setFormCatSlug] = useState("");
   const [formCatImage, setFormCatImage] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [formCatPriority, setFormCatPriority] = useState<number>(1);
+  const [formCatShowOnHome, setFormCatShowOnHome] = useState(true);
+  const [formCatIsActive, setFormCatIsActive] = useState(true);
   const [formSubInput, setFormSubInput] = useState("");
   const [formSubcategories, setFormSubcategories] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const refreshData = async () => {
     const [cats, prods] = await Promise.all([
       adminApi.getCategories(),
       adminApi.getProducts(),
     ]);
-    setCategoriesList(cats);
+    // Sort by priority
+    const sorted = [...cats].sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
+    setCategoriesList(sorted);
     setProducts(prods);
   };
 
   useEffect(() => {
     refreshData();
   }, []);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setToastMessage({ type: "error", text: "Please upload a valid image file (JPEG, PNG, WebP)." });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setToastMessage({ type: "error", text: "Image size should be less than 5MB." });
+      return;
+    }
+
+    setIsUploadingImage(true);
+    try {
+      const res = await adminApi.uploadSingleImage(file);
+      if (res.success && res.url) {
+        setFormCatImage(res.url);
+        setToastMessage({ type: "success", text: "Category image uploaded successfully!" });
+      } else {
+        setToastMessage({ type: "error", text: res.error || "Failed to upload image." });
+      }
+    } catch (err: any) {
+      setToastMessage({ type: "error", text: err.message || "Upload error." });
+    } finally {
+      setIsUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   // Helper to calculate total active garments in a category
   const getCategoryProductCount = (catId: string, catName: string, catSlug: string) => {
@@ -58,7 +97,7 @@ export default function AdminCategories() {
     }).length;
   };
 
-  // Helper to get all subcategory/silhouette names for a category
+  // Helper to get all subcategory names for a category
   const getSubcategories = (cat: Category): string[] => {
     return (cat.subcategories || []).map((s) => s.name);
   };
@@ -68,6 +107,9 @@ export default function AdminCategories() {
     setFormCatName("");
     setFormCatSlug("");
     setFormCatImage("https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format");
+    setFormCatPriority(categoriesList.length + 1);
+    setFormCatShowOnHome(true);
+    setFormCatIsActive(true);
     setFormSubInput("");
     setFormSubcategories([]);
     setIsAddModalOpen(true);
@@ -78,6 +120,9 @@ export default function AdminCategories() {
     setFormCatName(cat.name);
     setFormCatSlug(cat.slug);
     setFormCatImage(cat.image);
+    setFormCatPriority(cat.priority ?? 0);
+    setFormCatShowOnHome(cat.showOnHome !== false);
+    setFormCatIsActive(cat.isActive !== false);
     setFormSubInput("");
     setFormSubcategories(getSubcategories(cat));
     setIsAddModalOpen(true);
@@ -103,6 +148,45 @@ export default function AdminCategories() {
     setFormSubcategories(formSubcategories.filter((s) => s !== subToRemove));
   };
 
+  // Quick toggle for "Show on Home" directly from card
+  const handleToggleShowOnHome = async (cat: Category) => {
+    const updatedStatus = cat.showOnHome === false ? true : false;
+    const res = await adminApi.saveCategory({
+      ...cat,
+      showOnHome: updatedStatus,
+    });
+
+    if (res.success) {
+      setToastMessage({
+        type: "success",
+        text: `"${cat.name}" is now ${updatedStatus ? "VISIBLE" : "HIDDEN"} on the Home Page!`,
+      });
+      await refreshData();
+    } else {
+      setToastMessage({
+        type: "error",
+        text: res.error || "Failed to update category visibility.",
+      });
+    }
+  };
+
+  // Quick toggle for "Active" status
+  const handleToggleIsActive = async (cat: Category) => {
+    const updatedActive = cat.isActive === false ? true : false;
+    const res = await adminApi.saveCategory({
+      ...cat,
+      isActive: updatedActive,
+    });
+
+    if (res.success) {
+      setToastMessage({
+        type: "success",
+        text: `"${cat.name}" status set to ${updatedActive ? "Active" : "Disabled"}.`,
+      });
+      await refreshData();
+    }
+  };
+
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formCatName.trim()) {
@@ -120,6 +204,9 @@ export default function AdminCategories() {
       name: formCatName.trim(),
       slug: formCatSlug.trim() || formCatName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       image: formCatImage.trim() || "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format",
+      priority: Number(formCatPriority) || 0,
+      showOnHome: Boolean(formCatShowOnHome),
+      isActive: Boolean(formCatIsActive),
       subcategories: subObjects,
     };
 
@@ -129,7 +216,7 @@ export default function AdminCategories() {
     if (res.success) {
       setToastMessage({
         type: "success",
-        text: `Category "${catPayload.name}" saved with ${subObjects.length} sub-categories!`,
+        text: `Category "${catPayload.name}" saved successfully (Priority: #${catPayload.priority}, Home: ${catPayload.showOnHome ? "ON" : "OFF"})!`,
       });
       await refreshData();
     } else {
@@ -142,7 +229,8 @@ export default function AdminCategories() {
 
   const handleDeleteCategory = async (cat: Category) => {
     if (confirm(`Are you sure you want to delete the category "${cat.name}"? Products assigned to this category will not be deleted.`)) {
-      await adminApi.deleteCategory(cat.id);
+      const targetId = cat.id || (cat as any)._id || cat.slug;
+      await adminApi.deleteCategory(targetId);
       setToastMessage({ type: "success", text: `Category "${cat.name}" removed from taxonomy.` });
       await refreshData();
     }
@@ -174,6 +262,7 @@ export default function AdminCategories() {
   };
 
   const totalCatalogedProducts = products.length;
+  const homeEnabledCount = categoriesList.filter((c) => c.showOnHome !== false && c.isActive !== false).length;
 
   return (
     <div className="space-y-6 font-body">
@@ -185,11 +274,11 @@ export default function AdminCategories() {
               Taxonomy & Categories
             </h1>
             <span className="px-2.5 py-0.5 rounded-full bg-[#FAF8F1] border border-[#C9A227]/40 text-[#8A5F38] text-xs font-bold font-mono">
-              {categoriesList.length} Collections
+              {categoriesList.length} Total ({homeEnabledCount} on Home)
             </span>
           </div>
           <p className="text-xs text-stone-500 mt-1">
-            Organize ethnic wear classifications, occasion tags, sub-categories, and storefront navigation hierarchies.
+            Manage category priority, Home Page showcase selection, fixed category images, and sub-categories.
           </p>
         </div>
 
@@ -197,33 +286,47 @@ export default function AdminCategories() {
           <button
             type="button"
             onClick={handleOpenAddModal}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#064E3B] to-[#0B3D2E] text-[#FAF8F1] text-xs font-bold hover:brightness-110 transition-all shadow-sm flex items-center gap-1.5"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#064E3B] to-[#0B3D2E] text-[#FAF8F1] text-xs font-bold hover:brightness-110 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
           >
             <PlusIcon size={14} />
-            <span>Add Manual Category</span>
+            <span>Add Category</span>
           </button>
           <Link
             to="/admin/products"
             className="px-3.5 py-2 rounded-xl bg-white border border-stone-200 text-xs font-bold text-stone-700 hover:border-[#064E3B] hover:text-[#064E3B] transition-all shadow-2xs flex items-center gap-1.5"
           >
             <ProductsIcon size={14} />
-            <span>Manage All Products ({totalCatalogedProducts})</span>
+            <span>Manage Products ({totalCatalogedProducts})</span>
           </Link>
           <Link
-            to="/shop"
+            to="/"
             target="_blank"
             className="px-3.5 py-2 rounded-xl bg-stone-100 border border-stone-200 text-stone-700 text-xs font-bold hover:bg-stone-200 transition-all shadow-2xs flex items-center gap-1.5"
           >
-            <span>Live Storefront</span>
+            <span>View Home Page</span>
             <ExternalLinkIcon size={13} />
           </Link>
         </div>
       </div>
 
+      {/* Quick Showcase Status Banner */}
+      <div className="bg-[#FAF8F1] border border-[#C9A227]/40 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="flex items-center gap-2.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#C9A227] animate-ping" />
+          <span className="font-bold text-[#064E3B]">Home Page "Select Category" Showcase:</span>
+          <span className="text-[#5C635E]">
+            Only categories with <span className="font-bold text-emerald-800">"Home: ON"</span> appear in the Home Page Category Selector.
+          </span>
+        </div>
+        <span className="font-semibold text-[#8A5F38] bg-white px-3 py-1 rounded-full border border-[#E8E2D5]">
+          {homeEnabledCount} of {categoriesList.length} Active on Home
+        </span>
+      </div>
+
       {/* Toast Notification */}
       {toastMessage && (
         <div
-          className={`flex items-center justify-between gap-3 rounded-2xl p-4 shadow-sm border ${
+          className={`flex items-center justify-between gap-3 rounded-2xl p-4 shadow-sm border animate-fade-in ${
             toastMessage.type === "success"
               ? "border-emerald-200 bg-emerald-50 text-emerald-800"
               : "border-rose-200 bg-rose-50 text-rose-800"
@@ -236,7 +339,7 @@ export default function AdminCategories() {
           <button
             type="button"
             onClick={() => setToastMessage(null)}
-            className="text-stone-400 hover:text-stone-600 text-xs"
+            className="text-stone-400 hover:text-stone-600 text-xs cursor-pointer"
           >
             ✕
           </button>
@@ -248,12 +351,17 @@ export default function AdminCategories() {
         {categoriesList.map((cat) => {
           const count = getCategoryProductCount(cat.id, cat.name, cat.slug);
           const subList = getSubcategories(cat);
+          const isHomeVisible = cat.showOnHome !== false && cat.isActive !== false;
+          const priorityVal = cat.priority ?? 0;
 
           return (
             <div
               key={cat.id}
-              className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-2xs hover:shadow-md hover:border-[#C9A227]/50 transition-all flex flex-col group"
+              className={`bg-white rounded-3xl border overflow-hidden shadow-2xs hover:shadow-md transition-all flex flex-col group ${
+                isHomeVisible ? "border-[#C9A227]/60 ring-1 ring-[#C9A227]/20" : "border-stone-200 opacity-90"
+              }`}
             >
+              {/* Category Cover Image Header */}
               <div className="relative h-48 bg-stone-100 overflow-hidden">
                 <img
                   src={cat.image}
@@ -263,6 +371,21 @@ export default function AdminCategories() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#041D16]/95 via-[#041D16]/40 to-transparent flex items-end p-5">
                   <div className="w-full flex items-end justify-between">
                     <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="px-2 py-0.5 rounded-full bg-[#C9A227] text-[#041D16] text-[10px] font-bold">
+                          Priority #{priorityVal}
+                        </span>
+                        {isHomeVisible ? (
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[10px] font-bold flex items-center gap-1">
+                            <span>✓</span>
+                            <span>Home Showcase</span>
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full bg-stone-700/80 text-stone-300 text-[10px] font-medium">
+                            Hidden from Home
+                          </span>
+                        )}
+                      </div>
                       <h3 className="font-display font-bold text-xl text-white tracking-tight">{cat.name}</h3>
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#C9A227]/20 border border-[#C9A227]/40 text-[#DFC15E] text-[11px] font-bold mt-1">
                         <SparklesIcon size={11} />
@@ -273,8 +396,8 @@ export default function AdminCategories() {
                       <button
                         type="button"
                         onClick={() => handleOpenEditModal(cat)}
-                        className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/40 text-white text-xs font-semibold backdrop-blur-xs transition"
-                        title="Edit category & subcategories"
+                        className="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/40 text-white text-xs font-semibold backdrop-blur-xs transition cursor-pointer"
+                        title="Edit category, image, priority & subcategories"
                       >
                         Edit
                       </button>
@@ -291,11 +414,35 @@ export default function AdminCategories() {
                 </div>
               </div>
 
+              {/* Card Controls & Subcategories */}
               <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
+                {/* Home Showcase Toggle Action */}
+                <div className="flex items-center justify-between pb-3 border-b border-stone-100 bg-stone-50 p-2.5 rounded-2xl">
+                  <div>
+                    <span className="block text-xs font-bold text-stone-800">Home Showcase</span>
+                    <span className="text-[10px] text-stone-500">
+                      {isHomeVisible ? "Visible on Home Category Browser" : "Hidden from Home Page"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleToggleShowOnHome(cat)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      isHomeVisible ? "bg-[#064E3B]" : "bg-stone-300"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        isHomeVisible ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-bold text-stone-400 uppercase tracking-wider text-[10px]">
-                      Subcategories & Silhouettes
+                      Subcategories ({subList.length})
                     </span>
                     <button
                       type="button"
@@ -303,7 +450,7 @@ export default function AdminCategories() {
                         setQuickSubModalCat(cat);
                         setQuickSubName("");
                       }}
-                      className="text-[11px] font-bold text-[#8A5F38] hover:text-[#064E3B] flex items-center gap-1"
+                      className="text-[11px] font-bold text-[#8A5F38] hover:text-[#064E3B] flex items-center gap-1 cursor-pointer"
                     >
                       <PlusIcon size={11} />
                       <span>+ Add Sub-category</span>
@@ -332,15 +479,11 @@ export default function AdminCategories() {
                     <button
                       type="button"
                       onClick={() => handleDeleteCategory(cat)}
-                      className="text-stone-400 hover:text-rose-600 transition text-[11px] font-semibold"
+                      className="text-stone-400 hover:text-rose-600 transition text-[11px] font-semibold cursor-pointer"
                       title="Delete category"
                     >
                       Delete
                     </button>
-                    <span className="text-emerald-700 font-bold flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-                      Live
-                    </span>
                   </div>
                 </div>
               </div>
@@ -351,16 +494,16 @@ export default function AdminCategories() {
 
       {/* Add / Edit Category Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 space-y-5 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <h2 className="font-display text-lg font-bold text-stone-900">
-                {editingCategory ? "Edit Category & Subcategories" : "Add Manual Category"}
+                {editingCategory ? `Edit Category: ${editingCategory.name}` : "Add New Category"}
               </h2>
               <button
                 type="button"
                 onClick={() => setIsAddModalOpen(false)}
-                className="w-8 h-8 rounded-full hover:bg-stone-100 text-stone-400 hover:text-stone-700 flex items-center justify-center font-bold"
+                className="w-8 h-8 rounded-full hover:bg-stone-100 text-stone-400 hover:text-stone-700 flex items-center justify-center font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -376,7 +519,7 @@ export default function AdminCategories() {
                   required
                   value={formCatName}
                   onChange={(e) => handleNameChange(e.target.value)}
-                  placeholder="e.g. Silk Sarees, Designer Kurtis, Bridal Wear"
+                  placeholder="e.g. 90s, Nighties, Silk Sarees"
                   className="mt-1 w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-semibold focus:border-[#C9A227] focus:outline-none"
                 />
               </div>
@@ -390,22 +533,125 @@ export default function AdminCategories() {
                     type="text"
                     value={formCatSlug}
                     onChange={(e) => setFormCatSlug(e.target.value)}
-                    placeholder="silk-sarees"
+                    placeholder="90s"
                     className="mt-1 w-full rounded-xl border border-stone-200 px-3 py-2 font-mono text-xs focus:border-[#C9A227] focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-700">
-                    Cover Image URL
+                    Display Priority / Order #
                   </label>
                   <input
-                    type="text"
-                    value={formCatImage}
-                    onChange={(e) => setFormCatImage(e.target.value)}
-                    placeholder="https://..."
-                    className="mt-1 w-full rounded-xl border border-stone-200 px-3 py-2 text-xs focus:border-[#C9A227] focus:outline-none"
+                    type="number"
+                    min={1}
+                    max={999}
+                    value={formCatPriority}
+                    onChange={(e) => setFormCatPriority(Number(e.target.value))}
+                    className="mt-1 w-full rounded-xl border border-stone-200 px-3 py-2 text-xs font-bold focus:border-[#C9A227] focus:outline-none"
                   />
                 </div>
+              </div>
+
+              {/* Fixed Primary Category Image Management */}
+              <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-700">
+                    Category Image <span className="text-[#C9A227] font-semibold">(Used in Circular Category Card)</span>
+                  </label>
+                  {formCatImage && (
+                    <button
+                      type="button"
+                      onClick={() => setFormCatImage("")}
+                      className="text-[11px] text-rose-600 hover:underline font-semibold cursor-pointer"
+                    >
+                      Remove Image
+                    </button>
+                  )}
+                </div>
+
+                {/* Live Circular & Square Preview */}
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full overflow-hidden relative border-2 border-[#C9A227] shadow-sm bg-white shrink-0">
+                    {formCatImage ? (
+                      <img
+                        src={formCatImage}
+                        alt="Category circular preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400&h=400&fit=crop";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-stone-100 text-stone-400 text-[10px] font-bold text-center p-1">
+                        <span>No Image</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1 space-y-1.5">
+                    {/* Hidden file input */}
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileUpload}
+                      accept="image/jpeg,image/png,image/webp,image/avif"
+                      className="hidden"
+                    />
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <button
+                        type="button"
+                        disabled={isUploadingImage}
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-3.5 py-1.5 rounded-xl bg-[#064E3B] text-[#FAF8F1] text-xs font-bold hover:bg-[#0B3D2E] transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                      >
+                        {isUploadingImage ? (
+                          <>
+                            <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span>Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <SparklesIcon size={12} />
+                            <span>{formCatImage ? "Replace Image" : "Upload Image"}</span>
+                          </>
+                        )}
+                      </button>
+                      <span className="text-[11px] text-stone-500">Max 5MB (PNG, JPG, WebP)</span>
+                    </div>
+
+                    <input
+                      type="text"
+                      value={formCatImage}
+                      onChange={(e) => setFormCatImage(e.target.value)}
+                      placeholder="Or enter image URL (https://...)"
+                      className="w-full rounded-lg border border-stone-200 px-3 py-1.5 text-xs text-stone-700 focus:border-[#C9A227] focus:outline-none bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Home Page Showcase & Active Switches */}
+              <div className="grid grid-cols-2 gap-3 p-3 bg-stone-50 rounded-2xl border border-stone-200">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formCatShowOnHome}
+                    onChange={(e) => setFormCatShowOnHome(e.target.checked)}
+                    className="w-4 h-4 rounded text-[#064E3B] focus:ring-[#C9A227] accent-[#064E3B]"
+                  />
+                  <span className="text-xs font-bold text-stone-800">Show on Home Page</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formCatIsActive}
+                    onChange={(e) => setFormCatIsActive(e.target.checked)}
+                    className="w-4 h-4 rounded text-[#064E3B] focus:ring-[#C9A227] accent-[#064E3B]"
+                  />
+                  <span className="text-xs font-bold text-stone-800">Active on Store</span>
+                </label>
               </div>
 
               {/* Sub-Categories Builder */}
@@ -424,13 +670,13 @@ export default function AdminCategories() {
                         handleAddSubcategoryTag();
                       }
                     }}
-                    placeholder="Type subcategory (e.g. Zip nighty, Anarkali cut) and press Enter"
+                    placeholder="Type subcategory and press Enter"
                     className="flex-1 rounded-xl border border-stone-200 px-3.5 py-2 text-xs focus:border-[#C9A227] focus:outline-none"
                   />
                   <button
                     type="button"
                     onClick={handleAddSubcategoryTag}
-                    className="px-3.5 py-2 rounded-xl bg-[#064E3B] text-white text-xs font-bold hover:bg-[#0B3D2E] transition shrink-0"
+                    className="px-3.5 py-2 rounded-xl bg-[#064E3B] text-white text-xs font-bold hover:bg-[#0B3D2E] transition shrink-0 cursor-pointer"
                   >
                     + Add
                   </button>
@@ -450,7 +696,7 @@ export default function AdminCategories() {
                         <button
                           type="button"
                           onClick={() => handleRemoveSubcategoryTag(sub)}
-                          className="text-stone-400 hover:text-rose-600 font-bold ml-1 text-xs"
+                          className="text-stone-400 hover:text-rose-600 font-bold ml-1 text-xs cursor-pointer"
                         >
                           ✕
                         </button>
@@ -464,13 +710,13 @@ export default function AdminCategories() {
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-50 transition"
+                  className="px-4 py-2 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-50 transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#C9A227] to-[#DFC15E] text-[#041D16] text-xs font-bold shadow-md hover:brightness-105 transition uppercase tracking-wider"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#C9A227] to-[#DFC15E] text-[#041D16] text-xs font-bold shadow-md hover:brightness-105 transition uppercase tracking-wider cursor-pointer"
                 >
                   Save Category
                 </button>
@@ -482,7 +728,7 @@ export default function AdminCategories() {
 
       {/* Quick Add Subcategory Modal */}
       {quickSubModalCat && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
           <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-stone-200 space-y-4">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <div>
@@ -492,7 +738,7 @@ export default function AdminCategories() {
               <button
                 type="button"
                 onClick={() => setQuickSubModalCat(null)}
-                className="text-stone-400 hover:text-stone-700 font-bold"
+                className="text-stone-400 hover:text-stone-700 font-bold cursor-pointer"
               >
                 ✕
               </button>
@@ -509,7 +755,7 @@ export default function AdminCategories() {
                   required
                   value={quickSubName}
                   onChange={(e) => setQuickSubName(e.target.value)}
-                  placeholder="e.g. Front Zip 55 inch, Ready to wear"
+                  placeholder="e.g. 90s Cotton, Zip nighty"
                   className="mt-1 w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-semibold focus:border-[#C9A227] focus:outline-none"
                 />
               </div>
@@ -518,13 +764,13 @@ export default function AdminCategories() {
                 <button
                   type="button"
                   onClick={() => setQuickSubModalCat(null)}
-                  className="px-3.5 py-2 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-50"
+                  className="px-3.5 py-2 rounded-xl border border-stone-200 text-xs font-bold text-stone-600 hover:bg-stone-50 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-[#064E3B] text-white text-xs font-bold hover:bg-[#0B3D2E] transition"
+                  className="px-4 py-2 rounded-xl bg-[#064E3B] text-white text-xs font-bold hover:bg-[#0B3D2E] transition cursor-pointer"
                 >
                   Add Sub-Category
                 </button>

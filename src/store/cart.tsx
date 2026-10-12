@@ -43,9 +43,34 @@ function getInitialState(): CartState {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
+      const rawItems: CartItem[] = Array.isArray(parsed.items) ? parsed.items : [];
+      const consolidated: CartItem[] = [];
+
+      for (const it of rawItems) {
+        if (!it || !it.product) continue;
+        const color = it.selectedColor || (it.product.colors && it.product.colors[0]) || it.product.color || "Standard";
+        const size = it.selectedSize || (it.product.sizes && it.product.sizes[0]) || "Free Size";
+        const itemKey = it.key || getCartItemKey(it.product.id, color, size);
+        
+        const existing = consolidated.find(
+          (c) => (c.key || getCartItemKey(c.product.id, c.selectedColor, c.selectedSize)) === itemKey
+        );
+
+        if (existing) {
+          existing.quantity += (it.quantity || 1);
+        } else {
+          consolidated.push({
+            ...it,
+            key: itemKey,
+            selectedColor: color,
+            selectedSize: size,
+          });
+        }
+      }
+
       return {
-        items: Array.isArray(parsed.items) ? parsed.items : [],
-        wishlist: Array.isArray(parsed.wishlist) ? parsed.wishlist : []
+        items: consolidated,
+        wishlist: Array.isArray(parsed.wishlist) ? parsed.wishlist : [],
       };
     }
   } catch (e) {

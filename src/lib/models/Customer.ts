@@ -7,6 +7,8 @@ const CustomerSchema = new Schema(
     phone: { type: String, required: true, index: true },
     email: { type: String, default: "" },
     address: { type: String, default: "" },
+    addressLine: { type: String, default: "" },
+    areaLocality: { type: String, default: "" },
     city: { type: String, default: "" },
     state: { type: String, default: "" },
     pincode: { type: String, default: "" },
@@ -19,5 +21,9 @@ const CustomerSchema = new Schema(
   { timestamps: true }
 );
 
-const Customer = mongoose.models.Customer || mongoose.model("Customer", CustomerSchema);
+if (mongoose.models && mongoose.models.Customer) {
+  delete (mongoose.models as any).Customer;
+}
+
+const Customer = mongoose.model("Customer", CustomerSchema);
 export default Customer;

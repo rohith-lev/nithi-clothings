@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { useCustomerAuth } from "../services/customerAuth";
+import { useCustomerAuth, customerAuthService } from "../services/customerAuth";
 import type { OrderRecord } from "../types/store";
 
+const INDIAN_STATES = [
+  "Tamil Nadu", "Kerala", "Karnataka", "Andhra Pradesh", "Telangana",
+  "Maharashtra", "Delhi", "Gujarat", "Rajasthan", "West Bengal",
+  "Uttar Pradesh", "Bihar", "Madhya Pradesh", "Odisha", "Punjab",
+  "Haryana", "Assam", "Other",
+];
+
 export default function Account() {
-  const { customer, isLoggedIn, login, logout } = useCustomerAuth();
+  const { customer, isLoggedIn, login, updateProfile, logout } = useCustomerAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -15,11 +22,9 @@ export default function Account() {
   const [trackError, setTrackError] = useState<string | null>(null);
   const [isSearchingTrack, setIsSearchingTrack] = useState(false);
 
-  // Sign In / Register Form State
+  // Sign In Form State (No OTP required!)
   const [authIdentifier, setAuthIdentifier] = useState("");
   const [authName, setAuthName] = useState("");
-  const [authOtp, setAuthOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -28,7 +33,39 @@ export default function Account() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [selectedOrderModal, setSelectedOrderModal] = useState<OrderRecord | null>(null);
 
-  // If trackId was given in URL, auto-track or auto-fill
+  // Saved Delivery Address State
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [addressForm, setAddressForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    addressLine: "",
+    areaLocality: "",
+    city: "",
+    state: "Tamil Nadu",
+    pincode: "",
+  });
+  const [addressSaveSuccess, setAddressSaveSuccess] = useState(false);
+  const [addressSaveError, setAddressSaveError] = useState<string | null>(null);
+  const [isSavingAddress, setIsSavingAddress] = useState(false);
+
+  // Sync addressForm with current logged-in customer profile
+  useEffect(() => {
+    if (customer) {
+      setAddressForm({
+        name: customer.name || "",
+        phone: customer.phone || "",
+        email: customer.email || "",
+        addressLine: customer.addressLine || customer.address || "",
+        areaLocality: customer.areaLocality || "",
+        city: customer.city || "",
+        state: customer.state || "Tamil Nadu",
+        pincode: customer.pincode || "",
+      });
+    }
+  }, [customer]);
+
+  // If trackId was given in URL, auto-track
   useEffect(() => {
     if (initialTrackId) {
       setTrackInput(initialTrackId);
@@ -46,10 +83,21 @@ export default function Account() {
   const loadCustomerOrders = async () => {
     if (!customer) return;
     setLoadingOrders(true);
+    const token = customerAuthService.getToken();
+
     try {
-      const q = customer.phone || customer.email || customer.customerId;
-      const res = await fetch(`/api/orders?search=${encodeURIComponent(q)}`);
-      const json = await res.json();
+      const res = await fetch("/api/customers/orders", {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+
+      if (!res.ok) {
+        setLoadingOrders(false);
+        return;
+      }
+
+      const json = await res.json().catch(() => ({}));
       if (json.success && Array.isArray(json.data)) {
         const mapped: OrderRecord[] = json.data.map((o: any) => ({
           id: o.orderId || o.id,
@@ -74,6 +122,9 @@ export default function Account() {
           paymentMethod: o.paymentMethod || "COD",
           shippingState: o.shippingState || "Tamil Nadu",
           shippingAddress: o.shippingAddress || "",
+          courierName: o.courierName || "",
+          trackingId: o.trackingId || "",
+          dispatchDate: o.dispatchDate || "",
           createdAt: o.createdAt || new Date().toISOString(),
         }));
         setCustomerOrders(mapped);
@@ -92,24 +143,22 @@ export default function Account() {
     setTrackError(null);
 
     try {
-      const res = await fetch(`/api/orders?search=${encodeURIComponent(cleanId)}`);
-      const json = await res.json();
-      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-        const found = json.data.find(
-          (o: any) => (o.orderId || o.id || "").toLowerCase() === cleanId.toLowerCase()
-        ) || json.data[0];
+      const res = await fetch(`/api/orders/track?id=${encodeURIComponent(cleanId)}`);
+      const json = await res.json().catch(() => ({}));
 
+      if (res.ok && json.success && json.data) {
+        const found = json.data;
         const mapped: OrderRecord = {
-          id: found.orderId || found.id,
-          orderId: found.orderId || found.id,
-          customerName: found.customerName || found.customer?.name || "Customer",
-          customerPhone: found.customerPhone || found.customer?.phone || "",
-          customerEmail: found.customerEmail || found.customer?.email || "",
+          id: found.orderId,
+          orderId: found.orderId,
+          customerName: found.customerName || "Customer",
+          customerPhone: found.customerPhone || "",
+          customerEmail: found.customerEmail || "",
           items: (found.items || []).map((it: any) => ({
             productId: it.productId,
             productName: it.productName || it.name,
-            size: it.selectedSize || it.size || "Free Size",
-            color: it.selectedColor || it.color || "Standard",
+            size: it.size || it.selectedSize || "Free Size",
+            color: it.color || it.selectedColor || "Standard",
             quantity: it.quantity || 1,
             price: it.price || 0,
             image: it.image || "",
@@ -122,11 +171,14 @@ export default function Account() {
           paymentMethod: found.paymentMethod || "COD",
           shippingState: found.shippingState || "Tamil Nadu",
           shippingAddress: found.shippingAddress || "",
+          courierName: found.courierName || "",
+          trackingId: found.trackingId || "",
+          dispatchDate: found.dispatchDate || "",
           createdAt: found.createdAt || new Date().toISOString(),
         };
         setTrackingOrder(mapped);
       } else {
-        setTrackError(`No consignment found with Tracking / Order ID "${cleanId}". Please verify your reference number.`);
+        setTrackError(json.error || `No consignment found for "${cleanId}". Please verify your reference number.`);
         setTrackingOrder(null);
       }
     } catch (e) {
@@ -137,37 +189,59 @@ export default function Account() {
     }
   };
 
-  const handleSendOtp = (e: React.FormEvent) => {
+  // Direct Sign In (No OTP required!)
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!authIdentifier.trim()) {
-      setAuthError("Please enter your 10-digit mobile number or email");
+      setAuthError("Please enter your mobile number or email address.");
       return;
     }
-    setAuthError(null);
-    setOtpSent(true);
-  };
 
-  const handleVerifySignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
     setIsSubmitting(true);
     setAuthError(null);
 
-    // Mock OTP verification (any 4-digit code works, or 1234)
     const res = await login(authIdentifier, authName);
     setIsSubmitting(false);
 
     if (res.success) {
-      setOtpSent(false);
-      // If there was a pending track ID, resolve it now
+      setAuthIdentifier("");
+      setAuthName("");
       if (trackInput.trim()) {
         handleTrackQuery(trackInput.trim());
       }
     } else {
-      setAuthError(res.error || "Authentication failed. Try again.");
+      setAuthError(res.error || "Authentication failed. Please try again.");
     }
   };
 
-  // Helper status color classes
+  // Save Delivery Address & Profile
+  const handleSaveAddress = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingAddress(true);
+    setAddressSaveError(null);
+    setAddressSaveSuccess(false);
+
+    const res = await updateProfile({
+      name: addressForm.name,
+      phone: addressForm.phone,
+      email: addressForm.email,
+      addressLine: addressForm.addressLine,
+      areaLocality: addressForm.areaLocality,
+      city: addressForm.city,
+      state: addressForm.state,
+      pincode: addressForm.pincode,
+    });
+
+    setIsSavingAddress(false);
+    if (res.success) {
+      setAddressSaveSuccess(true);
+      setIsEditingAddress(false);
+      setTimeout(() => setAddressSaveSuccess(false), 4000);
+    } else {
+      setAddressSaveError(res.error || "Failed to save address.");
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "Delivered":
@@ -186,31 +260,23 @@ export default function Account() {
     }
   };
 
-  // Tracking Timeline steps
   const trackingSteps = [
     { label: "Order Placed", key: "Confirmed" },
-    { label: "Atelier Processing", key: "Processing" },
-    { label: "Quality Inspected & Packed", key: "Packed" },
-    { label: "Dispatched (Courier)", key: "Shipped" },
-    { label: "Delivered to Doorstep", key: "Delivered" },
+    { label: "Processing", key: "Processing" },
+    { label: "Packed", key: "Packed" },
+    { label: "Dispatched", key: "Shipped" },
+    { label: "Delivered", key: "Delivered" },
   ];
 
   const getStepProgressIndex = (status: string) => {
     switch (status) {
-      case "Pending":
-        return 0;
-      case "Confirmed":
-        return 1;
-      case "Processing":
-        return 2;
-      case "Packed":
-        return 3;
-      case "Shipped":
-        return 4;
-      case "Delivered":
-        return 5;
-      default:
-        return 1;
+      case "Pending": return 0;
+      case "Confirmed": return 1;
+      case "Processing": return 2;
+      case "Packed": return 3;
+      case "Shipped": return 4;
+      case "Delivered": return 5;
+      default: return 1;
     }
   };
 
@@ -226,7 +292,7 @@ export default function Account() {
             {isLoggedIn ? `Welcome Back, ${customer?.name}` : "Customer Sign In & Consignment Tracking"}
           </h1>
           <p className="text-xs sm:text-sm text-[#5C635E] mt-2 max-w-lg mx-auto">
-            Access your curated orders, verify live courier dispatch milestones, and manage your delivery details with ease.
+            Access your curated orders, verify live courier dispatch details, and manage your saved delivery addresses.
           </p>
         </div>
 
@@ -238,10 +304,10 @@ export default function Account() {
               <span>📦</span> Instant Order & Consignment Tracker
             </span>
             <h2 className="font-display text-xl sm:text-2xl font-bold text-[#171A18] mb-2">
-              Have an Order or Tracking ID?
+              Have an Order ID or Courier Tracking ID?
             </h2>
             <p className="text-xs text-[#5C635E] mb-5">
-              Enter your Order Reference Number (e.g. <span className="font-mono font-bold text-[#064E3B]">ORD-20260924-001</span> or <span className="font-mono font-bold text-[#064E3B]">NC00000001</span>) to inspect live shipping milestones.
+              Enter your Order Reference Number (e.g. <span className="font-mono font-bold text-[#064E3B]">ORD-1024</span>) or Courier Tracking / AWB Number to inspect dispatch status.
             </p>
 
             <form
@@ -280,23 +346,15 @@ export default function Account() {
                 className="px-6 py-3.5 bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] text-xs font-bold uppercase tracking-[0.16em] rounded-xl transition-all shadow-md disabled:opacity-50 shrink-0 flex items-center justify-center gap-2"
               >
                 {isSearchingTrack ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4 text-[#C9A227]" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                    </svg>
-                    <span>Tracking...</span>
-                  </>
+                  <span>Tracking...</span>
                 ) : (
-                  <>
-                    <span>🔍 Track Order</span>
-                  </>
+                  <span>🔍 Track Order</span>
                 )}
               </button>
             </form>
 
             {trackError && (
-              <div className="mt-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center justify-center gap-2 text-left max-w-xl mx-auto">
+              <div className="mt-4 p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center justify-center gap-2 text-left max-w-xl mx-auto">
                 <span>⚠️</span>
                 <span>{trackError}</span>
               </div>
@@ -311,7 +369,7 @@ export default function Account() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E8E2D5] gap-3">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] uppercase tracking-wider text-[#C9A227] font-bold">Consignment Details</span>
+                      <span className="text-[10px] uppercase tracking-wider text-[#C9A227] font-bold">Order Details</span>
                       <span className="text-stone-300">•</span>
                       <span className="text-xs font-mono font-bold text-[#064E3B]">#{trackingOrder.id}</span>
                     </div>
@@ -332,55 +390,72 @@ export default function Account() {
                   </div>
                 </div>
 
-                {/* Tracking Milestones Visual Stepper */}
-                <div className="py-6">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#064E3B] block mb-4">
-                    Live Dispatch Progress:
-                  </span>
-                  <div className="relative">
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                      {trackingSteps.map((st, idx) => {
-                        const currentIdx = getStepProgressIndex(trackingOrder.status);
-                        const isDone = currentIdx >= idx + 1;
-                        const isCurrent = currentIdx === idx + 1;
-
-                        return (
-                          <div
-                            key={st.key}
-                            className={`p-3 rounded-xl border text-center transition-all ${
-                              isCurrent
-                                ? "bg-[#064E3B] text-[#FAF8F1] border-[#C9A227] shadow-md scale-102"
-                                : isDone
-                                ? "bg-white text-[#064E3B] border-emerald-300"
-                                : "bg-stone-50 text-stone-400 border-stone-200 opacity-60"
-                            }`}
-                          >
-                            <div className={`w-7 h-7 mx-auto mb-1.5 rounded-full flex items-center justify-center text-xs font-bold ${
-                              isCurrent
-                                ? "bg-[#C9A227] text-[#064E3B]"
-                                : isDone
-                                ? "bg-emerald-100 text-emerald-700"
-                                : "bg-stone-200 text-stone-500"
-                            }`}>
-                              {isDone ? "✓" : idx + 1}
-                            </div>
-                            <span className="text-[11px] font-bold block leading-tight">{st.label}</span>
-                            {isCurrent && (
-                              <span className="text-[9px] uppercase tracking-wider text-[#C9A227] font-semibold block mt-1">
-                                Current Stage
-                              </span>
-                            )}
-                          </div>
-                        );
-                      })}
+                {/* Priority 1 Highlight Box: Courier & Tracking Info */}
+                <div className="my-4 p-4 rounded-xl bg-white border border-[#C9A227]/50 shadow-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div>
+                      <span className="text-[10px] text-[#5C635E] uppercase tracking-wider block font-semibold">Courier Partner</span>
+                      <span className="font-bold text-[#171A18] text-sm">
+                        {trackingOrder.courierName || "Assigning Courier..."}
+                      </span>
                     </div>
+                    <div>
+                      <span className="text-[10px] text-[#5C635E] uppercase tracking-wider block font-semibold">Tracking ID / AWB</span>
+                      <span className="font-mono font-bold text-[#064E3B] text-sm">
+                        {trackingOrder.trackingId || "Awaiting Courier Dispatch"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#5C635E] uppercase tracking-wider block font-semibold">Dispatch Date</span>
+                      <span className="font-semibold text-stone-700">
+                        {trackingOrder.dispatchDate || "Within 24–48 hours"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Milestones Stepper */}
+                <div className="py-4">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#064E3B] block mb-3">
+                    Milestones:
+                  </span>
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                    {trackingSteps.map((st, idx) => {
+                      const currentIdx = getStepProgressIndex(trackingOrder.status);
+                      const isDone = currentIdx >= idx + 1;
+                      const isCurrent = currentIdx === idx + 1;
+
+                      return (
+                        <div
+                          key={st.key}
+                          className={`p-2.5 rounded-xl border text-center transition-all ${
+                            isCurrent
+                              ? "bg-[#064E3B] text-[#FAF8F1] border-[#C9A227] shadow-sm"
+                              : isDone
+                              ? "bg-white text-[#064E3B] border-emerald-300"
+                              : "bg-stone-50 text-stone-400 border-stone-200 opacity-60"
+                          }`}
+                        >
+                          <div className={`w-6 h-6 mx-auto mb-1 rounded-full flex items-center justify-center text-xs font-bold ${
+                            isCurrent
+                              ? "bg-[#C9A227] text-[#064E3B]"
+                              : isDone
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-stone-200 text-stone-500"
+                          }`}>
+                            {isDone ? "✓" : idx + 1}
+                          </div>
+                          <span className="text-[10px] font-bold block leading-tight">{st.label}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* Items in this order */}
                 <div className="pt-4 border-t border-[#E8E2D5]">
                   <span className="text-[11px] font-bold uppercase tracking-wider text-[#5C635E] block mb-2">
-                    Ensembles in Consignment ({trackingOrder.items.length})
+                    Items in Consignment ({trackingOrder.items.length})
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {trackingOrder.items.map((item, i) => (
@@ -399,34 +474,19 @@ export default function Account() {
                     ))}
                   </div>
                 </div>
-
-                {/* Dispatch note */}
-                <div className="mt-4 p-3 bg-amber-50/70 border border-amber-200/80 rounded-lg text-[11px] text-amber-900 flex items-center justify-between flex-wrap gap-2">
-                  <div>
-                    <span className="font-bold">Courier Partner:</span> ST Courier & India Post Registered Parcel
-                  </div>
-                  <a
-                    href="https://wa.me/919876543210"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="font-bold text-[#064E3B] hover:text-[#C9A227] underline"
-                  >
-                    Need Expedited Delivery Support? Chat on WhatsApp →
-                  </a>
-                </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Dynamic Section: Logged In Account Dashboard OR Sign In / Register Portal */}
+        {/* Dynamic Logged In Section vs Sign In Section */}
         {isLoggedIn && customer ? (
           <div className="space-y-8 animate-in fade-in duration-300">
             {/* Customer Profile Banner */}
             <div className="bg-[#FFFFFF] border border-[#E8E2D5] rounded-2xl p-6 sm:p-7 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-[#064E3B] border-2 border-[#C9A227] flex items-center justify-center text-2xl font-display font-bold text-[#C9A227] shadow-md">
-                  {customer.name.slice(0, 1).toUpperCase()}
+                  {customer.name ? customer.name.slice(0, 1).toUpperCase() : "C"}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -455,28 +515,253 @@ export default function Account() {
                 <button
                   type="button"
                   onClick={logout}
-                  className="px-4 py-2.5 border border-stone-300 hover:border-stone-400 text-stone-700 text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-stone-50 transition-all"
+                  className="px-4 py-2.5 border border-stone-300 hover:border-stone-400 text-stone-700 text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-stone-50 transition-all cursor-pointer"
                 >
                   Sign Out
                 </button>
               </div>
             </div>
 
-            {/* Customer Orders History Section */}
+            {/* PRIORITY 2: Saved Delivery Address Card */}
+            <div className="bg-[#FFFFFF] border border-[#E8E2D5] rounded-2xl p-6 sm:p-8 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E8E2D5] mb-6 gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#C9A227]">📍</span>
+                    <h3 className="font-display text-xl font-bold text-[#171A18]">
+                      Saved Delivery Address & Customer Details
+                    </h3>
+                  </div>
+                  <p className="text-xs text-[#5C635E] mt-0.5">
+                    This address will be automatically reused during checkout for fast 1-click orders.
+                  </p>
+                </div>
+                {!isEditingAddress ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingAddress(true)}
+                    className="px-4 py-2 bg-stone-100 hover:bg-[#064E3B] hover:text-white text-stone-800 text-xs font-bold rounded-xl transition-colors cursor-pointer self-start sm:self-auto"
+                  >
+                    ✏️ Edit Delivery Address
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingAddress(false)}
+                    className="text-xs font-semibold text-stone-500 hover:text-stone-800 cursor-pointer self-start sm:self-auto"
+                  >
+                    Cancel Editing
+                  </button>
+                )}
+              </div>
+
+              {addressSaveSuccess && (
+                <div className="mb-4 p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs rounded-xl flex items-center gap-2">
+                  <span>✓</span>
+                  <span>Delivery address saved and updated successfully!</span>
+                </div>
+              )}
+
+              {addressSaveError && (
+                <div className="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>{addressSaveError}</span>
+                </div>
+              )}
+
+              {!isEditingAddress ? (
+                /* Saved Address Read View */
+                <div className="bg-[#FAF8F1] rounded-2xl p-5 border border-[#E8E2D5] grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-[10px] text-[#5C635E] uppercase tracking-wider font-bold block">Recipient Full Name</span>
+                      <p className="font-bold text-stone-900 text-sm">{customer.name || "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#5C635E] uppercase tracking-wider font-bold block">Mobile Phone Number</span>
+                      <p className="font-mono text-stone-900">{customer.phone || "—"}</p>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#5C635E] uppercase tracking-wider font-bold block">Email Address</span>
+                      <p className="text-stone-700">{customer.email || "—"}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-[10px] text-[#5C635E] uppercase tracking-wider font-bold block">Delivery Address Line</span>
+                      <p className="text-stone-900 font-medium">{customer.addressLine || customer.address || "No street address saved yet."}</p>
+                    </div>
+                    {customer.areaLocality && (
+                      <div>
+                        <span className="text-[10px] text-[#5C635E] uppercase tracking-wider font-bold block">Area / Locality</span>
+                        <p className="text-stone-900">{customer.areaLocality}</p>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-3 gap-2 pt-1">
+                      <div>
+                        <span className="text-[10px] text-[#5C635E] uppercase tracking-wider font-bold block">City</span>
+                        <p className="text-stone-900 font-medium">{customer.city || "—"}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-[#5C635E] uppercase tracking-wider font-bold block">State</span>
+                        <p className="text-stone-900 font-medium">{customer.state || "Tamil Nadu"}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-[#5C635E] uppercase tracking-wider font-bold block">PIN Code</span>
+                        <p className="font-mono text-stone-900 font-bold">{customer.pincode || "—"}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Address Edit Form */
+                <form onSubmit={handleSaveAddress} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1">
+                        Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={addressForm.name}
+                        onChange={(e) => setAddressForm({ ...addressForm, name: e.target.value })}
+                        className="w-full bg-[#FAF8F1] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1">
+                        Phone Number *
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={addressForm.phone}
+                        onChange={(e) => setAddressForm({ ...addressForm, phone: e.target.value })}
+                        className="w-full bg-[#FAF8F1] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={addressForm.email}
+                        onChange={(e) => setAddressForm({ ...addressForm, email: e.target.value })}
+                        className="w-full bg-[#FAF8F1] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1">
+                        Address Line (Flat, Door No, Building, Street) *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={addressForm.addressLine}
+                        onChange={(e) => setAddressForm({ ...addressForm, addressLine: e.target.value })}
+                        placeholder="e.g. No. 42, Kumaran Road, 2nd Floor"
+                        className="w-full bg-[#FAF8F1] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1">
+                        Area / Locality
+                      </label>
+                      <input
+                        type="text"
+                        value={addressForm.areaLocality}
+                        onChange={(e) => setAddressForm({ ...addressForm, areaLocality: e.target.value })}
+                        placeholder="e.g. Near Old Bus Stand, Gandhinagar"
+                        className="w-full bg-[#FAF8F1] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1">
+                        City / Town *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={addressForm.city}
+                        onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
+                        placeholder="e.g. Tiruppur"
+                        className="w-full bg-[#FAF8F1] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1">
+                        State *
+                      </label>
+                      <select
+                        value={addressForm.state}
+                        onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
+                        className="w-full bg-[#FAF8F1] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                      >
+                        {INDIAN_STATES.map((st) => (
+                          <option key={st} value={st}>{st}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1">
+                        PIN / Postal Code *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        maxLength={6}
+                        value={addressForm.pincode}
+                        onChange={(e) => setAddressForm({ ...addressForm, pincode: e.target.value })}
+                        placeholder="641601"
+                        className="w-full bg-[#FAF8F1] border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-stone-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingAddress(false)}
+                      className="px-4 py-2.5 border border-stone-300 rounded-xl text-stone-700 text-xs font-semibold hover:bg-stone-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSavingAddress}
+                      className="px-6 py-2.5 bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] text-xs font-bold uppercase tracking-wider rounded-xl shadow-xs transition-colors disabled:opacity-50"
+                    >
+                      {isSavingAddress ? "Saving..." : "Save Delivery Address"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+
+            {/* PRIORITY 1 & 2: Customer Orders History Section */}
             <div className="bg-[#FFFFFF] border border-[#E8E2D5] rounded-2xl p-6 sm:p-8 shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E8E2D5] mb-6 gap-3">
                 <div>
                   <h3 className="font-display text-xl font-bold text-[#171A18]">
-                    Your Purchase History & Consignments
+                    My Orders & Consignments
                   </h3>
                   <p className="text-xs text-[#5C635E] mt-0.5">
-                    Click any order reference or "Track" button to inspect live packing and courier status.
+                    View your verified order details, dispatch status, courier partner, and tracking numbers.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={loadCustomerOrders}
-                  className="text-xs font-bold text-[#064E3B] hover:text-[#C9A227] inline-flex items-center gap-1 self-start sm:self-auto"
+                  className="text-xs font-bold text-[#064E3B] hover:text-[#C9A227] inline-flex items-center gap-1 self-start sm:self-auto cursor-pointer"
                 >
                   <span>🔄 Refresh Orders</span>
                 </button>
@@ -484,18 +769,15 @@ export default function Account() {
 
               {loadingOrders ? (
                 <div className="py-12 text-center text-xs text-[#5C635E]">
-                  <svg className="animate-spin h-6 w-6 text-[#C9A227] mx-auto mb-2" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
-                  <span>Fetching your orders...</span>
+                  <div className="w-6 h-6 border-2 border-[#C9A227] border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                  <span>Loading your orders...</span>
                 </div>
               ) : customerOrders.length === 0 ? (
                 <div className="py-12 text-center text-xs text-[#5C635E] space-y-3">
                   <div className="text-4xl">🛍️</div>
                   <p className="font-display text-base font-bold text-[#171A18]">No orders found yet</p>
                   <p className="max-w-xs mx-auto">
-                    You haven't placed an order with this phone/email yet. Explore our handcrafted cotton nighties and unstitched suits.
+                    You haven't placed an order yet. Explore our handcrafted cotton nighties, unstitched salwar suits, and cord sets.
                   </p>
                   <Link
                     to="/shop"
@@ -511,17 +793,44 @@ export default function Account() {
                       key={ord.id}
                       className="border border-[#E8E2D5] rounded-xl p-4 sm:p-5 hover:border-[#C9A227] transition-all bg-[#FAF8F1]/40"
                     >
+                      {/* Order Header */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E8E2D5] gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-sm text-[#064E3B]">#{ord.id}</span>
+                          <span className="font-mono font-bold text-sm text-[#064E3B]">Order ID: #{ord.id}</span>
                           <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadge(ord.status)}`}>
                             {ord.status}
                           </span>
                         </div>
                         <div className="text-xs text-[#5C635E]">
-                          Placed on: {new Date(ord.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
+                          Order Date: {new Date(ord.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
                         </div>
                       </div>
+
+                      {/* PRIORITY 1: Courier Tracking Highlight Banner */}
+                      {(ord.courierName || ord.trackingId) ? (
+                        <div className="my-3 p-3 bg-white rounded-xl border border-emerald-300 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-[#5C635E] block">Courier Partner</span>
+                            <span className="font-bold text-[#171A18]">{ord.courierName || "Standard Courier"}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-[#5C635E] block">Tracking ID / AWB</span>
+                            <span className="font-mono font-bold text-[#064E3B] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                              {ord.trackingId}
+                            </span>
+                          </div>
+                          {ord.dispatchDate && (
+                            <div>
+                              <span className="text-[10px] uppercase font-bold text-[#5C635E] block">Dispatched On</span>
+                              <span className="font-medium text-stone-700">{ord.dispatchDate}</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="my-2.5 p-2.5 bg-amber-50/60 rounded-xl border border-amber-200/60 text-[11px] text-amber-900 flex items-center justify-between">
+                          <span>📦 Courier dispatch in progress. Tracking ID will be updated upon parcel handover.</span>
+                        </div>
+                      )}
 
                       {/* Items row */}
                       <div className="py-3 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -533,7 +842,9 @@ export default function Account() {
                               )}
                               <div className="text-xs">
                                 <p className="font-bold text-[#171A18] max-w-[140px] truncate">{it.productName}</p>
-                                <p className="text-[10px] text-[#5C635E]">Qty: {it.quantity} • {it.size}</p>
+                                <p className="text-[10px] text-[#5C635E]">
+                                  Size: <span className="font-semibold text-[#064E3B]">{it.size}</span> • Qty: {it.quantity}
+                                </p>
                               </div>
                             </div>
                           ))}
@@ -556,20 +867,20 @@ export default function Account() {
                             <button
                               type="button"
                               onClick={() => {
-                                setTrackInput(ord.id);
-                                handleTrackQuery(ord.id);
+                                setTrackInput(ord.trackingId || ord.id);
+                                handleTrackQuery(ord.trackingId || ord.id);
                                 window.scrollTo({ top: 120, behavior: "smooth" });
                               }}
-                              className="px-3.5 py-2 bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] text-xs font-bold uppercase tracking-wider rounded-lg shadow-xs transition-colors flex items-center gap-1.5"
+                              className="px-3.5 py-2 bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] text-xs font-bold uppercase tracking-wider rounded-lg shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                             >
                               <span>🚚 Track Consignment</span>
                             </button>
                             <button
                               type="button"
                               onClick={() => setSelectedOrderModal(ord)}
-                              className="px-3 py-2 border border-stone-300 hover:border-stone-400 text-stone-700 text-xs font-bold rounded-lg hover:bg-stone-50 transition-colors"
+                              className="px-3 py-2 border border-stone-300 hover:border-stone-400 text-stone-700 text-xs font-bold rounded-lg hover:bg-stone-50 transition-colors cursor-pointer"
                             >
-                              Details
+                              Order Details
                             </button>
                           </div>
                         </div>
@@ -581,9 +892,8 @@ export default function Account() {
             </div>
           </div>
         ) : (
-          /* Customer Sign In / Verification Portal */
+          /* Customer Sign In Portal (No OTP required) */
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            {/* Sign In Form */}
             <div className="bg-[#FFFFFF] border-2 border-[#C9A227]/30 rounded-2xl p-6 sm:p-8 shadow-sm">
               <div className="mb-6">
                 <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#C9A227] block mb-1">
@@ -593,7 +903,7 @@ export default function Account() {
                   Sign In to My Account
                 </h3>
                 <p className="text-xs text-[#5C635E] mt-1">
-                  Enter your mobile number or email to automatically sync your previous bookings, wishlists, and delivery addresses.
+                  Enter your mobile number or email to access your orders, track consignments, and manage saved delivery addresses.
                 </p>
               </div>
 
@@ -603,105 +913,65 @@ export default function Account() {
                 </div>
               )}
 
-              {!otpSent ? (
-                <form onSubmit={handleSendOtp} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
-                      Mobile Number or Email Address *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={authIdentifier}
-                      onChange={(e) => setAuthIdentifier(e.target.value)}
-                      placeholder="e.g. 9840123456 or customer@example.com"
-                      className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#171A18] focus:outline-none transition-colors"
-                    />
-                    <p className="text-[10px] text-[#5C635E] mt-1">
-                      No complex passwords required. Quick verification via instant OTP slip.
-                    </p>
-                  </div>
+              <form onSubmit={handleSignIn} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
+                    Mobile Number or Email Address *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={authIdentifier}
+                    onChange={(e) => setAuthIdentifier(e.target.value)}
+                    placeholder="e.g. 9840123456 or customer@example.com"
+                    className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#171A18] focus:outline-none transition-colors"
+                  />
+                  <p className="text-[10px] text-[#5C635E] mt-1">
+                    Direct instant sign-in — no OTP password delays.
+                  </p>
+                </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
-                      Your Full Name (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={authName}
-                      onChange={(e) => setAuthName(e.target.value)}
-                      placeholder="e.g. Priya Rajendran"
-                      className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#171A18] focus:outline-none transition-colors"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
+                    Your Full Name (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={authName}
+                    onChange={(e) => setAuthName(e.target.value)}
+                    placeholder="e.g. Priya Rajendran"
+                    className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#171A18] focus:outline-none transition-colors"
+                  />
+                </div>
 
-                  <button
-                    type="submit"
-                    className="w-full py-3.5 bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] text-xs font-bold uppercase tracking-[0.16em] rounded-xl shadow-md transition-all mt-2"
-                  >
-                    Continue with OTP Verification →
-                  </button>
-                </form>
-              ) : (
-                <form onSubmit={handleVerifySignIn} className="space-y-4">
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
-                    <p className="font-bold">Verification code sent to {authIdentifier}</p>
-                    <p className="text-[11px] text-amber-700 mt-0.5">Demo instant code: enter any 4 digits (e.g. 1234)</p>
-                  </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-3.5 bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] text-xs font-bold uppercase tracking-[0.16em] rounded-xl shadow-md transition-all mt-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? "Signing in..." : "Sign In to My Account →"}
+                </button>
+              </form>
 
-                  <div>
-                    <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
-                      Enter 4-Digit OTP Code
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      maxLength={6}
-                      value={authOtp}
-                      onChange={(e) => setAuthOtp(e.target.value)}
-                      placeholder="1 2 3 4"
-                      autoFocus
-                      className="w-full bg-[#FAF8F1] border border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-center text-lg font-mono tracking-widest text-[#171A18] focus:outline-none"
-                    />
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setOtpSent(false)}
-                      className="flex-1 py-3 border border-stone-300 text-stone-700 text-xs font-bold uppercase rounded-xl hover:bg-stone-50"
-                    >
-                      Back
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex-1 py-3 bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] text-xs font-bold uppercase tracking-wider rounded-xl shadow-md transition-all disabled:opacity-50"
-                    >
-                      {isSubmitting ? "Verifying..." : "Verify & Sign In"}
-                    </button>
-                  </div>
-                </form>
-              )}
-
-              {/* Quick Demo Customer Sign In */}
+              {/* Demo Quick Logins */}
               <div className="mt-8 pt-6 border-t border-[#E8E2D5]">
                 <span className="text-[10px] uppercase font-bold text-[#5C635E] tracking-wider block mb-2">
                   Instant One-Click Customer Login:
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { name: "Priya Rajendran", phone: "+91 98401 23456" },
-                    { name: "Saranya Devi", phone: "+91 97890 54321" },
+                    { name: "Priya Rajendran", phone: "9840123456" },
+                    { name: "Saranya Devi", phone: "9789054321" },
                   ].map((demo) => (
                     <button
                       key={demo.phone}
                       type="button"
                       onClick={async () => {
+                        setAuthIdentifier(demo.phone);
+                        setAuthName(demo.name);
                         await login(demo.phone, demo.name);
-                        if (trackInput.trim()) handleTrackQuery(trackInput.trim());
                       }}
-                      className="px-3 py-1.5 rounded-lg bg-[#FAF8F1] border border-[#C9A227]/40 hover:bg-[#C9A227]/10 text-xs text-[#064E3B] font-semibold transition-colors"
+                      className="px-3 py-1.5 rounded-lg bg-[#FAF8F1] border border-[#C9A227]/40 hover:bg-[#C9A227]/10 text-xs text-[#064E3B] font-semibold transition-colors cursor-pointer"
                     >
                       👤 {demo.name}
                     </button>
@@ -710,7 +980,7 @@ export default function Account() {
               </div>
             </div>
 
-            {/* Why Create / Sign In Account Benefits Card */}
+            {/* Privileges Card */}
             <div className="bg-[#0B3D2E] text-[#FAF8F1] rounded-2xl p-6 sm:p-8 relative overflow-hidden border border-[#C9A227]/30 shadow-md">
               <div className="absolute top-0 right-0 w-36 h-36 bg-[radial-gradient(#C9A227_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none" />
               <span className="text-xs uppercase tracking-[0.25em] text-[#C9A227] font-bold block mb-2">
@@ -726,8 +996,8 @@ export default function Account() {
                     ✦
                   </span>
                   <div>
-                    <strong className="text-white block">Automated Consignment Updates:</strong>
-                    Direct SMS & WhatsApp courier dispatch tracking links for every order placed.
+                    <strong className="text-white block">Order & Courier Tracking:</strong>
+                    Direct live courier dispatch tracking ID and status for every parcel.
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
@@ -735,8 +1005,8 @@ export default function Account() {
                     ✦
                   </span>
                   <div>
-                    <strong className="text-white block">Speedy 1-Click Checkout:</strong>
-                    Saved delivery addresses across Tamil Nadu, Kerala, Karnataka, and Pan-India.
+                    <strong className="text-white block">Saved Delivery Addresses:</strong>
+                    Save and reuse delivery addresses across Tamil Nadu and Pan-India.
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
@@ -744,32 +1014,11 @@ export default function Account() {
                     ✦
                   </span>
                   <div>
-                    <strong className="text-white block">Advance Booking & COD Status:</strong>
-                    Inspect nominal UPI token advances and reserve handloom collections ahead of time.
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-full bg-[#C9A227] text-[#064E3B] flex items-center justify-center font-bold shrink-0 text-xs">
-                    ✦
-                  </span>
-                  <div>
-                    <strong className="text-white block">Order Invoices & Tax Slips:</strong>
-                    Download GST compliant packing slips anytime for tailoring or gifting.
+                    <strong className="text-white block">Order History:</strong>
+                    Review past garment sizes, colors, and tax invoices anytime.
                   </div>
                 </li>
               </ul>
-
-              <div className="mt-8 p-4 rounded-xl bg-black/20 border border-[#C9A227]/30 text-xs text-[#C9A227] flex items-center justify-between">
-                <span>Need immediate concierge support?</span>
-                <a
-                  href="https://wa.me/919876543210"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-bold underline hover:text-white"
-                >
-                  WhatsApp Us →
-                </a>
-              </div>
             </div>
           </div>
         )}
@@ -786,26 +1035,48 @@ export default function Account() {
                   <h3 className="font-display font-bold text-lg text-stone-900">
                     Order #{selectedOrderModal.id}
                   </h3>
+                  <span className="text-[11px] text-[#5C635E]">
+                    Order Date: {new Date(selectedOrderModal.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
+                  </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedOrderModal(null)}
-                  className="text-stone-400 hover:text-stone-700 text-sm p-1 rounded-lg"
+                  className="text-stone-400 hover:text-stone-700 text-sm p-1 rounded-lg cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
               <div className="space-y-4">
-                <div className="p-3 bg-stone-50 rounded-xl space-y-1">
-                  <p className="font-bold text-stone-900">{selectedOrderModal.customerName}</p>
-                  <p className="text-stone-600">{selectedOrderModal.shippingAddress}</p>
+                {/* Status & Courier Info */}
+                <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-stone-900 text-sm">{selectedOrderModal.customerName}</span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadge(selectedOrderModal.status)}`}>
+                      {selectedOrderModal.status}
+                    </span>
+                  </div>
+                  <p className="text-stone-600 leading-relaxed">{selectedOrderModal.shippingAddress}</p>
                   <p className="font-mono text-stone-500 text-[11px]">📞 {selectedOrderModal.customerPhone}</p>
+                  
+                  {/* Courier & Tracking Details */}
+                  <div className="pt-2 border-t border-stone-200 grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <span className="text-[10px] text-stone-500 uppercase block font-semibold">Courier Partner</span>
+                      <span className="font-bold text-stone-900">{selectedOrderModal.courierName || "To be updated"}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-stone-500 uppercase block font-semibold">Tracking ID / AWB</span>
+                      <span className="font-mono font-bold text-[#064E3B]">{selectedOrderModal.trackingId || "Pending dispatch"}</span>
+                    </div>
+                  </div>
                 </div>
 
+                {/* Items */}
                 <div>
                   <span className="font-bold uppercase tracking-wider text-stone-500 text-[10px] block mb-2">
-                    Items ({selectedOrderModal.items.length})
+                    Products Purchased ({selectedOrderModal.items.length})
                   </span>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {selectedOrderModal.items.map((it, idx) => (
@@ -825,6 +1096,7 @@ export default function Account() {
                   </div>
                 </div>
 
+                {/* Totals */}
                 <div className="pt-3 border-t border-stone-200 space-y-1 text-xs">
                   <div className="flex justify-between text-stone-600">
                     <span>Subtotal:</span>
@@ -834,8 +1106,14 @@ export default function Account() {
                     <span>Shipping Fee:</span>
                     <span>₹{selectedOrderModal.shippingFee}</span>
                   </div>
+                  {selectedOrderModal.discount > 0 && (
+                    <div className="flex justify-between text-emerald-700 font-semibold">
+                      <span>Discount:</span>
+                      <span>-₹{selectedOrderModal.discount}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-stone-900 text-sm pt-2 border-t">
-                    <span>Total:</span>
+                    <span>Total Amount:</span>
                     <span className="text-[#064E3B]">₹{selectedOrderModal.total.toLocaleString("en-IN")}</span>
                   </div>
                 </div>
@@ -845,19 +1123,19 @@ export default function Account() {
                 <button
                   type="button"
                   onClick={() => {
-                    setTrackInput(selectedOrderModal.id);
+                    setTrackInput(selectedOrderModal.trackingId || selectedOrderModal.id);
                     setSelectedOrderModal(null);
-                    handleTrackQuery(selectedOrderModal.id);
+                    handleTrackQuery(selectedOrderModal.trackingId || selectedOrderModal.id);
                     window.scrollTo({ top: 120, behavior: "smooth" });
                   }}
-                  className="px-4 py-2 bg-[#064E3B] text-[#FAF8F1] text-xs font-bold rounded-xl hover:bg-[#0B3D2E]"
+                  className="px-4 py-2 bg-[#064E3B] text-[#FAF8F1] text-xs font-bold rounded-xl hover:bg-[#0B3D2E] cursor-pointer"
                 >
-                  Track This Consignment
+                  Track Consignment
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedOrderModal(null)}
-                  className="px-4 py-2 border border-stone-300 text-stone-700 text-xs font-bold rounded-xl hover:bg-stone-50"
+                  className="px-4 py-2 border border-stone-300 text-stone-700 text-xs font-bold rounded-xl hover:bg-stone-50 cursor-pointer"
                 >
                   Close
                 </button>

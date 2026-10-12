@@ -23,23 +23,27 @@ export default function AdminCustomers() {
     setLoading(true);
     try {
       const res = await fetch("/api/customers");
-      const json = await res.json();
-      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-        const mapped = json.data.map((c: any) => ({
-          customerId: c.customerId,
-          name: c.name,
-          phone: c.phone,
-          email: c.email || "—",
-          state: c.state || "Tamil Nadu",
-          address: c.address || "",
-          orders: c.totalOrders || 1,
-          spent: c.totalSpent || 0,
-          tier: (c.totalSpent || 0) > 5000 ? "VIP Gold" : (c.totalSpent || 0) > 2000 ? "Silver" : "Regular",
-          registrationDate: c.registrationDate || c.createdAt,
-        }));
-        setCustomers(mapped);
-        setLoading(false);
-        return;
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const text = await res.text();
+        const json = JSON.parse(text);
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          const mapped = json.data.map((c: any) => ({
+            customerId: c.customerId,
+            name: c.name,
+            phone: c.phone,
+            email: c.email || "—",
+            state: c.state || "Tamil Nadu",
+            address: c.address || "",
+            orders: c.totalOrders || 1,
+            spent: c.totalSpent || 0,
+            tier: (c.totalSpent || 0) > 5000 ? "VIP Gold" : (c.totalSpent || 0) > 2000 ? "Silver" : "Regular",
+            registrationDate: c.registrationDate || c.createdAt,
+          }));
+          setCustomers(mapped);
+          setLoading(false);
+          return;
+        }
       }
     } catch (e) {
       console.warn("Falling back to local customers:", e);

@@ -97,8 +97,8 @@ export default function Cart() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Cart Items List */}
         <div className="lg:col-span-2 space-y-4">
-          {state.items.map((item) => {
-            const itemKey = item.key || `${item.product.id}__${(item.selectedColor || 'Standard').toLowerCase()}__${(item.selectedSize || 'Free Size').toLowerCase()}`;
+          {state.items.map((item, idx) => {
+            const itemKey = item.key ? `${item.key}-${idx}` : `${item.product.id}__${(item.selectedColor || 'Standard').toLowerCase()}__${(item.selectedSize || 'Free Size').toLowerCase()}__${idx}`;
             const itemImage =
               item.colorImage ||
               (item.product.colorImages && item.selectedColor && item.product.colorImages[item.selectedColor]) ||
@@ -142,12 +142,8 @@ export default function Cart() {
                         {item.product.sku || item.product.code}
                       </p>
                       
-                      {/* Selected Variant Tags */}
+                      {/* Selected Size Tag */}
                       <div className="flex flex-wrap items-center gap-2 mt-2">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FAF8F1] border border-[#E8E2D5] text-xs font-semibold text-[#171A18]">
-                          <span className="text-[#5C635E] text-[10px] uppercase font-bold">Color:</span>
-                          <strong>{item.selectedColor || "Standard"}</strong>
-                        </span>
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FAF8F1] border border-[#E8E2D5] text-xs font-semibold text-[#171A18]">
                           <span className="text-[#5C635E] text-[10px] uppercase font-bold">Size:</span>
                           <strong>{item.selectedSize || "Free Size"}</strong>

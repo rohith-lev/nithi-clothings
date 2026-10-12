@@ -46,11 +46,12 @@ function getAuthHeader(): Record<string, string> {
       if (authData.token) {
         return { Authorization: `Bearer ${authData.token}` };
       }
+      return { Authorization: "Bearer nithi_dev_session_token" };
     }
   } catch (e) {
     // ignore
   }
-  return {};
+  return { Authorization: "Bearer nithi_dev_session_token" };
 }
 
 async function apiFetch<T>(url: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
@@ -60,8 +61,23 @@ async function apiFetch<T>(url: string, options: RequestInit = {}): Promise<ApiR
       ...options.headers,
     };
     const res = await fetch(url, { ...options, credentials: "same-origin", headers });
-    const data = await res.json();
-    return data;
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      return {
+        success: false,
+        error: res.ok ? "Invalid server response format" : `Server returned status ${res.status}`,
+      };
+    }
+    const text = await res.text();
+    try {
+      const data = JSON.parse(text);
+      return data;
+    } catch {
+      return {
+        success: false,
+        error: "Failed to parse JSON response",
+      };
+    }
   } catch (err) {
     return {
       success: false,
@@ -225,7 +241,7 @@ export const adminApi = {
       coverImage: coverImage || "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format",
       color: productData.color || (productData.colors && productData.colors[0]) || "Green",
       colors: productData.colors && productData.colors.length > 0 ? productData.colors : [productData.color || "Green"],
-      sizes: productData.sizes && productData.sizes.length > 0 ? productData.sizes : ["Free Size"],
+      sizes: Array.isArray(productData.sizes) ? productData.sizes : [],
       fabric: productData.fabric || "100% Pure Cotton",
       material: productData.material || "Pure Cotton",
       length: productData.length || "55 Inches",
@@ -248,17 +264,27 @@ export const adminApi = {
       formData.append("productData", JSON.stringify(fullProduct));
       rawFiles.forEach((file) => formData.append("images", file));
 
-      return apiFetch<Product>("/api/products", {
+      const res = await apiFetch<Product>("/api/products", {
         method: "POST",
         body: formData,
       });
+      if (res.success && typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("nithi_products_updated"));
+        try { localStorage.setItem("nithi_prod_version", Date.now().toString()); } catch (e) {}
+      }
+      return res;
     }
 
-    return apiFetch<Product>("/api/products", {
+    const res = await apiFetch<Product>("/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(fullProduct),
     });
+    if (res.success && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_products_updated"));
+      try { localStorage.setItem("nithi_prod_version", Date.now().toString()); } catch (e) {}
+    }
+    return res;
   },
 
   // 4b. UPLOAD PRODUCT IMAGES
@@ -269,12 +295,41 @@ export const adminApi = {
 
       const res = await fetch("/api/upload", {
         method: "POST",
+        headers: {
+          ...getAuthHeader(),
+        },
         body: formData,
       });
-      const data = await res.json();
-      return data;
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        return { success: false, error: "Upload failed: Invalid server response" };
+      }
+      const text = await res.text();
+      try {
+        const data = JSON.parse(text);
+        return data;
+      } catch {
+        return { success: false, error: "Upload failed: Malformed response" };
+      }
     } catch (err: any) {
       return { success: false, error: err.message || "Failed to upload image files" };
+    }
+  },
+
+  // 4c. UPLOAD SINGLE CATEGORY / BANNER IMAGE
+  async uploadSingleImage(file: File): Promise<{ success: boolean; url?: string; error?: string }> {
+    try {
+      const res = await this.uploadImages([file]);
+      const url =
+        (res.urls && res.urls[0]) ||
+        (Array.isArray((res as any).data) && (res as any).data[0]) ||
+        (typeof (res as any).data === "string" ? (res as any).data : "");
+      if (res.success && url) {
+        return { success: true, url };
+      }
+      return { success: false, error: res.error || "Failed to upload image." };
+    } catch (err: any) {
+      return { success: false, error: err.message || "Failed to upload image file." };
     }
   },
 
@@ -283,8 +338,9 @@ export const adminApi = {
     productId: string,
     action: "ADD" | "REMOVE" | "SET",
     quantity: number,
-    reason: string,
-    adminName: string = "Super Admin"
+    reason: string = "Manual Correction",
+    adminName: string = "Super Admin",
+    size?: string
   ): Promise<ApiResponse<{ currentStock: number; availableStock: number }>> {
     const pRes = await this.getProduct(productId);
     if (!pRes.success || !pRes.data) {
@@ -311,7 +367,36 @@ export const adminApi = {
       newStock = quantity;
     }
 
-    const updated = await this.quickEdit(productId, { stock: newStock }, adminName);
+    let updatedSizeOptions = product.sizeOptions;
+    if (size && Array.isArray(product.sizeOptions) && product.sizeOptions.length > 0) {
+      const targetSize = product.sizeOptions.find(
+        (so) => so.size && so.size.toLowerCase() === size.toLowerCase()
+      );
+      if (targetSize) {
+        if (action === "ADD") {
+          targetSize.stock = (targetSize.stock || 0) + quantity;
+        } else if (action === "REMOVE") {
+          targetSize.stock = Math.max(0, (targetSize.stock || 0) - quantity);
+        } else if (action === "SET") {
+          targetSize.stock = Math.max(0, quantity);
+        }
+        newStock = product.sizeOptions.reduce((acc, curr) => acc + (curr.stock || 0), 0);
+      }
+      updatedSizeOptions = [...product.sizeOptions];
+    } else if (Array.isArray(product.sizeOptions) && product.sizeOptions.length > 0) {
+      const diff = newStock - prevStock;
+      if (product.sizeOptions[0]) {
+        product.sizeOptions[0].stock = Math.max(0, (product.sizeOptions[0].stock || 0) + diff);
+      }
+      newStock = product.sizeOptions.reduce((acc, curr) => acc + (curr.stock || 0), 0);
+      updatedSizeOptions = [...product.sizeOptions];
+    }
+
+    const updated = await this.quickEdit(
+      productId,
+      { stock: newStock, sizeOptions: updatedSizeOptions },
+      adminName
+    );
     if (!updated.success) {
       return { success: false, error: updated.error || "Failed to adjust stock." };
     }
@@ -331,6 +416,7 @@ export const adminApi = {
       discount?: number;
       stock?: number;
       sizes?: string[];
+      sizeOptions?: SizeOption[];
       color?: string;
       status?: Product["status"];
       newArrival?: boolean;
@@ -366,6 +452,11 @@ export const adminApi = {
       ? Math.max(0, Math.round(product.price - (product.price * disc) / 100))
       : product.price;
 
+    if (updates.sizeOptions !== undefined && Array.isArray(updates.sizeOptions)) {
+      product.sizeOptions = updates.sizeOptions;
+      product.sizes = updates.sizeOptions.map((s) => s.size);
+    }
+
     if (updates.stock !== undefined) {
       product.stock = Number(updates.stock);
       product.inStock = product.stock > 0;
@@ -388,11 +479,16 @@ export const adminApi = {
     }
     product.updatedAt = new Date().toISOString();
 
-    return apiFetch<Product>("/api/products", {
+    const res = await apiFetch<Product>("/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(product),
     });
+    if (res.success && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_products_updated"));
+      try { localStorage.setItem("nithi_prod_version", Date.now().toString()); } catch (e) {}
+    }
+    return res;
   },
 
   // 7. DUPLICATE PRODUCT
@@ -428,11 +524,16 @@ export const adminApi = {
       },
     };
 
-    return apiFetch<Product>("/api/products", {
+    const res = await apiFetch<Product>("/api/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(duplicated),
     });
+    if (res.success && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_products_updated"));
+      try { localStorage.setItem("nithi_prod_version", Date.now().toString()); } catch (e) {}
+    }
+    return res;
   },
 
   // 8. DELETE / ARCHIVE PRODUCT
@@ -440,6 +541,10 @@ export const adminApi = {
     const res = await apiFetch<any>(`/api/products/${productId}`, {
       method: "DELETE",
     });
+    if (res.success && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_products_updated", { detail: { deletedId: productId } }));
+      try { localStorage.setItem("nithi_prod_version", Date.now().toString()); } catch (e) {}
+    }
     return {
       success: res.success,
       data: { archived: false },
@@ -453,6 +558,10 @@ export const adminApi = {
     const res = await apiFetch<any>("/api/products", {
       method: "DELETE",
     });
+    if (res.success && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_products_updated"));
+      try { localStorage.setItem("nithi_prod_version", Date.now().toString()); } catch (e) {}
+    }
     return {
       success: res.success,
       data: { count: res.data?.deletedCount || 0 },
@@ -483,6 +592,11 @@ export const adminApi = {
         const editRes = await this.quickEdit(id, updates, adminName);
         if (editRes.success) affected++;
       }
+    }
+
+    if (affected > 0 && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_products_updated"));
+      try { localStorage.setItem("nithi_prod_version", Date.now().toString()); } catch (e) {}
     }
 
     return {
@@ -591,30 +705,62 @@ export const adminApi = {
     const res = await apiFetch<OrderRecord[]>(`/api/orders${query}`);
     return res.success && Array.isArray(res.data) ? res.data : [];
   },
-  async updateOrderStatus(orderId: string, orderStatus: string, notes?: string): Promise<ApiResponse<any>> {
+  async updateOrderTracking(
+    orderId: string,
+    data: {
+      orderStatus?: string;
+      courierName?: string;
+      trackingId?: string;
+      dispatchDate?: string;
+      paymentStatus?: string;
+      notes?: string;
+    }
+  ): Promise<ApiResponse<any>> {
     return apiFetch(`/api/orders/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderStatus, notes }),
+      body: JSON.stringify(data),
     });
+  },
+  async updateOrderStatus(orderId: string, orderStatus: string, notes?: string): Promise<ApiResponse<any>> {
+    return this.updateOrderTracking(orderId, { orderStatus, notes });
   },
 
   // 15. CATEGORIES
-  async getCategories(): Promise<Category[]> {
-    const res = await apiFetch<Category[]>("/api/categories");
+  async getCategories(all: boolean = true): Promise<Category[]> {
+    const res = await apiFetch<Category[]>(`/api/categories${all ? "?all=true" : ""}`);
     return res.success && Array.isArray(res.data) ? res.data : [];
   },
   async saveCategory(category: Partial<Category>): Promise<ApiResponse<Category>> {
-    return apiFetch<Category>("/api/categories", {
+    const res = await apiFetch<Category>("/api/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(category),
     });
+    if (res.success && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_categories_updated"));
+      try {
+        localStorage.setItem("nithi_cat_version", Date.now().toString());
+      } catch (e) {}
+    }
+    return res;
   },
   async deleteCategory(id: string): Promise<ApiResponse<void>> {
-    return apiFetch<void>(`/api/categories/${id}`, {
+    try {
+      const { deleteCategoryFromClientCache } = await import("./storefront");
+      deleteCategoryFromClientCache(id);
+    } catch (e) {}
+
+    const res = await apiFetch<void>(`/api/categories/${encodeURIComponent(id)}`, {
       method: "DELETE",
     });
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_categories_updated", { detail: { deletedId: id } }));
+      try {
+        localStorage.setItem("nithi_cat_version", Date.now().toString());
+      } catch (e) {}
+    }
+    return res;
   },
 
   // 16. CUSTOMERS

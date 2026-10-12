@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import SEO from "../components/SEO";
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
@@ -9,8 +10,22 @@ export default function Contact() {
     setTimeout(() => setSubmitted(false), 5000);
   };
 
+  const contactSchema = {
+    "@context": "https://schema.org",
+    "@type": "ContactPage",
+    name: "Contact Nithi Clothings",
+    description: "Contact Nithi Clothings for order inquiries, wholesale assistance, and customer support.",
+    url: typeof window !== "undefined" ? window.location.href : "https://nithiclothings.com/contact",
+  };
+
   return (
     <div className="font-body min-h-screen bg-[#FAF8F1]">
+      <SEO
+        title="Contact Us - Customer Support & Boutique Concierge"
+        description="Get in touch with Nithi Clothings for order assistance, size inquiries, and pure cotton nighties inquiries. Fast customer support on WhatsApp and email."
+        canonical="/contact"
+        structuredData={contactSchema}
+      />
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="font-display text-4xl sm:text-5xl font-bold text-[#064E3B] mb-6">Contact Us</h1>

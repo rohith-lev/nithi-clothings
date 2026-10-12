@@ -32,11 +32,15 @@ export default function AdminBookings() {
     setLoading(true);
     try {
       const res = await fetch("/api/bookings");
-      const json = await res.json();
-      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-        setBookings(json.data);
-        setLoading(false);
-        return;
+      const contentType = res.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const text = await res.text();
+        const json = JSON.parse(text);
+        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          setBookings(json.data);
+          setLoading(false);
+          return;
+        }
       }
     } catch (e) {
       console.warn("Falling back to seeded bookings:", e);

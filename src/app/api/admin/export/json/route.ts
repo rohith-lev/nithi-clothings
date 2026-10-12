@@ -1,8 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { getAllBackupData } from "@/services/backupExportImportService";
+import { requireAdmin } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { errorResponse } = requireAdmin(request);
+  if (errorResponse) return errorResponse;
+
   try {
     await connectToDatabase();
     const data = await getAllBackupData();
@@ -15,6 +19,7 @@ export async function GET() {
       headers: {
         "Content-Type": "application/json",
         "Content-Disposition": `attachment; filename="${fileName}"`,
+        "Cache-Control": "no-store, max-age=0",
       },
     });
   } catch (error) {

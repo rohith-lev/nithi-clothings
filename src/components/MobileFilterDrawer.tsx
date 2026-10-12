@@ -7,6 +7,8 @@ interface MobileFilterDrawerProps {
   onClose: () => void;
   selectedCategory: string;
   onSelectCategory: (cat: string) => void;
+  selectedSubcategory?: string;
+  onSelectSubcategory?: (sub: string) => void;
   selectedSizes: string[];
   onToggleSize: (size: string) => void;
   priceRange: [number, number];
@@ -22,6 +24,8 @@ export default function MobileFilterDrawer({
   onClose,
   selectedCategory,
   onSelectCategory,
+  selectedSubcategory = "",
+  onSelectSubcategory,
   selectedSizes,
   onToggleSize,
   priceRange,
@@ -32,6 +36,11 @@ export default function MobileFilterDrawer({
   onClearAll,
 }: MobileFilterDrawerProps) {
   const categories = useStoreCategories();
+
+  const activeCatObj = categories.find(
+    (c) => c.id === selectedCategory || c.slug === selectedCategory || c.name.toLowerCase() === selectedCategory.toLowerCase()
+  );
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -116,7 +125,10 @@ export default function MobileFilterDrawer({
           <div className="flex flex-wrap gap-1.5">
             <button
               type="button"
-              onClick={() => onSelectCategory("")}
+              onClick={() => {
+                onSelectCategory("");
+                if (onSelectSubcategory) onSelectSubcategory("");
+              }}
               className={`px-3 py-1.5 rounded-xs border text-xs transition-colors ${
                 !selectedCategory
                   ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
@@ -129,7 +141,10 @@ export default function MobileFilterDrawer({
               <button
                 key={c.id}
                 type="button"
-                onClick={() => onSelectCategory(c.id)}
+                onClick={() => {
+                  onSelectCategory(c.id);
+                  if (onSelectSubcategory) onSelectSubcategory("");
+                }}
                 className={`px-3 py-1.5 rounded-xs border text-xs transition-colors ${
                   selectedCategory === c.id
                     ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
@@ -141,6 +156,49 @@ export default function MobileFilterDrawer({
             ))}
           </div>
         </div>
+
+        {/* Subcategories (if Category selected) */}
+        {activeCatObj && activeCatObj.subcategories && activeCatObj.subcategories.length > 0 && (
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-[#C9A227] mb-2">
+              Subcategories ({activeCatObj.name})
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => onSelectSubcategory && onSelectSubcategory("")}
+                className={`px-3 py-1.5 rounded-xs border text-xs transition-colors ${
+                  !selectedSubcategory
+                    ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
+                    : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18]"
+                }`}
+              >
+                All {activeCatObj.name}
+              </button>
+              {activeCatObj.subcategories.map((sub) => {
+                const subName = sub.name;
+                const isSelected =
+                  selectedSubcategory === sub.id ||
+                  selectedSubcategory.toLowerCase() === subName.toLowerCase();
+
+                return (
+                  <button
+                    key={sub.id || subName}
+                    type="button"
+                    onClick={() => onSelectSubcategory && onSelectSubcategory(subName)}
+                    className={`px-3 py-1.5 rounded-xs border text-xs transition-colors ${
+                      isSelected
+                        ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
+                        : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18]"
+                    }`}
+                  >
+                    {subName}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Sizes */}
         <div>

@@ -34,7 +34,7 @@ const OrderSchema = new Schema(
     total: { type: Number, required: true },
     paymentMethod: {
       type: String,
-      enum: ["COD", "cod", "Online", "ONLINE", "online", "UPI", "upi", "CARD", "card"],
+      enum: ["COD", "cod", "Online", "ONLINE", "online", "UPI", "upi", "CARD", "card", "Razorpay", "razorpay"],
       default: "COD",
     },
     paymentStatus: {
@@ -49,6 +49,9 @@ const OrderSchema = new Schema(
       index: true,
     },
     paymentReference: { type: String, default: "" },
+    courierName: { type: String, default: "" },
+    trackingId: { type: String, default: "" },
+    dispatchDate: { type: String, default: "" },
     idempotencyKey: { type: String, default: "", index: true },
     invoiceNumber: { type: String, default: "" },
     notes: { type: String, default: "" },
@@ -66,5 +69,9 @@ const OrderSchema = new Schema(
   { timestamps: true }
 );
 
-const Order = mongoose.models.Order || mongoose.model("Order", OrderSchema);
+if (mongoose.models && mongoose.models.Order) {
+  delete (mongoose.models as any).Order;
+}
+
+const Order = mongoose.model("Order", OrderSchema);
 export default Order;

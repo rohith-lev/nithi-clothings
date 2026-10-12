@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import { CODRule, CODAdvanceRule } from "@/lib/models/CODRule";
+import { requireAdmin } from "@/lib/auth";
 
 export async function GET() {
   try {
@@ -14,16 +15,19 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const { errorResponse } = requireAdmin(request);
+  if (errorResponse) return errorResponse;
+
   try {
     await connectToDatabase();
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     if (body.type === "advance") {
       const id = body.id || `cod-adv-${Date.now()}`;
-      const rule = await CODAdvanceRule.findOneAndUpdate({ id }, { $set: { ...body, id } }, { upsert: true, new: true });
+      const rule = await CODAdvanceRule.findOneAndUpdate({ id }, { $set: { ...body, id } }, { upsert: true, returnDocument: "after" });
       return NextResponse.json({ success: true, data: rule });
     } else {
       const id = body.id || `cod-${Date.now()}`;
-      const rule = await CODRule.findOneAndUpdate({ id }, { $set: { ...body, id } }, { upsert: true, new: true });
+      const rule = await CODRule.findOneAndUpdate({ id }, { $set: { ...body, id } }, { upsert: true, returnDocument: "after" });
       return NextResponse.json({ success: true, data: rule });
     }
   } catch (error) {

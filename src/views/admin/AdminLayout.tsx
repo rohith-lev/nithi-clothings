@@ -23,6 +23,10 @@ import {
   CheckIcon,
   AlertTriangleIcon,
 } from "../../components/admin/AdminIcons";
+import AdminMobileCustomizer, {
+  useMobileCustomizer,
+  ALL_SHORTCUT_OPTIONS,
+} from "../../components/admin/AdminMobileCustomizer";
 
 // Unsaved changes protection context
 interface UnsavedChangesContextType {
@@ -43,8 +47,10 @@ export default function AdminLayout() {
   const { user, isAuthenticated, logout } = useAdminAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const { customSettings } = useMobileCustomizer();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showMobileCustomizer, setShowMobileCustomizer] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
@@ -420,11 +426,23 @@ export default function AdminLayout() {
         {/* Main Content Viewport */}
         <div className="flex-1 lg:pl-72 flex flex-col min-w-0">
           {/* Top Bar */}
-          <header className="h-20 bg-white/85 backdrop-blur-md border-b border-[#E8E2D5] px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-            <div className="flex items-center gap-4">
+          <header className={`h-20 backdrop-blur-md border-b px-4 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs transition-colors duration-200 ${
+            customSettings.headerTheme === "champagne"
+              ? "bg-[#FAF8F1]/95 text-[#064E3B] border-[#C9A227]/40"
+              : customSettings.headerTheme === "dark"
+              ? "bg-stone-950/95 text-stone-100 border-stone-800"
+              : customSettings.headerTheme === "emerald"
+              ? "bg-[#041D16]/95 text-white border-[#C9A227]/30"
+              : "bg-white/95 text-stone-900 border-[#E8E2D5]"
+          }`}>
+            <div className="flex items-center gap-3 sm:gap-4">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-xl text-stone-700 hover:bg-stone-100 transition-colors"
+                className={`p-2 rounded-xl transition-colors lg:hidden ${
+                  customSettings.headerTheme === "emerald" || customSettings.headerTheme === "dark"
+                    ? "text-white/80 hover:bg-white/10"
+                    : "text-stone-700 hover:bg-stone-100"
+                }`}
                 aria-label="Open sidebar"
               >
                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -433,22 +451,30 @@ export default function AdminLayout() {
               </button>
 
               {/* Status pill & Interactive Global Search Trigger (Ctrl + K) */}
-              <div className="flex items-center gap-3">
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-medium">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Real-time Sync Active</span>
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-400 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className={customSettings.headerTheme === "emerald" || customSettings.headerTheme === "dark" ? "text-emerald-300" : "text-emerald-800"}>Real-time Sync</span>
                 </div>
 
                 {/* Clickable Search Bar that activates Command Palette */}
                 <button
                   type="button"
                   onClick={() => setShowCommandPalette(true)}
-                  className="flex items-center gap-2.5 text-xs text-stone-500 border border-stone-200 hover:border-stone-400 hover:text-stone-900 rounded-2xl px-3.5 py-2 bg-stone-50/80 hover:bg-white transition-all shadow-2xs group cursor-pointer"
+                  className={`flex items-center gap-2 text-xs border rounded-2xl px-3 py-2 transition-all shadow-2xs group cursor-pointer ${
+                    customSettings.headerTheme === "emerald" || customSettings.headerTheme === "dark"
+                      ? "bg-white/10 text-white/80 border-white/15 hover:bg-white/15 hover:text-white"
+                      : "bg-stone-50/80 text-stone-500 border-stone-200 hover:border-stone-400 hover:text-stone-900 hover:bg-white"
+                  }`}
                   title="Search products, pages, orders, and actions (Ctrl + K)"
                 >
-                  <SearchIcon size={14} className="text-stone-400 group-hover:text-stone-700 transition-colors" />
+                  <SearchIcon size={14} className="opacity-70 group-hover:opacity-100 transition-opacity" />
                   <span className="font-medium hidden md:inline">Search anything...</span>
-                  <kbd className="font-mono bg-white group-hover:bg-stone-100 px-2 py-0.5 rounded-lg border border-stone-200 text-[10px] font-bold text-stone-600 shadow-2xs transition-all">
+                  <kbd className={`font-mono px-1.5 py-0.5 rounded-md text-[10px] font-bold shadow-2xs transition-all ${
+                    customSettings.headerTheme === "emerald" || customSettings.headerTheme === "dark"
+                      ? "bg-white/20 text-[#DFC15E]"
+                      : "bg-white text-stone-600 border border-stone-200"
+                  }`}>
                     Ctrl + K
                   </kbd>
                 </button>
@@ -456,12 +482,27 @@ export default function AdminLayout() {
             </div>
 
             {/* Header Right Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Mobile Navbar Customizer Button */}
+              <button
+                type="button"
+                onClick={() => setShowMobileCustomizer(true)}
+                className="px-2.5 py-2 rounded-xl bg-gradient-to-r from-[#C9A227]/20 to-[#DFC15E]/20 hover:from-[#C9A227]/30 hover:to-[#DFC15E]/30 text-[#DFC15E] border border-[#C9A227]/50 flex items-center gap-1.5 transition-all shadow-2xs text-xs font-bold active:scale-95"
+                title="Mobile View Navbar Customizer"
+              >
+                <span className="text-sm">🎨</span>
+                <span className="hidden sm:inline">Customizer</span>
+              </button>
+
               {/* Notification bell for low stock */}
               <div className="relative">
                 <button
                   onClick={() => setShowNotifications(!showNotifications)}
-                  className="p-2.5 rounded-xl border border-stone-200 hover:border-[#C9A227] hover:bg-[#FAF8F1] relative text-stone-700 transition-all"
+                  className={`p-2.5 rounded-xl border relative transition-all ${
+                    customSettings.headerTheme === "emerald" || customSettings.headerTheme === "dark"
+                      ? "border-white/20 text-white hover:bg-white/10"
+                      : "border-stone-200 text-stone-700 hover:border-[#C9A227] hover:bg-[#FAF8F1]"
+                  }`}
                   title="Stock & System Notifications"
                 >
                   <BellIcon size={18} />
@@ -474,7 +515,7 @@ export default function AdminLayout() {
 
                 {/* Notifications Dropdown */}
                 {showNotifications && (
-                  <div className="absolute right-0 mt-3 w-88 bg-white border border-[#E8E2D5] rounded-2xl shadow-2xl z-50 p-4 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 mt-3 w-88 bg-white border border-[#E8E2D5] rounded-2xl shadow-2xl z-50 p-4 animate-in fade-in slide-in-from-top-2 duration-150 text-stone-800">
                     <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-3">
                       <div className="flex items-center gap-2">
                         <AlertTriangleIcon size={16} className="text-amber-500" />
@@ -531,18 +572,146 @@ export default function AdminLayout() {
               {/* Quick Add Product Button */}
               <Link
                 to="/admin/products/new"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#064E3B] hover:bg-[#0B3D2E] text-white text-xs font-bold shadow-md shadow-[#064E3B]/20 transition-all transform hover:-translate-y-0.5 border border-[#C9A227]/30"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#C9A227] to-[#DFC15E] text-[#041D16] text-xs font-bold shadow-md shadow-[#C9A227]/20 transition-all transform hover:-translate-y-0.5 border border-[#C9A227]/40"
               >
                 <PlusIcon size={14} />
-                <span>Add Product</span>
+                <span className="hidden sm:inline">Add Product</span>
               </Link>
             </div>
           </header>
 
+          {/* Mobile Pinned Shortcuts Quick Strip */}
+          {customSettings.pinnedShortcuts && customSettings.pinnedShortcuts.length > 0 && (
+            <div className="lg:hidden bg-white/95 backdrop-blur-md border-b border-stone-200/80 px-3 py-2 flex items-center gap-2 overflow-x-auto scrollbar-none sticky top-20 z-20 shadow-2xs">
+              <span className="text-[9px] font-bold text-stone-400 uppercase tracking-wider shrink-0 mr-0.5">
+                ⚡ Quick:
+              </span>
+              {customSettings.pinnedShortcuts.map((path) => {
+                const opt = ALL_SHORTCUT_OPTIONS.find((o) => o.path === path);
+                if (!opt) return null;
+                const Icon = opt.icon;
+                const isActive =
+                  opt.path === "/admin"
+                    ? location.pathname === "/admin"
+                    : opt.path === "/"
+                    ? false
+                    : location.pathname.startsWith(opt.path);
+
+                if (opt.isExternal) {
+                  return (
+                    <a
+                      key={opt.path}
+                      href={opt.path}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-stone-100/90 hover:bg-stone-200/90 text-stone-700 text-[11px] font-bold shrink-0 transition-all border border-stone-200 shadow-2xs"
+                    >
+                      <Icon size={12} className="text-[#C9A227]" />
+                      <span>{opt.label}</span>
+                      <span className="text-[8px] text-stone-400">↗</span>
+                    </a>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={opt.path}
+                    to={opt.path}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold shrink-0 transition-all border shadow-2xs ${
+                      isActive
+                        ? "bg-[#041D16] text-[#DFC15E] border-[#041D16]"
+                        : "bg-stone-100/90 hover:bg-stone-200/90 text-stone-700 border-stone-200"
+                    }`}
+                  >
+                    <Icon size={12} className={isActive ? "text-[#DFC15E]" : "text-stone-500"} />
+                    <span>{opt.label}</span>
+                    {opt.alert && lowStockCount > 0 && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                    )}
+                  </Link>
+                );
+              })}
+
+              {/* Edit pins button */}
+              <button
+                type="button"
+                onClick={() => setShowMobileCustomizer(true)}
+                className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-500 text-xs shrink-0 transition-colors ml-auto"
+                title="Customize quick pins"
+              >
+                ⚙️
+              </button>
+            </div>
+          )}
+
           {/* Main View Area */}
-          <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
+          <main className={`flex-1 max-w-7xl w-full mx-auto ${
+            customSettings.density === "compact"
+              ? "p-2 sm:p-4 pb-24 lg:pb-8"
+              : customSettings.density === "spacious"
+              ? "p-6 sm:p-10 pb-28 lg:pb-10"
+              : "p-4 sm:p-8 pb-24 lg:pb-8"
+          }`}>
             <Outlet />
           </main>
+
+          {/* Mobile Floating Bottom Navigation Dock */}
+          {customSettings.showFloatingDock && (
+            <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-[#041D16]/95 backdrop-blur-md text-white px-4 py-2 rounded-full shadow-2xl border border-[#C9A227]/40 flex items-center gap-5 text-xs animate-in slide-in-from-bottom-6 duration-200">
+              <Link
+                to="/admin"
+                className={`flex flex-col items-center gap-0.5 ${
+                  location.pathname === "/admin" ? "text-[#DFC15E] font-bold" : "text-stone-300 hover:text-white"
+                }`}
+              >
+                <DashboardIcon size={16} />
+                <span className="text-[9px]">Home</span>
+              </Link>
+              <Link
+                to="/admin/products"
+                className={`flex flex-col items-center gap-0.5 ${
+                  location.pathname.startsWith("/admin/products") && !location.pathname.includes("/new")
+                    ? "text-[#DFC15E] font-bold"
+                    : "text-stone-300 hover:text-white"
+                }`}
+              >
+                <ProductsIcon size={16} />
+                <span className="text-[9px]">Products</span>
+              </Link>
+              <Link
+                to="/admin/products/new"
+                className="w-10 h-10 -my-2.5 rounded-full bg-gradient-to-tr from-[#C9A227] to-[#DFC15E] text-[#041D16] flex items-center justify-center font-bold shadow-lg shadow-[#C9A227]/30 transform active:scale-95"
+                title="Quick Add Product"
+              >
+                <PlusIcon size={18} />
+              </Link>
+              <Link
+                to="/admin/orders"
+                className={`flex flex-col items-center gap-0.5 ${
+                  location.pathname.startsWith("/admin/orders") ? "text-[#DFC15E] font-bold" : "text-stone-300 hover:text-white"
+                }`}
+              >
+                <OrdersIcon size={16} />
+                <span className="text-[9px]">Orders</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowMobileCustomizer(true)}
+                className="flex flex-col items-center gap-0.5 text-stone-300 hover:text-[#DFC15E]"
+                title="Mobile Customizer"
+              >
+                <span className="text-base">🎨</span>
+                <span className="text-[9px]">Customizer</span>
+              </button>
+            </div>
+          )}
+
+          {/* Mobile Navbar Customizer Drawer */}
+          <AdminMobileCustomizer
+            isOpen={showMobileCustomizer}
+            onClose={() => setShowMobileCustomizer(false)}
+            lowStockCount={lowStockCount}
+          />
         </div>
 
         {/* SPOTLIGHT COMMAND PALETTE MODAL (Ctrl + K) */}

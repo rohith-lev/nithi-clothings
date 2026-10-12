@@ -24,6 +24,7 @@ export default function AdminSettings() {
     circularBadgeText: "• LIMITED OFFER • SHOP NOW • NITHI COLLECTION • ",
     circularBadgeLink: "/shop?filter=sale",
     freeShippingThreshold: 999,
+    storeAddress: "Nithi Collection, No. 45, Avinashi Main Road, Kumaran Nagar, Tiruppur, Tamil Nadu - 641603",
   });
 
   const [marqueeRawText, setMarqueeRawText] = useState("");
@@ -196,6 +197,17 @@ export default function AdminSettings() {
                   className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="block font-bold mb-1.5 text-stone-700">Store / Sender Address (Used for Shipping Labels & Packing Slips)</label>
+              <textarea
+                rows={2}
+                value={settings.storeAddress || ""}
+                onChange={(e) => setSettings({ ...settings, storeAddress: e.target.value })}
+                placeholder="e.g. Nithi Collection, No. 45, Avinashi Main Road, Kumaran Nagar, Tiruppur, Tamil Nadu - 641603"
+                className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227] leading-relaxed"
+              />
             </div>
 
             <div className="pt-4 border-t border-stone-100 flex justify-end">

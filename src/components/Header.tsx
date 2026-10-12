@@ -61,6 +61,7 @@ export default function Header() {
     const list: (Category & { cleanSubcategories: { id: string; name: string }[] })[] = [];
 
     for (const cat of rawCategories) {
+      if (!cat || cat.isActive === false) continue;
       const key = (cat.slug || cat.id || cat.name || "").toLowerCase().trim();
       if (!key || seen.has(key)) continue;
       seen.add(key);

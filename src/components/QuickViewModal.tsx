@@ -14,7 +14,6 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
   const { dispatch } = useCart();
 
   const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addedAnimation, setAddedAnimation] = useState(false);
@@ -22,9 +21,10 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
   // Sync initial selections
   useEffect(() => {
     if (product) {
-      setSelectedSize((product.sizes && product.sizes[0]) || "Free Size");
-      setSelectedColor(
-        product.color || (product.colors && product.colors[0]) || "Standard"
+      setSelectedSize(
+        (product.sizes && product.sizes[0]) ||
+        (product.sizeOptions && product.sizeOptions[0]?.size) ||
+        "Free Size"
       );
       setSelectedImageIndex(0);
       setQuantity(1);
@@ -44,42 +44,27 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
 
   if (!isOpen || !product) return null;
 
-  const galleryImages = Array.from(
-    new Set([product.coverImage, ...(product.images || [])].filter(Boolean) as string[])
-  );
-
-  const activeColorOpt = product.colorOptions?.find(
-    (c) => c.name && c.name.toLowerCase() === selectedColor.toLowerCase()
-  );
-
   const FALLBACK_MODAL_IMG = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=700&fit=crop";
 
-  const rawActivePhoto =
-    activeColorOpt?.image ||
-    (product.colorImages && selectedColor && product.colorImages[selectedColor]) ||
-    galleryImages[selectedImageIndex] ||
-    galleryImages[0] ||
-    FALLBACK_MODAL_IMG;
+  const galleryImages = [product.coverImage, ...(product.images || [])]
+    .filter((img): img is string => typeof img === "string" && img.trim().length > 0)
+    .filter((img) => !img.startsWith("blob:") && !img.includes("__LOCAL_") && img !== "null" && img !== "undefined" && img !== "[object Object]")
+    .filter((img, idx, arr) => arr.indexOf(img) === idx);
 
-  const activePhoto =
-    rawActivePhoto && !rawActivePhoto.startsWith("blob:") && !rawActivePhoto.includes("__LOCAL_")
-      ? rawActivePhoto
-      : FALLBACK_MODAL_IMG;
+  const cleanGallery = galleryImages.length > 0 ? galleryImages : [FALLBACK_MODAL_IMG];
+  const safeIdx = selectedImageIndex >= 0 && selectedImageIndex < cleanGallery.length ? selectedImageIndex : 0;
+  const activePhoto = cleanGallery[safeIdx] || cleanGallery[0] || FALLBACK_MODAL_IMG;
 
   const activeSizeOpt = product.sizeOptions?.find(
     (s) => s.size && s.size.toLowerCase() === selectedSize.toLowerCase()
   );
 
   const rawSizePrice = activeSizeOpt ? Number(activeSizeOpt.price) : Number(product.price || 0);
-  const effectivePrice = product.discountType === "fixed"
-    ? Math.max(0, rawSizePrice - (Number(product.discount) || 0))
-    : (product.discount || 0) > 0
-    ? Math.max(0, Math.round(rawSizePrice * (1 - (Number(product.discount) || 0) / 100)))
-    : rawSizePrice;
-
-  const basePrice = activeSizeOpt?.mrp || product.mrp || rawSizePrice;
+  const effectivePrice = rawSizePrice;
+  const basePrice = Math.max(activeSizeOpt?.mrp || product.mrp || rawSizePrice, effectivePrice);
+  const dynamicDiscount = basePrice > effectivePrice ? Math.round(((basePrice - effectivePrice) / basePrice) * 100) : 0;
   const sizeStock = activeSizeOpt ? Number(activeSizeOpt.stock) : Number(product.stock || 0);
-  const isOutOfStock = sizeStock <= 0 || !product.inStock;
+  const isOutOfStock = sizeStock <= 0 || !product.inStock || product.status === "OUT OF STOCK";
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
@@ -92,8 +77,8 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
           mrp: basePrice,
         },
         quantity,
-        selectedColor,
-        selectedSize,
+        selectedColor: "Standard",
+        selectedSize: selectedSize || "Free Size",
         unitPrice: effectivePrice,
         mrp: basePrice,
         colorImage: activePhoto,
@@ -118,8 +103,8 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
           mrp: basePrice,
         },
         quantity,
-        selectedColor,
-        selectedSize,
+        selectedColor: "Standard",
+        selectedSize: selectedSize || "Free Size",
         unitPrice: effectivePrice,
         mrp: basePrice,
         colorImage: activePhoto,
@@ -173,9 +158,9 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                     Bestseller
                   </span>
                 )}
-                {product.discount > 0 && (
+                {dynamicDiscount > 0 && (
                   <span className="rounded-full bg-white/95 px-2.5 py-0.5 text-[9px] font-bold text-[#064E3B] border border-[#E8E2D5] shadow-xs">
-                    {product.discount}% OFF
+                    {dynamicDiscount}% OFF
                   </span>
                 )}
               </div>
@@ -233,9 +218,9 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                   ₹{(basePrice * quantity).toLocaleString("en-IN")}
                 </span>
               )}
-              {product.discount > 0 && (
+              {dynamicDiscount > 0 && (
                 <span className="rounded-full bg-[#C9A227]/15 px-2.5 py-0.5 text-xs font-bold text-[#A8811A]">
-                  Save ₹{((basePrice - effectivePrice) * quantity).toLocaleString("en-IN")} ({product.discount}%)
+                  Save ₹{((basePrice - effectivePrice) * quantity).toLocaleString("en-IN")} ({dynamicDiscount}%)
                 </span>
               )}
               {quantity > 1 && (
@@ -248,66 +233,74 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
             {/* Live Stock indicator */}
             <div>
               {isOutOfStock ? (
-                <span className="inline-block rounded-full bg-red-100 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-red-700">
-                  Out of Stock
+                <span className="inline-block rounded-full bg-rose-50 border border-rose-200 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-rose-700">
+                  ⚠️ Out of Stock for {selectedSize} (0 left)
                 </span>
-              ) : product.stock <= 5 ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-800">
+              ) : sizeStock <= 5 ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-300 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-900">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  Only {product.stock} Left in Stock
+                  ⚡ Only {sizeStock} Left in Stock for {selectedSize}!
                 </span>
               ) : (
                 <span className="inline-block text-[11px] font-medium text-emerald-700">
-                  ✓ In Stock & Ready to Dispatch
+                  ✓ In Stock ({sizeStock} remaining for Size {selectedSize})
                 </span>
               )}
             </div>
 
-            {/* Colors */}
-            {product.colors && product.colors.length > 0 && (
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#171A18] mb-1.5">
-                  Color: <span className="text-[#064E3B] font-semibold">{selectedColor}</span>
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  {product.colors.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setSelectedColor(c)}
-                      className={`rounded-xl border px-3 py-1 text-xs font-semibold transition-all ${
-                        selectedColor === c
-                          ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1]"
-                          : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#C9A227]"
-                      }`}
-                    >
-                      {c}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Sizes */}
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-[#171A18] mb-1.5">
-                Size: <span className="text-[#064E3B] font-semibold">{selectedSize}</span>
+                Size: <span className="text-[#064E3B] font-bold">{selectedSize}</span> {sizeStock > 0 ? `(${sizeStock} left)` : ""}
               </label>
               <div className="flex flex-wrap gap-1.5">
-                {(product.sizes || ["Free Size"]).map((sz) => (
-                  <button
-                    key={sz}
-                    type="button"
-                    onClick={() => setSelectedSize(sz)}
-                    className={`rounded-xl border px-3.5 py-1.5 text-xs font-semibold transition-all ${
-                      selectedSize === sz
-                        ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1]"
-                        : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#C9A227]"
-                    }`}
-                  >
-                    {sz}
-                  </button>
-                ))}
+                {(product.sizeOptions && product.sizeOptions.length > 0
+                  ? product.sizeOptions
+                  : (product.sizes || ["Free Size"]).map((sz) => ({
+                      size: sz,
+                      price: product.price,
+                      mrp: product.mrp,
+                      stock: product.stock,
+                    }))
+                ).map((szOpt) => {
+                  const szName = szOpt.size;
+                  const isSelected = selectedSize.toLowerCase() === szName.toLowerCase();
+                  const remaining = Number(szOpt.stock) ?? 0;
+                  const isSoldOut = remaining <= 0;
+
+                  return (
+                    <button
+                      key={szName}
+                      type="button"
+                      onClick={() => !isSoldOut && setSelectedSize(szName)}
+                      disabled={isSoldOut}
+                      className={`flex flex-col items-center justify-center rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all min-w-[55px] ${
+                        isSelected
+                          ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] shadow-xs scale-105"
+                          : isSoldOut
+                          ? "border-stone-200 bg-stone-100 text-stone-400 opacity-60 cursor-not-allowed"
+                          : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#C9A227]"
+                      }`}
+                    >
+                      <span className="flex items-center gap-1">
+                        {szName} {isSelected && "✓"}
+                      </span>
+                      <span
+                        className={`text-[9px] ${
+                          isSelected
+                            ? "text-emerald-100"
+                            : isSoldOut
+                            ? "text-rose-500 line-through"
+                            : remaining <= 5
+                            ? "text-amber-700 font-bold"
+                            : "text-stone-400"
+                        }`}
+                      >
+                        {isSoldOut ? "Sold Out" : `${remaining} left`}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

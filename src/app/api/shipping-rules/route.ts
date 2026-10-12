@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import ShippingRule from "@/lib/models/ShippingRule";
+import { requireAdmin } from "@/lib/auth";
 
 export async function GET() {
   try {
@@ -13,11 +14,14 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const { errorResponse } = requireAdmin(request);
+  if (errorResponse) return errorResponse;
+
   try {
     await connectToDatabase();
-    const body = await request.json();
+    const body = await request.json().catch(() => ({}));
     const id = body.id || `ship-${Date.now()}`;
-    const rule = await ShippingRule.findOneAndUpdate({ id }, { $set: { ...body, id } }, { upsert: true, new: true });
+    const rule = await ShippingRule.findOneAndUpdate({ id }, { $set: { ...body, id } }, { upsert: true, returnDocument: "after" });
     return NextResponse.json({ success: true, data: rule });
   } catch (error) {
     return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });

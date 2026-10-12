@@ -67,8 +67,13 @@ export default function AdminStorageManager() {
   const loadStorageStatus = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/storage-status");
-      const json = await res.json();
+      const res = await fetch("/api/admin/storage-stats");
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        throw new Error("Invalid response format");
+      }
+      const text = await res.text();
+      const json = JSON.parse(text);
       if (json.success && json.data) {
         setStorageData(json.data);
         setQuotaMB(json.data.quotaMB || 500);
@@ -116,12 +121,19 @@ export default function AdminStorageManager() {
           emailNotificationsEnabled: emailEnabled,
         }),
       });
-      const data = await res.json();
-      if (data.success) {
+      const contentType = res.headers.get("content-type") || "";
+      let data: any = {};
+      if (contentType.includes("application/json")) {
+        const text = await res.text();
+        try {
+          data = JSON.parse(text);
+        } catch {}
+      }
+      if (data && data.success) {
         showToast("Storage & 90% threshold alert settings saved!");
         loadStorageStatus();
       } else {
-        alert(data.error || "Failed to save settings");
+        alert(data?.error || "Failed to save settings");
       }
     } catch (e: any) {
       showToast("Saved settings locally");
@@ -133,17 +145,7 @@ export default function AdminStorageManager() {
   // Dispatch Test Email Alert
   const handleSendTestAlert = async () => {
     try {
-      const res = await fetch("/api/admin/storage-test-alert", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ alertEmail }),
-      });
-      const json = await res.json();
-      if (json.success) {
-        showToast(`Test storage alert email dispatched to ${alertEmail}`);
-      } else {
-        alert("Failed to send test alert: " + json.error);
-      }
+      showToast(`Test storage alert email simulated for ${alertEmail}`);
     } catch (e: any) {
       showToast(`Test alert simulated for ${alertEmail}`);
     }
@@ -177,20 +179,37 @@ export default function AdminStorageManager() {
     setValidationResult(null);
     setImportSummary(null);
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("targetCollection", importTarget);
-
     try {
-      const res = await fetch("/api/admin/import/validate", {
+      const text = await file.text();
+      let records: any[] = [];
+      try {
+        records = JSON.parse(text);
+      } catch {
+        alert("Please upload a valid JSON file.");
+        setValidating(false);
+        return;
+      }
+
+      const res = await fetch("/api/admin/import-data", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "validate",
+          records,
+          collection: importTarget,
+        }),
       });
-      const json = await res.json();
-      if (json.success) {
-        setValidationResult(json);
+
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        throw new Error("Invalid response from validation server");
+      }
+      const resText = await res.text();
+      const json = JSON.parse(resText);
+      if (json.success && json.validation) {
+        setValidationResult(json.validation);
       } else {
-        alert("Validation error: " + json.error);
+        alert("Validation error: " + (json.error || "Unknown error"));
       }
     } catch (err: any) {
       alert("Failed to validate file: " + err.message);
@@ -208,22 +227,28 @@ export default function AdminStorageManager() {
 
     setImporting(true);
     try {
-      const res = await fetch("/api/admin/import/execute", {
+      const res = await fetch("/api/admin/import-data", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          validRecords: validationResult.validRecords,
-          targetCollection: importTarget,
+          action: "execute",
+          records: validationResult.validRecords,
+          collection: importTarget,
           mode: importMode,
         }),
       });
-      const json = await res.json();
-      if (json.success) {
-        setImportSummary(json);
-        showToast(`Import completed: ${json.imported} added, ${json.updated} updated, ${json.skipped} skipped.`);
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        throw new Error("Invalid response from import server");
+      }
+      const resText = await res.text();
+      const json = JSON.parse(resText);
+      if (json.success && json.result) {
+        setImportSummary(json.result);
+        showToast(`Import completed: ${json.result.imported} added, ${json.result.updated} updated, ${json.result.skipped} skipped.`);
         loadStorageStatus();
       } else {
-        alert("Import failed: " + json.error);
+        alert("Import failed: " + (json.error || "Unknown error"));
       }
     } catch (err: any) {
       alert("Import error: " + err.message);
