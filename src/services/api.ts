@@ -8,6 +8,7 @@ import type {
   OrderRecord,
   Category,
   AuditLog,
+  SizeOption,
 } from "../types/store";
 
 export interface ApiResponse<T> {
@@ -709,6 +710,7 @@ export const adminApi = {
     orderId: string,
     data: {
       orderStatus?: string;
+      status?: string;
       courierName?: string;
       trackingId?: string;
       dispatchDate?: string;
@@ -716,10 +718,14 @@ export const adminApi = {
       notes?: string;
     }
   ): Promise<ApiResponse<any>> {
+    const payload = {
+      ...data,
+      orderStatus: data.orderStatus || data.status,
+    };
     return apiFetch(`/api/orders/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
   },
   async updateOrderStatus(orderId: string, orderStatus: string, notes?: string): Promise<ApiResponse<any>> {

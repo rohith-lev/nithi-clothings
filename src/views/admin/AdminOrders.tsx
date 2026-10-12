@@ -113,7 +113,7 @@ export default function AdminOrders() {
         courierName: trackingCourier.trim(),
         trackingId: trackingIdInput.trim(),
         dispatchDate: dispatchDateInput.trim(),
-        status: orderStatusInput,
+        orderStatus: orderStatusInput,
       });
 
       const updatedOrder = {

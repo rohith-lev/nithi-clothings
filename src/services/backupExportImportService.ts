@@ -190,12 +190,31 @@ export async function executeSafeImport(validRecords: Record<string, unknown>[],
   } else if (targetCollection === "customers") {
     for (const rec of validRecords) {
       try {
-        const existing = await Customer.findOne({ $or: [{ phone: rec.phone }, { customerId: rec.customerId }] });
+        const phone = rec.phone ? String(rec.phone) : "";
+        const customerId = rec.customerId ? String(rec.customerId) : "";
+        const orConditions = [];
+        if (phone) orConditions.push({ phone });
+        if (customerId) orConditions.push({ customerId });
+
+        const existing: any = orConditions.length > 0
+          ? await (Customer as any).findOne({ $or: orConditions })
+          : null;
         if (existing) {
           if (mode === "skip_duplicates") { skipped++; continue; }
-          if (mode === "update_existing") { Object.assign(existing, { name: rec.name, email: rec.email || existing.email, address: rec.address || existing.address, state: rec.state || existing.state }); await existing.save(); updated++; continue; }
+          if (mode === "update_existing") {
+            Object.assign(existing, {
+              name: rec.name,
+              email: rec.email || existing.email,
+              address: rec.address || existing.address,
+              state: rec.state || existing.state,
+            });
+            await existing.save();
+            updated++;
+            continue;
+          }
         }
-        await new Customer(rec).save(); imported++;
+        await new Customer(rec).save();
+        imported++;
       } catch (e) { failed++; errorDetails.push(`Failed on customer "${rec.name}": ${(e as Error).message}`); }
     }
   }
