@@ -32,6 +32,8 @@ export interface ProductFilters {
 export type ProductSort =
   | "newest"
   | "oldest"
+  | "name-asc"
+  | "name-desc"
   | "stock-desc"
   | "stock-asc"
   | "price-desc"
@@ -147,6 +149,12 @@ export const adminApi = {
         break;
       case "oldest":
         list.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
+        break;
+      case "name-asc":
+        list.sort((a, b) => (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" }));
+        break;
+      case "name-desc":
+        list.sort((a, b) => (b.name || "").localeCompare(a.name || "", undefined, { sensitivity: "base" }));
         break;
       case "stock-desc":
         list.sort((a, b) => (b.stock || 0) - (a.stock || 0));
@@ -659,6 +667,17 @@ export const adminApi = {
     const res = await apiFetch<AuditLog[]>("/api/audit-logs");
     return res.success && Array.isArray(res.data) ? res.data : [];
   },
+  async clearAuditLogs(): Promise<ApiResponse<{ count: number }>> {
+    const res = await apiFetch<any>("/api/audit-logs?all=true", {
+      method: "DELETE",
+    });
+    return {
+      success: res.success,
+      data: { count: res.data?.deletedCount || 0 },
+      message: res.message || "Audit logs cleared successfully.",
+      error: res.error,
+    };
+  },
 
   // 12. VARIANTS
   async getVariants(productId: string): Promise<ProductVariant[]> {
@@ -696,6 +715,17 @@ export const adminApi = {
       method: "DELETE",
     });
   },
+  async deleteAllComboOffers(): Promise<ApiResponse<{ count: number }>> {
+    const res = await apiFetch<any>("/api/combo-offers?all=true", {
+      method: "DELETE",
+    });
+    return {
+      success: res.success,
+      data: { count: res.data?.deletedCount || 0 },
+      message: res.message || "All combo offers deleted successfully.",
+      error: res.error,
+    };
+  },
 
   // 14. ORDERS
   async getOrders(status?: string, search?: string): Promise<OrderRecord[]> {
@@ -730,6 +760,22 @@ export const adminApi = {
   },
   async updateOrderStatus(orderId: string, orderStatus: string, notes?: string): Promise<ApiResponse<any>> {
     return this.updateOrderTracking(orderId, { orderStatus, notes });
+  },
+  async deleteOrder(orderId: string): Promise<ApiResponse<void>> {
+    return apiFetch<void>(`/api/orders?orderId=${encodeURIComponent(orderId)}`, {
+      method: "DELETE",
+    });
+  },
+  async deleteAllOrders(): Promise<ApiResponse<{ count: number }>> {
+    const res = await apiFetch<any>("/api/orders?all=true", {
+      method: "DELETE",
+    });
+    return {
+      success: res.success,
+      data: { count: res.data?.deletedCount || 0 },
+      message: res.message || "All orders deleted successfully.",
+      error: res.error,
+    };
   },
 
   // 15. CATEGORIES
@@ -768,12 +814,45 @@ export const adminApi = {
     }
     return res;
   },
+  async deleteAllCategories(): Promise<ApiResponse<{ count: number }>> {
+    const res = await apiFetch<any>("/api/categories?all=true", {
+      method: "DELETE",
+    });
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_categories_updated"));
+      try {
+        localStorage.setItem("nithi_cat_version", Date.now().toString());
+      } catch (e) {}
+    }
+    return {
+      success: res.success,
+      data: { count: res.data?.deletedCount || 0 },
+      message: res.message || "All categories deleted successfully.",
+      error: res.error,
+    };
+  },
 
   // 16. CUSTOMERS
   async getCustomers(search?: string): Promise<any[]> {
     const query = search ? `?search=${encodeURIComponent(search)}` : "";
     const res = await apiFetch<any[]>(`/api/customers${query}`);
     return res.success && Array.isArray(res.data) ? res.data : [];
+  },
+  async deleteCustomer(customerId: string): Promise<ApiResponse<void>> {
+    return apiFetch<void>(`/api/customers?customerId=${encodeURIComponent(customerId)}`, {
+      method: "DELETE",
+    });
+  },
+  async deleteAllCustomers(): Promise<ApiResponse<{ count: number }>> {
+    const res = await apiFetch<any>("/api/customers?all=true", {
+      method: "DELETE",
+    });
+    return {
+      success: res.success,
+      data: { count: res.data?.deletedCount || 0 },
+      message: res.message || "All customers deleted successfully.",
+      error: res.error,
+    };
   },
 
   // 17. INVENTORY TRANSACTIONS
@@ -786,5 +865,21 @@ export const adminApi = {
   async getBookings(): Promise<any[]> {
     const res = await apiFetch<any[]>("/api/bookings");
     return res.success && Array.isArray(res.data) ? res.data : [];
+  },
+  async deleteBooking(bookingId: string): Promise<ApiResponse<void>> {
+    return apiFetch<void>(`/api/bookings?bookingId=${encodeURIComponent(bookingId)}`, {
+      method: "DELETE",
+    });
+  },
+  async deleteAllBookings(): Promise<ApiResponse<{ count: number }>> {
+    const res = await apiFetch<any>("/api/bookings?all=true", {
+      method: "DELETE",
+    });
+    return {
+      success: res.success,
+      data: { count: res.data?.deletedCount || 0 },
+      message: res.message || "All bookings deleted successfully.",
+      error: res.error,
+    };
   },
 };

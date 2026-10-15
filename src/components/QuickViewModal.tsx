@@ -64,10 +64,13 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
   const basePrice = Math.max(activeSizeOpt?.mrp || product.mrp || rawSizePrice, effectivePrice);
   const dynamicDiscount = basePrice > effectivePrice ? Math.round(((basePrice - effectivePrice) / basePrice) * 100) : 0;
   const sizeStock = activeSizeOpt ? Number(activeSizeOpt.stock) : Number(product.stock || 0);
-  const isOutOfStock = sizeStock <= 0 || !product.inStock || product.status === "OUT OF STOCK";
+  const isOutOfStock = (product && product.status === "OUT OF STOCK") || (sizeStock <= 0 && (product.stock || 0) <= 0);
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
+    const finalSize = selectedSize || (product.sizes && product.sizes[0]) || (product.sizeOptions && product.sizeOptions[0]?.size) || "Free Size";
+    const finalColor = (product.colors && product.colors[0]) || product.color || "Standard";
+
     dispatch({
       type: "ADD_TO_CART",
       payload: {
@@ -76,13 +79,13 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
           price: effectivePrice,
           mrp: basePrice,
         },
-        quantity,
-        selectedColor: "Standard",
-        selectedSize: selectedSize || "Free Size",
+        quantity: Math.max(1, quantity),
+        selectedColor: finalColor,
+        selectedSize: finalSize,
         unitPrice: effectivePrice,
         mrp: basePrice,
         colorImage: activePhoto,
-        stock: sizeStock,
+        stock: sizeStock > 0 ? sizeStock : (product.stock || 50),
       },
     });
     setAddedAnimation(true);
@@ -94,6 +97,9 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
 
   const handleBuyNow = () => {
     if (isOutOfStock) return;
+    const finalSize = selectedSize || (product.sizes && product.sizes[0]) || (product.sizeOptions && product.sizeOptions[0]?.size) || "Free Size";
+    const finalColor = (product.colors && product.colors[0]) || product.color || "Standard";
+
     dispatch({
       type: "ADD_TO_CART",
       payload: {
@@ -102,13 +108,13 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
           price: effectivePrice,
           mrp: basePrice,
         },
-        quantity,
-        selectedColor: "Standard",
-        selectedSize: selectedSize || "Free Size",
+        quantity: Math.max(1, quantity),
+        selectedColor: finalColor,
+        selectedSize: finalSize,
         unitPrice: effectivePrice,
         mrp: basePrice,
         colorImage: activePhoto,
-        stock: sizeStock,
+        stock: sizeStock > 0 ? sizeStock : (product.stock || 50),
       },
     });
     onClose();

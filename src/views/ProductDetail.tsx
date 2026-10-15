@@ -88,7 +88,7 @@ export default function ProductDetail() {
   const savingsAmount = mrp > effectivePrice ? (mrp - effectivePrice) * quantity : 0;
 
   const sizeStock = activeSizeOption ? Number(activeSizeOption.stock) : Number(product?.stock ?? 0);
-  const isSizeOutOfStock = sizeStock <= 0 || (product && !product.inStock) || product?.status === "OUT OF STOCK";
+  const isSizeOutOfStock = (product && product.status === "OUT OF STOCK") || (sizeStock <= 0 && (product?.stock ?? 0) <= 0);
   const isWishlisted = product ? state.wishlist.includes(product.id) : false;
 
   const FALLBACK_DETAIL_IMG = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&fit=crop";
@@ -116,10 +116,9 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     if (!product || isSizeOutOfStock) return;
-    if (!selectedSize) {
-      alert("Please select a size");
-      return;
-    }
+    const finalSize = selectedSize || (product.sizes && product.sizes[0]) || (product.sizeOptions && product.sizeOptions[0]?.size) || "Free Size";
+    const finalColor = selectedColor || (product.colors && product.colors[0]) || product.color || "Standard";
+
     dispatch({
       type: "ADD_TO_CART",
       payload: {
@@ -128,13 +127,13 @@ export default function ProductDetail() {
           price: effectivePrice,
           mrp,
         },
-        quantity,
-        selectedColor: selectedColor || "Standard",
-        selectedSize: selectedSize || "Free Size",
+        quantity: Math.max(1, quantity),
+        selectedColor: finalColor,
+        selectedSize: finalSize,
         unitPrice: effectivePrice,
         mrp,
         colorImage: primaryImage,
-        stock: sizeStock,
+        stock: sizeStock > 0 ? sizeStock : (product.stock || 50),
       },
     });
     setAddedToast(true);
@@ -143,10 +142,9 @@ export default function ProductDetail() {
 
   const handleBuyNow = () => {
     if (!product || isSizeOutOfStock) return;
-    if (!selectedSize) {
-      alert("Please select a size");
-      return;
-    }
+    const finalSize = selectedSize || (product.sizes && product.sizes[0]) || (product.sizeOptions && product.sizeOptions[0]?.size) || "Free Size";
+    const finalColor = selectedColor || (product.colors && product.colors[0]) || product.color || "Standard";
+
     dispatch({
       type: "ADD_TO_CART",
       payload: {
@@ -155,13 +153,13 @@ export default function ProductDetail() {
           price: effectivePrice,
           mrp,
         },
-        quantity,
-        selectedColor: selectedColor || "Standard",
-        selectedSize: selectedSize || "Free Size",
+        quantity: Math.max(1, quantity),
+        selectedColor: finalColor,
+        selectedSize: finalSize,
         unitPrice: effectivePrice,
         mrp,
         colorImage: primaryImage,
-        stock: sizeStock,
+        stock: sizeStock > 0 ? sizeStock : (product.stock || 50),
       },
     });
     navigate("/checkout");

@@ -601,6 +601,8 @@ export default function AdminProductsList() {
             >
               <option value="newest">Sort: Recently Added</option>
               <option value="oldest">Sort: Oldest First</option>
+              <option value="name-asc">Alphabetical: A to Z</option>
+              <option value="name-desc">Alphabetical: Z to A</option>
               <option value="stock-desc">Highest Stock Quantity</option>
               <option value="stock-asc">Lowest Stock First</option>
               <option value="price-desc">Price: High to Low</option>

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from "react";
+import React, { createContext, useContext, useReducer, useEffect, useState } from "react";
 import type { Product } from "../data/products";
 
 export interface CartItem {
@@ -20,117 +20,149 @@ interface CartState {
 
 type CartAction =
   | { type: "ADD_TO_CART"; payload: CartItem }
-  | { type: "REMOVE_FROM_CART"; payload: string | { productId: string; selectedColor?: string; selectedSize?: string } }
+  | {
+      type: "REMOVE_FROM_CART";
+      payload:
+        | string
+        | { key?: string; productId?: string; selectedColor?: string; selectedSize?: string; index?: number };
+    }
   | { type: "UPDATE_QUANTITY"; payload: { id?: string; key?: string; quantity: number } }
   | { type: "TOGGLE_WISHLIST"; payload: string }
   | { type: "CLEAR_CART" }
   | { type: "LOAD_SAVED"; payload: CartState };
 
-export function getCartItemKey(productId: string, color: string = "Standard", size: string = "Free Size"): string {
-  return `${productId}__${color.trim().toLowerCase()}__${size.trim().toLowerCase()}`;
+/**
+ * Normalizes any cart key by stripping trailing index numbers (e.g. "p123__red__m-0" -> "p123__red__m")
+ */
+export function normalizeKey(key: string): string {
+  if (!key) return "";
+  return key
+    .trim()
+    .toLowerCase()
+    .replace(/-+\d+$/, "")
+    .replace(/__+\d+$/, "");
+}
+
+export function getCartItemKey(
+  productId: string,
+  color: string = "Standard",
+  size: string = "Free Size"
+): string {
+  const safeId = String(productId || "").trim();
+  const safeColor = String(color || "Standard").trim().toLowerCase();
+  const safeSize = String(size || "Free Size").trim().toLowerCase();
+  return `${safeId}__${safeColor}__${safeSize}`;
 }
 
 const STORAGE_KEY = "nithi_shopping_cart_v2";
 
 const initialCartState: CartState = {
   items: [],
-  wishlist: []
+  wishlist: [],
 };
 
-function getInitialState(): CartState {
-  if (typeof window === "undefined") return initialCartState;
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      const rawItems: CartItem[] = Array.isArray(parsed.items) ? parsed.items : [];
-      const consolidated: CartItem[] = [];
+/**
+ * Validates and consolidates raw cart state from localStorage
+ */
+function sanitizeCartState(raw: any): CartState {
+  if (!raw || typeof raw !== "object") return initialCartState;
+  const rawItems: CartItem[] = Array.isArray(raw.items) ? raw.items : [];
+  const consolidated: CartItem[] = [];
 
-      for (const it of rawItems) {
-        if (!it || !it.product) continue;
-        const color = it.selectedColor || (it.product.colors && it.product.colors[0]) || it.product.color || "Standard";
-        const size = it.selectedSize || (it.product.sizes && it.product.sizes[0]) || "Free Size";
-        const itemKey = it.key || getCartItemKey(it.product.id, color, size);
-        
-        const existing = consolidated.find(
-          (c) => (c.key || getCartItemKey(c.product.id, c.selectedColor, c.selectedSize)) === itemKey
-        );
+  for (const it of rawItems) {
+    if (!it || !it.product || !it.product.id) continue;
+    const color = it.selectedColor || (it.product.colors && it.product.colors[0]) || it.product.color || "Standard";
+    const size = it.selectedSize || (it.product.sizes && it.product.sizes[0]) || "Free Size";
+    const itemKey = normalizeKey(it.key || getCartItemKey(it.product.id, color, size));
 
-        if (existing) {
-          existing.quantity += (it.quantity || 1);
-        } else {
-          consolidated.push({
-            ...it,
-            key: itemKey,
-            selectedColor: color,
-            selectedSize: size,
-          });
-        }
-      }
+    const existing = consolidated.find(
+      (c) => normalizeKey(c.key || getCartItemKey(c.product.id, c.selectedColor, c.selectedSize)) === itemKey
+    );
 
-      return {
-        items: consolidated,
-        wishlist: Array.isArray(parsed.wishlist) ? parsed.wishlist : [],
-      };
+    if (existing) {
+      existing.quantity += Math.max(1, Number(it.quantity) || 1);
+    } else {
+      consolidated.push({
+        ...it,
+        key: itemKey,
+        selectedColor: color,
+        selectedSize: size,
+        quantity: Math.max(1, Number(it.quantity) || 1),
+      });
     }
-  } catch (e) {
-    console.warn("Could not load cart from localStorage", e);
   }
-  return initialCartState;
+
+  return {
+    items: consolidated,
+    wishlist: Array.isArray(raw.wishlist) ? raw.wishlist.filter(Boolean) : [],
+  };
 }
 
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "LOAD_SAVED":
-      return action.payload;
+      return sanitizeCartState(action.payload);
 
     case "ADD_TO_CART": {
       const p = action.payload;
+      if (!p || !p.product || !p.product.id) return state;
+
       const color = p.selectedColor || (p.product.colors && p.product.colors[0]) || p.product.color || "Standard";
       const size = p.selectedSize || (p.product.sizes && p.product.sizes[0]) || "Free Size";
-      const itemKey = p.key || getCartItemKey(p.product.id, color, size);
+      const itemKey = normalizeKey(p.key || getCartItemKey(p.product.id, color, size));
 
       // Determine size-specific price
       let unitPrice = p.unitPrice;
       let mrp = p.mrp || p.product.mrp || p.product.price;
       let stock = p.stock;
 
-      if (p.product.sizeOptions && p.product.sizeOptions.length > 0) {
+      if (p.product.sizeOptions && Array.isArray(p.product.sizeOptions) && p.product.sizeOptions.length > 0) {
         const szOpt = p.product.sizeOptions.find(
-          s => s.size && s.size.toLowerCase() === size.toLowerCase()
+          (s) => s.size && s.size.toLowerCase() === size.toLowerCase()
         );
         if (szOpt) {
           if (!unitPrice) {
             const disc = p.product.discount || 0;
-            unitPrice = p.product.discountType === "fixed"
-              ? Math.max(0, szOpt.price - disc)
-              : disc > 0
-              ? Math.max(0, Math.round(szOpt.price * (1 - disc / 100)))
-              : szOpt.price;
+            unitPrice =
+              p.product.discountType === "fixed"
+                ? Math.max(0, szOpt.price - disc)
+                : disc > 0
+                ? Math.max(0, Math.round(szOpt.price * (1 - disc / 100)))
+                : szOpt.price;
           }
           if (!mrp) mrp = szOpt.mrp || szOpt.price;
           if (stock === undefined) stock = szOpt.stock;
         }
       }
 
-      if (unitPrice === undefined) {
-        unitPrice = p.product.finalPrice || (p.product.discount > 0 ? Math.round(p.product.price * (1 - p.product.discount / 100)) : p.product.price);
+      if (unitPrice === undefined || isNaN(unitPrice)) {
+        unitPrice =
+          p.product.finalPrice ||
+          (p.product.discount > 0
+            ? Math.round(p.product.price * (1 - p.product.discount / 100))
+            : p.product.price);
       }
-      if (stock === undefined) {
-        stock = p.product.stock !== undefined ? p.product.stock : 10;
+      if (stock === undefined || isNaN(stock)) {
+        stock = p.product.stock !== undefined ? p.product.stock : 50;
       }
 
       // Determine mapped color image
+      const primaryPhoto =
+        (Array.isArray(p.product.images) && p.product.images[0]) ||
+        p.product.coverImage ||
+        "";
+
       const colorImage =
         p.colorImage ||
         (p.product.colorImages && p.product.colorImages[color]) ||
-        (p.product.colorOptions && p.product.colorOptions.find(c => c.name.toLowerCase() === color.toLowerCase())?.image) ||
+        (p.product.colorOptions &&
+          p.product.colorOptions.find((c) => c.name.toLowerCase() === color.toLowerCase())?.image) ||
         p.product.coverImage ||
-        p.product.images[0] ||
-        "";
+        primaryPhoto ||
+        "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400";
 
       const existingIndex = state.items.findIndex((i) => {
-        const k = i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize);
+        const k = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));
         return k === itemKey;
       });
 
@@ -138,104 +170,122 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 
       if (existingIndex >= 0) {
         const existing = state.items[existingIndex];
-        const newQty = Math.min(stock > 0 ? stock : 99, existing.quantity + p.quantity);
+        const maxLimit = stock > 0 ? stock : 99;
+        const newQty = Math.min(maxLimit, existing.quantity + (p.quantity || 1));
         updatedItems = state.items.map((it, idx) =>
           idx === existingIndex
             ? {
                 ...it,
                 quantity: newQty,
-                unitPrice,
-                mrp,
+                unitPrice: Number(unitPrice) || it.unitPrice || 0,
+                mrp: Number(mrp) || it.mrp || 0,
                 colorImage,
                 stock,
               }
             : it
         );
       } else {
+        const maxLimit = stock > 0 ? stock : 99;
         const newItem: CartItem = {
           ...p,
           key: itemKey,
           selectedColor: color,
           selectedSize: size,
-          unitPrice,
-          mrp,
+          unitPrice: Number(unitPrice) || p.product.price || 0,
+          mrp: Number(mrp) || p.product.mrp || p.product.price || 0,
           colorImage,
           stock,
-          quantity: Math.min(stock > 0 ? stock : 99, Math.max(1, p.quantity)),
+          quantity: Math.min(maxLimit, Math.max(1, p.quantity || 1)),
         };
         updatedItems = [...state.items, newItem];
       }
 
-      const nextState = { ...state, items: updatedItems };
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState)); } catch {}
-      return nextState;
+      return { ...state, items: updatedItems };
     }
 
     case "REMOVE_FROM_CART": {
       let updatedItems: CartItem[];
+
       if (typeof action.payload === "string") {
-        const target = action.payload;
-        // Check if target is a composite key or just productId
-        if (target.includes("__")) {
+        const targetStr = action.payload.trim();
+        const normalizedTarget = normalizeKey(targetStr);
+
+        updatedItems = state.items.filter((i) => {
+          const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));
+          // Check normalized key match, exact key match, or productId match
+          if (itemK === normalizedTarget || i.key === targetStr) return false;
+          if (i.product.id === targetStr) return false;
+          return true;
+        });
+      } else if (action.payload && typeof action.payload === "object") {
+        const payloadObj = action.payload;
+
+        if (typeof payloadObj.index === "number") {
+          updatedItems = state.items.filter((_, idx) => idx !== payloadObj.index);
+        } else if (payloadObj.key) {
+          const normalizedTarget = normalizeKey(payloadObj.key);
           updatedItems = state.items.filter((i) => {
-            const k = i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize);
-            return k !== target;
+            const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));
+            return itemK !== normalizedTarget && i.key !== payloadObj.key;
+          });
+        } else if (payloadObj.productId) {
+          const targetKey = getCartItemKey(
+            payloadObj.productId,
+            payloadObj.selectedColor || "Standard",
+            payloadObj.selectedSize || "Free Size"
+          );
+          const normalizedTarget = normalizeKey(targetKey);
+          updatedItems = state.items.filter((i) => {
+            const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));
+            return itemK !== normalizedTarget && i.product.id !== payloadObj.productId;
           });
         } else {
-          // If plain id, remove by key match or id fallback
-          updatedItems = state.items.filter((i) => {
-            const k = i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize);
-            return k !== target && i.product.id !== target;
-          });
+          updatedItems = state.items;
         }
       } else {
-        const { productId, selectedColor, selectedSize } = action.payload;
-        const targetKey = getCartItemKey(productId, selectedColor || "Standard", selectedSize || "Free Size");
-        updatedItems = state.items.filter((i) => {
-          const k = i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize);
-          return k !== targetKey;
-        });
+        updatedItems = state.items;
       }
 
-      const nextState = { ...state, items: updatedItems };
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState)); } catch {}
-      return nextState;
+      return { ...state, items: updatedItems };
     }
 
     case "UPDATE_QUANTITY": {
-      const targetIdentifier = action.payload.key || action.payload.id;
-      const targetQty = action.payload.quantity;
+      const rawTarget = action.payload.key || action.payload.id || "";
+      const normalizedTarget = normalizeKey(rawTarget);
+      const targetQty = Number(action.payload.quantity);
 
-      const updatedItems = state.items
-        .map((i) => {
-          const k = i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize);
-          if (k === targetIdentifier || i.product.id === targetIdentifier) {
-            const maxAllowed = (i.stock !== undefined && i.stock > 0) ? i.stock : 99;
-            const validQty = Math.max(1, Math.min(maxAllowed, targetQty));
-            return { ...i, quantity: validQty };
-          }
-          return i;
-        })
-        .filter((i) => i.quantity > 0);
+      // If quantity is reduced to 0 or less, remove the item
+      if (targetQty <= 0) {
+        const filtered = state.items.filter((i) => {
+          const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));
+          return itemK !== normalizedTarget && i.key !== rawTarget && i.product.id !== rawTarget;
+        });
+        return { ...state, items: filtered };
+      }
 
-      const nextState = { ...state, items: updatedItems };
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState)); } catch {}
-      return nextState;
+      const updatedItems = state.items.map((i) => {
+        const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));
+        if (itemK === normalizedTarget || i.key === rawTarget || i.product.id === rawTarget) {
+          const maxAllowed = i.stock !== undefined && i.stock > 0 ? i.stock : 99;
+          const validQty = Math.max(1, Math.min(maxAllowed, targetQty));
+          return { ...i, quantity: validQty };
+        }
+        return i;
+      });
+
+      return { ...state, items: updatedItems };
     }
 
     case "TOGGLE_WISHLIST": {
-      const id = action.payload;
+      const id = String(action.payload || "").trim();
+      if (!id) return state;
       const isWish = state.wishlist.includes(id);
       const wishlist = isWish ? state.wishlist.filter((x) => x !== id) : [...state.wishlist, id];
-      const nextState = { ...state, wishlist };
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState)); } catch {}
-      return nextState;
+      return { ...state, wishlist };
     }
 
     case "CLEAR_CART": {
-      const nextState = { ...state, items: [] };
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState)); } catch {}
-      return nextState;
+      return { ...state, items: [] };
     }
 
     default:
@@ -252,24 +302,59 @@ const CartContext = createContext<{
 } | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(cartReducer, initialCartState, getInitialState);
+  const [state, dispatch] = useReducer(cartReducer, initialCartState);
+  const [isHydrated, setIsHydrated] = useState(false);
 
+  // 1. Client mount: hydrate safely from localStorage without SSR mismatch
   useEffect(() => {
     try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && (Array.isArray(parsed.items) || Array.isArray(parsed.wishlist))) {
+          dispatch({ type: "LOAD_SAVED", payload: parsed });
+        }
+      }
+    } catch (e) {
+      console.warn("Could not load cart from localStorage:", e);
+    }
+    setIsHydrated(true);
+  }, []);
+
+  // 2. Persist state to localStorage only AFTER hydration has occurred
+  useEffect(() => {
+    if (!isHydrated) return;
+    try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      window.dispatchEvent(new Event("nithi_cart_updated"));
     } catch (e) {
       console.warn("Failed to persist cart state:", e);
     }
-  }, [state]);
+  }, [state, isHydrated]);
+
+  // 3. Cross-tab synchronization
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          dispatch({ type: "LOAD_SAVED", payload: parsed });
+        } catch {}
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const cartTotal = state.items.reduce((sum, item) => {
-    const unitP = item.unitPrice !== undefined ? item.unitPrice : (item.product.finalPrice || item.product.price);
-    return sum + unitP * item.quantity;
+    const unitP =
+      item.unitPrice !== undefined ? item.unitPrice : (item.product.finalPrice || item.product.price);
+    return sum + Number(unitP || 0) * item.quantity;
   }, 0);
 
   const cartMrpTotal = state.items.reduce((sum, item) => {
     const mrpP = item.mrp || item.product.mrp || item.product.price;
-    return sum + mrpP * item.quantity;
+    return sum + Number(mrpP || 0) * item.quantity;
   }, 0);
 
   const cartCount = state.items.reduce((sum, item) => sum + item.quantity, 0);

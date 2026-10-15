@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { CheckIcon, SearchIcon, FilterIcon } from "../../components/admin/AdminIcons";
+import { CheckIcon, SearchIcon, FilterIcon, TrashIcon } from "../../components/admin/AdminIcons";
+import { adminApi } from "../../services/api";
 
 interface BookingRecord {
   bookingId: string;
@@ -22,6 +23,8 @@ export default function AdminBookings() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -36,62 +39,43 @@ export default function AdminBookings() {
       if (contentType.includes("application/json")) {
         const text = await res.text();
         const json = JSON.parse(text);
-        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        if (json.success && Array.isArray(json.data)) {
           setBookings(json.data);
           setLoading(false);
           return;
         }
       }
     } catch (e) {
-      console.warn("Falling back to seeded bookings:", e);
+      console.warn("API bookings fetch error:", e);
     }
 
-    // Default Seeded Bookings for Permanent Business Record retention
-    setBookings([
-      {
-        bookingId: "BK-20260921-101",
-        customerName: "Radha Krishnan",
-        customerPhone: "+91 98410 99887",
-        customerEmail: "radha.k@example.com",
-        serviceOrProduct: "Custom Bridal Salwar Fitting & Material Consultation",
-        date: "2026-09-25",
-        time: "11:30 AM",
-        quantity: 1,
-        price: 1500,
-        paymentStatus: "Advance_Paid",
-        bookingStatus: "Confirmed",
-        createdAt: "2026-09-21T09:00:00.000Z",
-      },
-      {
-        bookingId: "BK-20260920-102",
-        customerName: "Saraswathi Natarajan",
-        customerPhone: "+91 97899 44332",
-        customerEmail: "saraswathi.n@example.com",
-        serviceOrProduct: "Bulk Nighty Custom Sizing Reservation (50 pcs)",
-        date: "2026-09-28",
-        time: "03:00 PM",
-        quantity: 50,
-        price: 24500,
-        paymentStatus: "Paid",
-        bookingStatus: "Confirmed",
-        createdAt: "2026-09-20T14:30:00.000Z",
-      },
-      {
-        bookingId: "BK-20260918-103",
-        customerName: "Divya Bharathi",
-        customerPhone: "+91 94421 88776",
-        customerEmail: "divya.b@example.com",
-        serviceOrProduct: "Fabric Stitching & Tailoring Consultation",
-        date: "2026-09-22",
-        time: "10:00 AM",
-        quantity: 2,
-        price: 800,
-        paymentStatus: "Pending",
-        bookingStatus: "Pending",
-        createdAt: "2026-09-18T16:15:00.000Z",
-      },
-    ]);
+    setBookings([]);
     setLoading(false);
+  };
+
+  const handleDeleteBooking = async (bookingId: string) => {
+    if (confirm(`Are you sure you want to delete Booking #${bookingId}?`)) {
+      const res = await adminApi.deleteBooking(bookingId);
+      if (res.success) {
+        showToast(`Booking #${bookingId} deleted.`);
+        loadBookings();
+      } else {
+        alert(`Failed to delete booking: ${res.error || "Unknown error"}`);
+      }
+    }
+  };
+
+  const handleConfirmDeleteAll = async () => {
+    setDeletingAll(true);
+    const res = await adminApi.deleteAllBookings();
+    setDeletingAll(false);
+    setShowDeleteAllModal(false);
+    if (res.success) {
+      showToast(res.message || "All bookings purged successfully.");
+      loadBookings();
+    } else {
+      showToast(res.error || "Failed to purge bookings.");
+    }
   };
 
   useEffect(() => {
@@ -156,6 +140,14 @@ export default function AdminBookings() {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowDeleteAllModal(true)}
+            className="px-3.5 py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100/80 border border-rose-200/80 rounded-xl shadow-2xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <TrashIcon size={14} />
+            <span>Purge All</span>
+          </button>
           <a
             href="/api/admin/export/excel"
             target="_blank"
@@ -287,6 +279,14 @@ export default function AdminBookings() {
                             Done
                           </button>
                         )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteBooking(b.bookingId)}
+                          className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/60 transition-colors cursor-pointer"
+                          title="Delete booking"
+                        >
+                          <TrashIcon size={13} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -296,6 +296,58 @@ export default function AdminBookings() {
           </table>
         </div>
       </div>
+
+      {/* Purge All Bookings Confirmation Modal */}
+      {showDeleteAllModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-md w-full p-6 sm:p-7 text-stone-800 animate-in zoom-in-95 duration-150 space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="w-11 h-11 rounded-2xl bg-rose-50 flex items-center justify-center border border-rose-200">
+                <TrashIcon size={22} />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-stone-900 leading-tight">Delete All Bookings?</h3>
+                <p className="text-xs text-rose-600 font-semibold">Irreversible Action</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-stone-600 leading-relaxed">
+              Are you sure you want to permanently purge <strong>all {bookings.length} bookings</strong> from MongoDB Atlas?
+            </p>
+
+            <div className="p-3.5 bg-rose-50 rounded-2xl border border-rose-200 text-xs text-rose-900 space-y-1">
+              <p className="font-bold">⚠️ Warning:</p>
+              <p>All bespoke tailoring appointments, bulk orders, and consultation records will be deleted.</p>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                disabled={deletingAll}
+                onClick={() => setShowDeleteAllModal(false)}
+                className="px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deletingAll}
+                onClick={handleConfirmDeleteAll}
+                className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 shadow-md transition disabled:opacity-50 flex items-center gap-2"
+              >
+                {deletingAll ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Purging...</span>
+                  </>
+                ) : (
+                  <span>Yes, Purge All Bookings</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

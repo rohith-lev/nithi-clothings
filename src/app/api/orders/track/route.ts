@@ -28,7 +28,12 @@ export async function GET(request: NextRequest) {
     const cleanId = queryId.trim();
 
     // Prevent insecure phone-number-only searches!
-    const isPurePhoneNumber = /^[0-9+ -]{7,15}$/.test(cleanId) && !cleanId.toUpperCase().startsWith("ORD-") && !cleanId.toUpperCase().startsWith("NC");
+    const isPurePhoneNumber =
+      /^[0-9+ -]{7,15}$/.test(cleanId) &&
+      !cleanId.toUpperCase().startsWith("ORD-") &&
+      !cleanId.toUpperCase().startsWith("NC") &&
+      !cleanId.toLowerCase().includes("order");
+
     if (isPurePhoneNumber) {
       return NextResponse.json(
         {
@@ -39,15 +44,50 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const safeRegex = new RegExp(`^${escapeRegex(cleanId)}$`, "i");
+    // Generate potential order ID & tracking ID query candidates
+    const candidates = new Set<string>();
+    candidates.add(cleanId);
 
-    const order = await Order.findOne({
-      $or: [{ orderId: safeRegex }, { trackingId: safeRegex }],
-    }).lean();
+    // 1. Strip common prefixes like "Order #", "Order", "#", "Consignment:", "Track:", etc.
+    const stripped = cleanId
+      .replace(/^(order|consignment|track|tracking|id|ref|no|#|\s|:)+/gi, "")
+      .trim();
+    if (stripped) {
+      candidates.add(stripped);
+    }
+
+    // 2. Extract any standard ORD-XXXXXX pattern (e.g. "Order #ORD-090600" -> "ORD-090600")
+    const ordMatch = cleanId.match(/ORD-?[0-9]+/i);
+    if (ordMatch) {
+      const rawMatch = ordMatch[0].toUpperCase();
+      const formatted = rawMatch.startsWith("ORD-")
+        ? rawMatch
+        : `ORD-${rawMatch.replace(/^ORD/, "")}`;
+      candidates.add(formatted);
+      candidates.add(rawMatch);
+    }
+
+    // 3. If query contains 4-8 digits, check ORD- prefix (e.g. "090600" -> "ORD-090600")
+    const digitsMatch = cleanId.match(/\b\d{4,8}\b/);
+    if (digitsMatch) {
+      candidates.add(`ORD-${digitsMatch[0]}`);
+    }
+
+    const orConditions: any[] = [];
+    for (const cand of candidates) {
+      const safe = escapeRegex(cand);
+      orConditions.push({ orderId: new RegExp(`^${safe}$`, "i") });
+      orConditions.push({ trackingId: new RegExp(`^${safe}$`, "i") });
+    }
+
+    const order = await Order.findOne({ $or: orConditions }).lean();
 
     if (!order) {
       return NextResponse.json(
-        { success: false, error: `No consignment found for "${cleanId}". Please check your Reference or Tracking number.` },
+        {
+          success: false,
+          error: `No consignment found for "${cleanId}". Please check your Reference or Tracking number.`,
+        },
         { status: 404 }
       );
     }

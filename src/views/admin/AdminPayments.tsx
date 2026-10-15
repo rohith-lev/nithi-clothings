@@ -1,18 +1,29 @@
 import { useState } from "react";
-import { SparklesIcon, CheckIcon } from "../../components/admin/AdminIcons";
+import { SparklesIcon, CheckIcon, TrashIcon } from "../../components/admin/AdminIcons";
 
 export default function AdminPayments() {
   const [filter, setFilter] = useState("all");
-
-  const transactions = [
+  const [txList, setTxList] = useState([
     { id: "TXN-90211", orderId: "NC-10025", customer: "Priya S.", method: "UPI / GPay", amount: 1499, status: "SUCCESS", date: "11 Sep 2026, 02:45 PM" },
     { id: "TXN-90212", orderId: "NC-10026", customer: "Ananya R.", method: "COD Advance (₹100)", amount: 100, status: "SUCCESS", date: "11 Sep 2026, 01:15 PM" },
     { id: "TXN-90213", orderId: "NC-10027", customer: "Kavitha M.", method: "Net Banking", amount: 2350, status: "SUCCESS", date: "10 Sep 2026, 06:30 PM" },
     { id: "TXN-90214", orderId: "NC-10028", customer: "Divya N.", method: "COD Cash on Delivery", amount: 1797, status: "PENDING_DELIVERY", date: "10 Sep 2026, 04:10 PM" },
     { id: "TXN-90215", orderId: "NC-10029", customer: "Shalini K.", method: "UPI / PhonePe", amount: 899, status: "SUCCESS", date: "09 Sep 2026, 11:20 AM" },
-  ];
+  ]);
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
 
-  const filtered = filter === "all" ? transactions : transactions.filter((t) => t.method.toLowerCase().includes(filter));
+  const handleDelete = (id: string) => {
+    if (confirm(`Delete transaction ${id}?`)) {
+      setTxList((prev) => prev.filter((t) => t.id !== id));
+    }
+  };
+
+  const handleConfirmClearAll = () => {
+    setTxList([]);
+    setShowDeleteAllModal(false);
+  };
+
+  const filtered = filter === "all" ? txList : txList.filter((t) => t.method.toLowerCase().includes(filter));
 
   return (
     <div className="space-y-6 font-body">
@@ -25,7 +36,15 @@ export default function AdminPayments() {
             Real-time ledger for UPI, Card, Net Banking, COD Collections, and Advance payments.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowDeleteAllModal(true)}
+            className="px-3.5 py-1.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100/80 border border-rose-200/80 rounded-xl shadow-2xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <TrashIcon size={14} />
+            <span>Purge All</span>
+          </button>
           <span className="px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
             ● Gateway Active (Razorpay / PhonePe)
           </span>
@@ -90,32 +109,89 @@ export default function AdminPayments() {
                 <th className="px-4 py-3">Amount</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Timestamp</th>
+                <th className="px-4 py-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 font-medium">
-              {filtered.map((t) => (
-                <tr key={t.id} className="hover:bg-stone-50/50">
-                  <td className="px-4 py-3 font-mono font-bold text-stone-800">{t.id}</td>
-                  <td className="px-4 py-3 font-mono text-stone-600">{t.orderId}</td>
-                  <td className="px-4 py-3 font-semibold text-stone-900">{t.customer}</td>
-                  <td className="px-4 py-3 text-stone-700">{t.method}</td>
-                  <td className="px-4 py-3 font-bold text-stone-900">₹{t.amount}</td>
-                  <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      t.status === "SUCCESS"
-                        ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                        : "bg-amber-50 text-amber-800 border border-amber-200"
-                    }`}>
-                      {t.status}
-                    </span>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-stone-400">
+                    No payment transactions recorded.
                   </td>
-                  <td className="px-4 py-3 text-stone-500 text-[11px]">{t.date}</td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((t) => (
+                  <tr key={t.id} className="hover:bg-stone-50/50">
+                    <td className="px-4 py-3 font-mono font-bold text-stone-800">{t.id}</td>
+                    <td className="px-4 py-3 font-mono text-stone-600">{t.orderId}</td>
+                    <td className="px-4 py-3 font-semibold text-stone-900">{t.customer}</td>
+                    <td className="px-4 py-3 text-stone-700">{t.method}</td>
+                    <td className="px-4 py-3 font-bold text-stone-900">₹{t.amount}</td>
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        t.status === "SUCCESS"
+                          ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                          : "bg-amber-50 text-amber-800 border border-amber-200"
+                      }`}>
+                        {t.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-stone-500 text-[11px]">{t.date}</td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(t.id)}
+                        className="p-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/60"
+                        title="Delete transaction"
+                      >
+                        <TrashIcon size={13} />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Purge Modal */}
+      {showDeleteAllModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-md w-full p-6 text-stone-800 animate-in zoom-in-95 duration-150 space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="w-11 h-11 rounded-2xl bg-rose-50 flex items-center justify-center border border-rose-200">
+                <TrashIcon size={22} />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-stone-900 leading-tight">Clear All Transactions?</h3>
+                <p className="text-xs text-rose-600 font-semibold">Irreversible Action</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-stone-600 leading-relaxed">
+              Are you sure you want to clear <strong>all {txList.length} transaction entries</strong>?
+            </p>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteAllModal(false)}
+                className="px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmClearAll}
+                className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 shadow-md transition"
+              >
+                Yes, Purge All Transactions
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

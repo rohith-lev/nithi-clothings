@@ -102,15 +102,23 @@ export async function POST(request: NextRequest) {
     const { items, paymentMethod, idempotencyKey, notes, paymentReference } = body;
 
     if (!customerName || !customerPhone || !shippingAddress || !Array.isArray(items) || items.length === 0) {
+      const missing = [
+        !customerName && "Customer Name",
+        !customerPhone && "Phone Number",
+        !shippingAddress && "Shipping Address",
+        (!Array.isArray(items) || items.length === 0) && "Cart Items",
+      ].filter(Boolean);
+      console.warn(`[POST /api/orders 400 Bad Request] Missing required order fields: ${missing.join(", ")}`);
       return NextResponse.json(
-        { success: false, error: "Missing required order fields (name, phone, address, and items)." },
+        { success: false, error: `Missing required order fields: ${missing.join(", ")}.` },
         { status: 400 }
       );
     }
 
     if (items.length > 50) {
+      console.warn(`[POST /api/orders 400 Bad Request] Exceeded maximum order item limit (${items.length} items)`);
       return NextResponse.json(
-        { success: false, error: "Exceeded maximum order item limit." },
+        { success: false, error: "Exceeded maximum order item limit (max 50)." },
         { status: 400 }
       );
     }
@@ -172,7 +180,7 @@ export async function POST(request: NextRequest) {
     for (const item of items) {
       const rawProductId = sanitizeString(item.productId, 50);
       const quantity = Math.max(1, Math.min(100, parseInt(item.quantity, 10) || 1));
-      const selectedSize = sanitizeString(item.selectedSize || "Free Size", 30);
+      const selectedSize = sanitizeString(item.selectedSize || item.size || "Free Size", 30);
 
       const product = await Product.findOne({ id: rawProductId });
 
@@ -225,6 +233,7 @@ export async function POST(request: NextRequest) {
 
           if (matchedSizeOption) {
             if (matchedSizeOption.stock < quantity) {
+              console.warn(`[POST /api/orders 400 Bad Request] Out of stock: ${product.name} (Size: ${selectedSize}) requested ${quantity}, available: ${matchedSizeOption.stock}`);
               return NextResponse.json(
                 { success: false, error: `Sorry, ${product.name} (Size: ${selectedSize}) is out of stock. Only ${matchedSizeOption.stock} available.` },
                 { status: 400 }
@@ -233,6 +242,7 @@ export async function POST(request: NextRequest) {
             matchedSizeOption.stock = Math.max(0, matchedSizeOption.stock - quantity);
           } else {
             if (product.stock < quantity) {
+              console.warn(`[POST /api/orders 400 Bad Request] Out of stock: ${product.name} requested ${quantity}, available: ${product.stock}`);
               return NextResponse.json(
                 { success: false, error: `Sorry, ${product.name} is out of stock. Only ${product.stock} available.` },
                 { status: 400 }
@@ -247,6 +257,7 @@ export async function POST(request: NextRequest) {
           product.stock = product.sizeOptions.reduce((acc: number, curr: any) => acc + (curr.stock || 0), 0);
         } else {
           if (product.stock < quantity) {
+            console.warn(`[POST /api/orders 400 Bad Request] Out of stock: ${product.name} requested ${quantity}, available: ${product.stock}`);
             return NextResponse.json(
               { success: false, error: `Sorry, ${product.name} is out of stock. Only ${product.stock} available.` },
               { status: 400 }
@@ -389,6 +400,61 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return NextResponse.json(
       { success: false, error: "Order processing failed: " + (error as Error).message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const { user, errorResponse } = requireAdmin(request);
+  if (errorResponse) return errorResponse;
+
+  try {
+    await connectToDatabase();
+    const { searchParams } = new URL(request.url);
+    const body = await request.json().catch(() => ({}));
+    const orderId = searchParams.get("orderId") || body.orderId;
+    const isAll = searchParams.get("all") === "true" || orderId === "all";
+
+    if (isAll) {
+      const res = await Order.deleteMany({});
+      return NextResponse.json({
+        success: true,
+        message: `All ${res.deletedCount} orders deleted successfully`,
+        data: { deletedCount: res.deletedCount },
+      });
+    }
+
+    if (!orderId) {
+      return NextResponse.json(
+        { success: false, error: "Order ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const cleanOrderId = String(orderId).trim();
+    const deleted = await Order.findOneAndDelete({
+      $or: [
+        { orderId: cleanOrderId },
+        { orderId: new RegExp(`^${escapeRegex(cleanOrderId)}$`, "i") },
+        ...(cleanOrderId.match(/^[0-9a-fA-F]{24}$/) ? [{ _id: cleanOrderId }] : []),
+      ],
+    });
+
+    if (!deleted) {
+      return NextResponse.json(
+        { success: false, error: "Order not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `Order #${deleted.orderId} deleted successfully`,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: (error as Error).message },
       { status: 500 }
     );
   }

@@ -53,7 +53,17 @@ export async function GET(request: NextRequest) {
 
     const recentOrders = orders
       .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
-      .slice(0, 6);
+      .slice(0, 6)
+      .map((o: any, idx: number) => ({
+        ...o,
+        id: o.orderId || o.id || (o._id ? String(o._id) : `ord-${idx}-${Date.now()}`),
+        customerName: o.customerName || (o.customer?.name ?? "Customer"),
+        shippingState: o.shippingState || "Tamil Nadu",
+        items: Array.isArray(o.items) ? o.items : [],
+        total: o.total || o.subtotal || 0,
+        paymentMethod: o.paymentMethod || "COD",
+        status: o.orderStatus || o.status || "Pending",
+      }));
 
     return NextResponse.json({
       success: true,

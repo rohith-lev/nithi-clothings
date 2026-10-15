@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useCustomerAuth, customerAuthService } from "../services/customerAuth";
 import type { OrderRecord } from "../types/store";
@@ -21,6 +21,7 @@ export default function Account() {
   const [trackingOrder, setTrackingOrder] = useState<OrderRecord | null>(null);
   const [trackError, setTrackError] = useState<string | null>(null);
   const [isSearchingTrack, setIsSearchingTrack] = useState(false);
+  const [copiedTrackId, setCopiedTrackId] = useState<string | null>(null);
 
   // Sign In Form State (No OTP required!)
   const [authIdentifier, setAuthIdentifier] = useState("");
@@ -136,9 +137,22 @@ export default function Account() {
     }
   };
 
+  const ordersWithTracking = useMemo(() => {
+    return customerOrders.filter((o) => Boolean(o.trackingId && o.trackingId.trim()));
+  }, [customerOrders]);
+
+  const handleCopyTrackingId = (trackingId: string) => {
+    if (typeof window !== "undefined" && navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(trackingId);
+      setCopiedTrackId(trackingId);
+      setTimeout(() => setCopiedTrackId(null), 2500);
+    }
+  };
+
   const handleTrackQuery = async (queryId: string) => {
-    const cleanId = queryId.trim();
-    if (!cleanId) return;
+    const rawTrimmed = queryId.trim();
+    if (!rawTrimmed) return;
+    const cleanId = rawTrimmed.replace(/^(order\s*#?|#)\s*/i, "").trim() || rawTrimmed;
     setIsSearchingTrack(true);
     setTrackError(null);
 
@@ -206,6 +220,11 @@ export default function Account() {
     if (res.success) {
       setAuthIdentifier("");
       setAuthName("");
+      const redirectUrl = searchParams.get("redirect");
+      if (redirectUrl) {
+        navigate(redirectUrl);
+        return;
+      }
       if (trackInput.trim()) {
         handleTrackQuery(trackInput.trim());
       }
@@ -352,6 +371,33 @@ export default function Account() {
                 )}
               </button>
             </form>
+
+            {/* Quick Track Chips for Signed-In Customer's Active Shipments */}
+            {isLoggedIn && ordersWithTracking.length > 0 && (
+              <div className="mt-4 pt-3.5 border-t border-[#C9A227]/30 flex flex-wrap items-center justify-center gap-2 text-xs">
+                <span className="text-[10px] uppercase font-bold text-[#5C635E] tracking-wider">
+                  ⚡ Quick Track Active Consignment:
+                </span>
+                {ordersWithTracking.map((ord) => (
+                  <button
+                    key={ord.id}
+                    type="button"
+                    onClick={() => {
+                      const idToTrack = ord.trackingId || ord.id;
+                      setTrackInput(idToTrack);
+                      handleTrackQuery(idToTrack);
+                    }}
+                    className="px-3 py-1.5 bg-[#FAF8F1] hover:bg-[#064E3B] hover:text-[#FAF8F1] border border-[#C9A227] rounded-full font-mono text-xs text-[#064E3B] font-bold transition-all shadow-2xs cursor-pointer flex items-center gap-1.5 group"
+                  >
+                    <span>🚚</span>
+                    <span className="group-hover:text-[#FAF8F1]">{ord.trackingId}</span>
+                    <span className="text-[10px] text-stone-500 group-hover:text-stone-300 font-sans font-normal">
+                      ({ord.courierName || "Courier"})
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
 
             {trackError && (
               <div className="mt-4 p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center justify-center gap-2 text-left max-w-xl mx-auto">
@@ -521,6 +567,99 @@ export default function Account() {
                 </button>
               </div>
             </div>
+
+            {/* PRIORITY 1: Active Consignments & Tracking IDs Spotlight */}
+            {ordersWithTracking.length > 0 && (
+              <div className="bg-[#FFFFFF] border-2 border-emerald-600/30 rounded-2xl p-6 sm:p-7 shadow-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E8E2D5] mb-5 gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="p-1.5 rounded-lg bg-emerald-50 text-emerald-800 text-sm">🚚</span>
+                      <h3 className="font-display text-xl font-bold text-[#171A18]">
+                        Active Consignments & Live Tracking IDs
+                      </h3>
+                    </div>
+                    <p className="text-xs text-[#5C635E] mt-0.5">
+                      Your dispatched orders with live AWB courier consignment tracking numbers.
+                    </p>
+                  </div>
+                  <span className="text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-full font-bold self-start sm:self-auto">
+                    {ordersWithTracking.length} {ordersWithTracking.length === 1 ? "Active Shipment" : "Active Shipments"}
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  {ordersWithTracking.map((ord) => (
+                    <div
+                      key={ord.id}
+                      className="bg-[#FAF8F1] border border-[#C9A227]/40 rounded-xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-xs font-mono font-bold text-[#064E3B] bg-white px-2 py-0.5 rounded border border-stone-200">
+                            Order #{ord.id}
+                          </span>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadge(ord.status)}`}>
+                            {ord.status}
+                          </span>
+                          {ord.courierName && (
+                            <span className="text-xs font-bold text-stone-700">
+                              via {ord.courierName}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Highlighted Tracking ID Block */}
+                        <div className="flex items-center gap-2.5 pt-1">
+                          <span className="text-xs text-[#5C635E] font-medium">Tracking ID / AWB:</span>
+                          <span className="font-mono text-sm font-bold text-[#064E3B] bg-emerald-100/70 border border-emerald-300 px-3 py-1 rounded-lg">
+                            {ord.trackingId}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyTrackingId(ord.trackingId || "")}
+                            className="px-2.5 py-1 text-[11px] font-semibold bg-white border border-stone-300 hover:border-[#064E3B] rounded-lg transition-colors cursor-pointer text-stone-700"
+                            title="Copy Tracking ID"
+                          >
+                            {copiedTrackId === ord.trackingId ? "✓ Copied!" : "📋 Copy"}
+                          </button>
+                        </div>
+
+                        <div className="text-[11px] text-[#5C635E] flex flex-wrap items-center gap-3">
+                          {ord.dispatchDate && (
+                            <span>📅 Dispatched: {ord.dispatchDate}</span>
+                          )}
+                          <span>📍 Destination: {ord.shippingState}</span>
+                          <span>🛍️ {ord.items.length} {ord.items.length === 1 ? "Item" : "Items"}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const idToTrack = ord.trackingId || ord.id;
+                            setTrackInput(idToTrack);
+                            handleTrackQuery(idToTrack);
+                            window.scrollTo({ top: 120, behavior: "smooth" });
+                          }}
+                          className="px-4 py-2.5 bg-[#064E3B] hover:bg-[#0B3D2E] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <span>🔍 View Live Journey</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedOrderModal(ord)}
+                          className="px-3.5 py-2.5 bg-white border border-stone-300 hover:border-stone-400 text-stone-700 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                        >
+                          Details
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* PRIORITY 2: Saved Delivery Address Card */}
             <div className="bg-[#FFFFFF] border border-[#E8E2D5] rounded-2xl p-6 sm:p-8 shadow-xs">
@@ -900,10 +1039,10 @@ export default function Account() {
                   Customer Portal
                 </span>
                 <h3 className="font-display text-2xl font-bold text-[#064E3B]">
-                  Sign In to My Account
+                  Sign In to My Account & Tracking
                 </h3>
                 <p className="text-xs text-[#5C635E] mt-1">
-                  Enter your mobile number or email to access your orders, track consignments, and manage saved delivery addresses.
+                  Enter your mobile number or email to access your orders, view live courier Tracking IDs, and complete 1-click Buy Now checkout with saved addresses.
                 </p>
               </div>
 

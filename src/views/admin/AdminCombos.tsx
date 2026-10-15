@@ -9,6 +9,8 @@ export default function AdminCombos() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const defaultForm: ComboOffer = {
@@ -133,6 +135,23 @@ export default function AdminCombos() {
     }
   };
 
+  const handleConfirmDeleteAll = async () => {
+    setDeletingAll(true);
+    const res = await adminApi.deleteAllComboOffers();
+    setDeletingAll(false);
+    setShowDeleteAllModal(false);
+    if (res.success) {
+      await loadCombos();
+      window.dispatchEvent(new CustomEvent("nithi_combo_updated"));
+      try { localStorage.setItem("nithi_combo_version", Date.now().toString()); } catch (e) {}
+      setToast(res.message || "All combo offers purged successfully.");
+      setTimeout(() => setToast(null), 3000);
+    } else {
+      setToast(res.error || "Failed to purge combo offers.");
+      setTimeout(() => setToast(null), 3000);
+    }
+  };
+
   return (
     <div className="space-y-6 font-body">
       {toast && (
@@ -159,14 +178,24 @@ export default function AdminCombos() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleOpenNew}
-          className="px-4 py-2.5 bg-[#064E3B] hover:bg-[#0B3D2E] text-white text-xs font-bold rounded-xl shadow-sm transition-all inline-flex items-center gap-2 uppercase tracking-wider cursor-pointer"
-        >
-          <PlusIcon size={14} />
-          <span>New Combo Bundle</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowDeleteAllModal(true)}
+            className="px-3.5 py-2.5 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100/80 border border-rose-200/80 rounded-xl shadow-2xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <TrashIcon size={14} />
+            <span>Purge All</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleOpenNew}
+            className="px-4 py-2.5 bg-[#064E3B] hover:bg-[#0B3D2E] text-white text-xs font-bold rounded-xl shadow-sm transition-all inline-flex items-center gap-2 uppercase tracking-wider cursor-pointer"
+          >
+            <PlusIcon size={14} />
+            <span>New Combo Bundle</span>
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -444,6 +473,58 @@ export default function AdminCombos() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Purge All Combos Confirmation Modal */}
+      {showDeleteAllModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-md w-full p-6 sm:p-7 text-stone-800 animate-in zoom-in-95 duration-150 space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="w-11 h-11 rounded-2xl bg-rose-50 flex items-center justify-center border border-rose-200">
+                <TrashIcon size={22} />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-stone-900 leading-tight">Delete All Combo Offers?</h3>
+                <p className="text-xs text-rose-600 font-semibold">Irreversible Action</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-stone-600 leading-relaxed">
+              Are you sure you want to permanently purge <strong>all {combos.length} combo deals</strong> from MongoDB Atlas?
+            </p>
+
+            <div className="p-3.5 bg-rose-50 rounded-2xl border border-rose-200 text-xs text-rose-900 space-y-1">
+              <p className="font-bold">⚠️ Warning:</p>
+              <p>Storefront combo discount popups, multi-pack bundles, and countdown timer deals will be deleted.</p>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                disabled={deletingAll}
+                onClick={() => setShowDeleteAllModal(false)}
+                className="px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deletingAll}
+                onClick={handleConfirmDeleteAll}
+                className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 shadow-md transition disabled:opacity-50 flex items-center gap-2"
+              >
+                {deletingAll ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Purging...</span>
+                  </>
+                ) : (
+                  <span>Yes, Purge All Combos</span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

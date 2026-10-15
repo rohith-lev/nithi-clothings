@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import Product from "@/lib/models/Product";
 import Category from "@/lib/models/Category";
 import InventoryTransaction from "@/lib/models/InventoryTransaction";
 import AuditLog from "@/lib/models/AuditLog";
 import { requireAdmin, escapeRegex } from "@/lib/auth";
-import fs from "fs";
-import path from "path";
-
-import { products as defaultProducts } from "@/data/products";
+import { saveMediaBuffer } from "@/lib/mediaStorage";
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,15 +17,6 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const status = searchParams.get("status");
     const activeOnly = searchParams.get("activeOnly") === "true";
-
-    const totalCount = await Product.countDocuments();
-    if (totalCount === 0 && Array.isArray(defaultProducts) && defaultProducts.length > 0) {
-      try {
-        await Product.insertMany(defaultProducts);
-      } catch (seedErr) {
-        console.warn("Products initial seed error:", seedErr);
-      }
-    }
 
     // Permanently purge any test/deleted Priya products from database
     try {
@@ -126,21 +115,13 @@ export async function POST(request: NextRequest) {
       // Handle any files attached directly to this request
       const files = formData.getAll("images") as File[];
       if (files && files.length > 0) {
-        const uploadDir = path.join(process.cwd(), "public", "uploads");
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
-
         const uploadedUrls: string[] = [];
         for (const file of files) {
           if (typeof file === "object" && file !== null && "arrayBuffer" in file) {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
-            const ext = path.extname(file.name || "") || ".jpg";
-            const filename = `img-${Date.now()}-${Math.random().toString(36).slice(2, 7)}${ext}`;
-            const filePath = path.join(uploadDir, filename);
-            fs.writeFileSync(filePath, buffer);
-            uploadedUrls.push(`/uploads/${filename}`);
+            const saved = await saveMediaBuffer(buffer, file.name, file.type);
+            uploadedUrls.push(saved.url);
           }
         }
 
@@ -396,3 +377,56 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  const { user, errorResponse } = requireAdmin(request);
+  if (errorResponse) return errorResponse;
+
+  try {
+    await connectToDatabase();
+    const body = await request.json().catch(() => ({}));
+    const { searchParams } = new URL(request.url);
+    const ids = body.ids || (searchParams.get("ids") ? searchParams.get("ids")!.split(",") : null);
+
+    let deleteFilter: any = {};
+    if (Array.isArray(ids) && ids.length > 0) {
+      const validObjectIds = ids.filter((id: string) => mongoose.Types.ObjectId.isValid(id));
+      deleteFilter = {
+        $or: [
+          { id: { $in: ids } },
+          ...(validObjectIds.length > 0 ? [{ _id: { $in: validObjectIds } }] : []),
+        ],
+      };
+    }
+
+    const result = await Product.deleteMany(deleteFilter);
+
+    try {
+      await new AuditLog({
+        id: `log-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        adminName: user?.name || "Super Admin",
+        action: "DELETE",
+        targetType: "PRODUCT",
+        targetId: ids ? ids.join(",") : "ALL",
+        targetName: ids ? `${result.deletedCount} products` : "All products",
+        oldValue: `Deleted ${result.deletedCount} products from database`,
+        reason: "Admin bulk delete operation",
+      }).save();
+    } catch (e) {
+      console.error("Audit log error:", e);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: `${result.deletedCount} product(s) deleted successfully`,
+      data: { deletedCount: result.deletedCount },
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: "Failed to delete products: " + (error as Error).message },
+      { status: 500 }
+    );
+  }
+}
+

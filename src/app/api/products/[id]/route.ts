@@ -3,7 +3,6 @@ import { connectToDatabase } from "@/lib/mongodb";
 import Product from "@/lib/models/Product";
 import AuditLog from "@/lib/models/AuditLog";
 import { requireAdmin, escapeRegex } from "@/lib/auth";
-import { products as defaultProducts } from "@/data/products";
 import mongoose from "mongoose";
 
 export async function GET(
@@ -36,17 +35,6 @@ export async function GET(
 
     const product = await Product.findOne(query).lean();
     if (!product || (product.name && product.name.toLowerCase().includes("priya"))) {
-      const defaultMatch = defaultProducts.find(
-        (p) =>
-          !p.name?.toLowerCase().includes("priya") &&
-          ((p.id && p.id.toLowerCase() === rawId.toLowerCase()) ||
-            (p.code && p.code.toLowerCase() === rawId.toLowerCase()) ||
-            (p.sku && p.sku.toLowerCase() === rawId.toLowerCase()) ||
-            (p.name && p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === rawId.toLowerCase()))
-      );
-      if (defaultMatch) {
-        return NextResponse.json({ success: true, data: defaultMatch });
-      }
       return NextResponse.json(
         { success: false, error: "Product not found" },
         { status: 404 }

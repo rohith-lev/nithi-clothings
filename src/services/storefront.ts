@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Product, Category } from "../types/store";
-import { categories as defaultCategories, products as defaultProducts } from "../data/products";
 
 // Centralized reactive client-side category store
 let cachedCategories: Category[] = [];
@@ -85,8 +84,7 @@ async function safeJsonFetch<T = any>(url: string): Promise<T | null> {
 
 export function useStoreCategories() {
   const [categories, setCategories] = useState<Category[]>(() => {
-    const base = cachedCategories.length > 0 ? cachedCategories : defaultCategories || [];
-    return base.filter((c) => !isPriyaItem(c));
+    return cachedCategories.filter((c) => !isPriyaItem(c));
   });
 
   const fetchCategories = useCallback(() => {
@@ -149,8 +147,7 @@ export function useStoreCategories() {
 
 export function useStoreProducts() {
   const [products, setProducts] = useState<Product[]>(() => {
-    const base = cachedProducts.length > 0 ? cachedProducts : defaultProducts || [];
-    return base.filter((p) => !isPriyaItem(p));
+    return cachedProducts.filter((p) => !isPriyaItem(p));
   });
 
   const fetchProducts = useCallback(() => {
@@ -206,7 +203,7 @@ export function useStoreProduct(id?: string) {
     if (!searchId) return undefined;
     const clean = searchId.toLowerCase().trim();
     if (clean.includes("priya")) return undefined;
-    return defaultProducts.find(
+    return cachedProducts.find(
       (p) =>
         !isPriyaItem(p) &&
         ((p.id && p.id.toLowerCase() === clean) ||

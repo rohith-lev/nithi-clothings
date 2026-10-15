@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { useCart } from "../store/cart";
+import { useCart, getCartItemKey } from "../store/cart";
 import { useState } from "react";
 import FreeShippingProgress from "../components/FreeShippingProgress";
 
@@ -81,9 +81,28 @@ export default function Cart() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8 font-body bg-[#FAF8F1]">
-      <h1 className="font-display text-2xl lg:text-3xl font-bold text-[#064E3B] mb-6">
-        Shopping Bag ({cartCount} {cartCount === 1 ? "Item" : "Items"})
-      </h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="font-display text-2xl lg:text-3xl font-bold text-[#064E3B]">
+          Shopping Bag ({cartCount} {cartCount === 1 ? "Item" : "Items"})
+        </h1>
+        {state.items.length > 0 && (
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm("Are you sure you want to remove all items from your bag?")) {
+                dispatch({ type: "CLEAR_CART" });
+              }
+            }}
+            className="text-xs font-semibold text-rose-600 hover:text-rose-800 hover:underline transition-colors flex items-center gap-1.5 cursor-pointer"
+            title="Empty all items from bag"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            <span>Clear Bag</span>
+          </button>
+        )}
+      </div>
 
       {/* Free Shipping Dynamic Bar */}
       <div className="mb-6">
@@ -98,7 +117,7 @@ export default function Cart() {
         {/* Cart Items List */}
         <div className="lg:col-span-2 space-y-4">
           {state.items.map((item, idx) => {
-            const itemKey = item.key ? `${item.key}-${idx}` : `${item.product.id}__${(item.selectedColor || 'Standard').toLowerCase()}__${(item.selectedSize || 'Free Size').toLowerCase()}__${idx}`;
+            const itemKey = item.key || getCartItemKey(item.product.id, item.selectedColor, item.selectedSize);
             const itemImage =
               item.colorImage ||
               (item.product.colorImages && item.selectedColor && item.product.colorImages[item.selectedColor]) ||
@@ -114,7 +133,7 @@ export default function Cart() {
 
             return (
               <div
-                key={itemKey}
+                key={`${itemKey}__${idx}`}
                 className="bg-[#FFFFFF] border border-[#E8E2D5] rounded-2xl p-4 sm:p-5 flex gap-4 sm:gap-5 shadow-xs transition-all hover:border-[#C9A227]/60"
               >
                 <Link to={`/product/${item.product.id}`} className="shrink-0">

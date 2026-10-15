@@ -85,16 +85,37 @@ export async function DELETE(request: NextRequest) {
   try {
     await connectToDatabase();
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get("id");
+    const body = await request.json().catch(() => ({}));
+
+    const all = searchParams.get("all") === "true" || body.all === true;
+    const id = searchParams.get("id") || body.id;
+
+    if (all || id === "all") {
+      const res = await ComboOffer.deleteMany({});
+      return NextResponse.json({
+        success: true,
+        message: `All ${res.deletedCount} combo offers purged successfully`,
+        data: { deletedCount: res.deletedCount },
+      });
+    }
+
     if (id) {
       const safeId = escapeRegex(id.trim());
       const orClauses: any[] = [{ id: safeId }, { id }];
       if (mongoose.Types.ObjectId.isValid(id)) {
         orClauses.push({ _id: id });
       }
-      await ComboOffer.deleteMany({ $or: orClauses });
+      const res = await ComboOffer.deleteMany({ $or: orClauses });
+      return NextResponse.json({
+        success: true,
+        message: `Combo offer deleted (${res.deletedCount} removed)`,
+      });
     }
-    return NextResponse.json({ success: true, message: "Combo offer deleted" });
+
+    return NextResponse.json(
+      { success: false, error: "ID or all=true required" },
+      { status: 400 }
+    );
   } catch (error) {
     return NextResponse.json(
       { success: false, error: (error as Error).message },

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
 import path from "path";
-import crypto from "crypto";
 import { requireAdmin, checkRateLimit, getClientIp } from "@/lib/auth";
+import { saveMediaBuffer, detectImageFormat } from "@/lib/mediaStorage";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -19,38 +18,15 @@ const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif"]);
 /**
  * Validate image buffer magic bytes / signature for real image formats.
  */
-function isValidImageBuffer(buffer: Buffer): { valid: boolean; ext: string } {
-  if (buffer.length < 8) return { valid: false, ext: "" };
+function isValidImageBuffer(buffer: Buffer): { valid: boolean; ext: string; mime: string } {
+  if (buffer.length < 8) return { valid: false, ext: "", mime: "" };
 
-  // JPEG: FF D8 FF
-  if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
-    return { valid: true, ext: ".jpg" };
+  const { mime, ext } = detectImageFormat(buffer);
+  if (mime) {
+    return { valid: true, ext, mime };
   }
 
-  // PNG: 89 50 4E 47 0D 0A 1A 0A
-  if (
-    buffer[0] === 0x89 &&
-    buffer[1] === 0x50 &&
-    buffer[2] === 0x4e &&
-    buffer[3] === 0x47
-  ) {
-    return { valid: true, ext: ".png" };
-  }
-
-  // WEBP: RIFF....WEBP
-  if (
-    buffer.slice(0, 4).toString("ascii") === "RIFF" &&
-    buffer.slice(8, 12).toString("ascii") === "WEBP"
-  ) {
-    return { valid: true, ext: ".webp" };
-  }
-
-  // AVIF: ....ftypavif
-  if (buffer.slice(4, 12).toString("ascii") === "ftypavif") {
-    return { valid: true, ext: ".avif" };
-  }
-
-  return { valid: false, ext: "" };
+  return { valid: false, ext: "", mime: "" };
 }
 
 export async function POST(request: NextRequest) {
@@ -70,12 +46,6 @@ export async function POST(request: NextRequest) {
 
   try {
     const contentType = request.headers.get("content-type") || "";
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
     const uploadedUrls: string[] = [];
 
     if (contentType.includes("multipart/form-data")) {
@@ -123,21 +93,9 @@ export async function POST(request: NextRequest) {
             );
           }
 
-          const safeExt = headerCheck.ext;
-          const randomId = crypto.randomBytes(16).toString("hex");
-          const filename = `img-${Date.now()}-${randomId}${safeExt}`;
-          const filePath = path.join(uploadDir, filename);
-
-          // Ensure no path traversal
-          if (!filePath.startsWith(uploadDir)) {
-            return NextResponse.json(
-              { success: false, error: "Invalid file path destination." },
-              { status: 400 }
-            );
-          }
-
-          fs.writeFileSync(filePath, buffer);
-          uploadedUrls.push(`/uploads/${filename}`);
+          // Persist raw binary buffer to MongoDB Atlas
+          const saved = await saveMediaBuffer(buffer, file.name, headerCheck.mime);
+          uploadedUrls.push(saved.url);
         } else if (typeof item === "string" && item.startsWith("data:image/")) {
           // Base64 string submitted via FormData
           const match = item.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
@@ -156,14 +114,8 @@ export async function POST(request: NextRequest) {
             const headerCheck = isValidImageBuffer(buffer);
             if (!headerCheck.valid) continue;
 
-            const randomId = crypto.randomBytes(16).toString("hex");
-            const filename = `img-${Date.now()}-${randomId}${headerCheck.ext}`;
-            const filePath = path.join(uploadDir, filename);
-
-            if (filePath.startsWith(uploadDir)) {
-              fs.writeFileSync(filePath, buffer);
-              uploadedUrls.push(`/uploads/${filename}`);
-            }
+            const saved = await saveMediaBuffer(buffer, undefined, headerCheck.mime);
+            uploadedUrls.push(saved.url);
           }
         }
       }
@@ -190,14 +142,8 @@ export async function POST(request: NextRequest) {
             const headerCheck = isValidImageBuffer(buffer);
             if (!headerCheck.valid) continue;
 
-            const randomId = crypto.randomBytes(16).toString("hex");
-            const filename = `img-${Date.now()}-${randomId}${headerCheck.ext}`;
-            const filePath = path.join(uploadDir, filename);
-
-            if (filePath.startsWith(uploadDir)) {
-              fs.writeFileSync(filePath, buffer);
-              uploadedUrls.push(`/uploads/${filename}`);
-            }
+            const saved = await saveMediaBuffer(buffer, undefined, headerCheck.mime);
+            uploadedUrls.push(saved.url);
           }
         }
       }
@@ -216,6 +162,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       urls: uploadedUrls,
+      url: uploadedUrls[0],
       message: `${uploadedUrls.length} image(s) uploaded successfully.`,
     });
   } catch (error) {

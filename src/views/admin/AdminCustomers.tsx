@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { CustomersIcon, SearchIcon, SparklesIcon } from "../../components/admin/AdminIcons";
+import { CustomersIcon, SearchIcon, SparklesIcon, TrashIcon } from "../../components/admin/AdminIcons";
+import { adminApi } from "../../services/api";
 
 interface CustomerData {
   customerId?: string;
@@ -18,6 +19,8 @@ export default function AdminCustomers() {
   const [customers, setCustomers] = useState<CustomerData[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
 
   const loadCustomers = async () => {
     setLoading(true);
@@ -27,7 +30,7 @@ export default function AdminCustomers() {
       if (contentType.includes("application/json")) {
         const text = await res.text();
         const json = JSON.parse(text);
-        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        if (json.success && Array.isArray(json.data)) {
           const mapped = json.data.map((c: any) => ({
             customerId: c.customerId,
             name: c.name,
@@ -35,7 +38,7 @@ export default function AdminCustomers() {
             email: c.email || "—",
             state: c.state || "Tamil Nadu",
             address: c.address || "",
-            orders: c.totalOrders || 1,
+            orders: c.totalOrders || 0,
             spent: c.totalSpent || 0,
             tier: (c.totalSpent || 0) > 5000 ? "VIP Gold" : (c.totalSpent || 0) > 2000 ? "Silver" : "Regular",
             registrationDate: c.registrationDate || c.createdAt,
@@ -46,18 +49,35 @@ export default function AdminCustomers() {
         }
       }
     } catch (e) {
-      console.warn("Falling back to local customers:", e);
+      console.warn("API customers fetch error:", e);
     }
 
-    // Default Seed / Local fallback
-    setCustomers([
-      { customerId: "CUST-001", name: "Priya Rajendran", phone: "+91 98401 23456", email: "priya.raj@example.com", state: "Tamil Nadu", orders: 4, spent: 4890, tier: "VIP Gold" },
-      { customerId: "CUST-002", name: "Meena Krishnan", phone: "+91 94432 98765", email: "meena.k@example.com", state: "Kerala", orders: 2, spent: 1840, tier: "Regular" },
-      { customerId: "CUST-003", name: "Saranya Devi", phone: "+91 97890 54321", email: "saranya.devi@example.com", state: "Tamil Nadu", orders: 5, spent: 6320, tier: "VIP Gold" },
-      { customerId: "CUST-004", name: "Kavitha Murugan", phone: "+91 96551 11223", email: "kavitha.m@example.com", state: "Tamil Nadu", orders: 1, spent: 1198, tier: "New" },
-      { customerId: "CUST-005", name: "Anitha Suresh", phone: "+91 98800 44556", email: "anitha.s@example.com", state: "Karnataka", orders: 3, spent: 3450, tier: "Silver" },
-    ]);
+    setCustomers([]);
     setLoading(false);
+  };
+
+  const handleDeleteCustomer = async (customerId?: string, name?: string) => {
+    if (!customerId) return;
+    if (confirm(`Are you sure you want to delete customer "${name || customerId}"?`)) {
+      const res = await adminApi.deleteCustomer(customerId);
+      if (res.success) {
+        loadCustomers();
+      } else {
+        alert(`Failed to delete customer: ${res.error || "Unknown error"}`);
+      }
+    }
+  };
+
+  const handleConfirmDeleteAll = async () => {
+    setDeletingAll(true);
+    const res = await adminApi.deleteAllCustomers();
+    setDeletingAll(false);
+    setShowDeleteAllModal(false);
+    if (res.success) {
+      loadCustomers();
+    } else {
+      alert(`Failed to purge customers: ${res.error || "Unknown error"}`);
+    }
   };
 
   useEffect(() => {
@@ -89,6 +109,14 @@ export default function AdminCustomers() {
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowDeleteAllModal(true)}
+            className="px-3.5 py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100/80 border border-rose-200/80 rounded-xl shadow-2xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+          >
+            <TrashIcon size={14} />
+            <span>Purge All</span>
+          </button>
           <a
             href="/api/admin/export/customers"
             target="_blank"
@@ -127,18 +155,19 @@ export default function AdminCustomers() {
                 <th className="p-4">Order Frequency</th>
                 <th className="p-4">Lifetime Gross</th>
                 <th className="p-4">Loyalty Tier</th>
+                <th className="p-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-stone-400">
+                  <td colSpan={7} className="py-12 text-center text-stone-400">
                     Loading customer profiles from MongoDB...
                   </td>
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 text-center text-stone-400">
+                  <td colSpan={7} className="py-12 text-center text-stone-400">
                     No customers found matching "{search}".
                   </td>
                 </tr>
@@ -174,6 +203,16 @@ export default function AdminCustomers() {
                         {c.tier === "VIP Gold" ? "★ " : ""}{c.tier}
                       </span>
                     </td>
+                    <td className="p-4 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCustomer(c.customerId, c.name)}
+                        className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/60 transition-all cursor-pointer"
+                        title="Delete customer"
+                      >
+                        <TrashIcon size={14} />
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -181,6 +220,58 @@ export default function AdminCustomers() {
           </table>
         </div>
       </div>
+
+      {/* Purge All Customers Confirmation Modal */}
+      {showDeleteAllModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-md w-full p-6 sm:p-7 text-stone-800 animate-in zoom-in-95 duration-150 space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="w-11 h-11 rounded-2xl bg-rose-50 flex items-center justify-center border border-rose-200">
+                <TrashIcon size={22} />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-stone-900 leading-tight">Delete All Customers?</h3>
+                <p className="text-xs text-rose-600 font-semibold">Irreversible Action</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-stone-600 leading-relaxed">
+              Are you sure you want to permanently purge <strong>all {customers.length} customer records</strong> from MongoDB Atlas?
+            </p>
+
+            <div className="p-3.5 bg-rose-50 rounded-2xl border border-rose-200 text-xs text-rose-900 space-y-1">
+              <p className="font-bold">⚠️ Warning:</p>
+              <p>Customer contact directories, lifetime gross calculations, and VIP profiles will be cleared.</p>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                disabled={deletingAll}
+                onClick={() => setShowDeleteAllModal(false)}
+                className="px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deletingAll}
+                onClick={handleConfirmDeleteAll}
+                className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 shadow-md transition disabled:opacity-50 flex items-center gap-2"
+              >
+                {deletingAll ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Purging...</span>
+                  </>
+                ) : (
+                  <span>Yes, Purge All Customers</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

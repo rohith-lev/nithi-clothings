@@ -28,10 +28,17 @@ interface CustomerInfo {
 export default function Checkout() {
   const { state, dispatch } = useCart();
   const navigate = useNavigate();
-  const { customer, isLoggedIn, updateProfile } = useCustomerAuth();
+  const { customer, isLoggedIn, updateProfile, login } = useCustomerAuth();
   const [step, setStep] = useState<Step>(1);
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cod">("online");
   const [processing, setProcessing] = useState(false);
+
+  // Quick In-Checkout Sign In for Express Buy Now
+  const [showCheckoutSignIn, setShowCheckoutSignIn] = useState(false);
+  const [checkoutAuthInput, setCheckoutAuthInput] = useState("");
+  const [checkoutAuthName, setCheckoutAuthName] = useState("");
+  const [checkoutAuthError, setCheckoutAuthError] = useState<string | null>(null);
+  const [isSubmittingCheckoutAuth, setIsSubmittingCheckoutAuth] = useState(false);
 
   const [info, setInfo] = useState<CustomerInfo>({
     fullName: "",
@@ -61,6 +68,31 @@ export default function Checkout() {
       }));
     }
   }, [customer]);
+
+  const handleCheckoutQuickSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!checkoutAuthInput.trim()) return;
+    setIsSubmittingCheckoutAuth(true);
+    setCheckoutAuthError(null);
+    const res = await login(checkoutAuthInput, checkoutAuthName);
+    setIsSubmittingCheckoutAuth(false);
+    if (res.success && res.customer) {
+      setShowCheckoutSignIn(false);
+      setInfo((prev) => ({
+        fullName: res.customer?.name || prev.fullName || "",
+        mobile: res.customer?.phone || prev.mobile || "",
+        email: res.customer?.email || prev.email || "",
+        addressLine: res.customer?.addressLine || res.customer?.address || prev.addressLine || "",
+        areaLocality: res.customer?.areaLocality || prev.areaLocality || "",
+        city: res.customer?.city || prev.city || "",
+        state: res.customer?.state || prev.state || "Tamil Nadu",
+        pincode: res.customer?.pincode || prev.pincode || "",
+        saveAddressToProfile: true,
+      }));
+    } else {
+      setCheckoutAuthError(res.error || "Sign in failed. Please check your mobile or email.");
+    }
+  };
 
   const pricing = calculateOrderPricing(state.items, info.state, paymentMethod);
   const {
@@ -379,8 +411,8 @@ export default function Checkout() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-[#E8E2D5]">
                 <h2 className="font-display text-lg font-bold text-[#171A18]">Delivery Address & Contact Details</h2>
                 {isLoggedIn ? (
-                  <span className="text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded font-medium">
-                    ✓ Saved Profile: {customer?.name || customer?.phone}
+                  <span className="text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded font-medium flex items-center gap-1.5">
+                    <span>✓</span> Saved Profile: {customer?.name || customer?.phone}
                   </span>
                 ) : (
                   <span className="text-xs text-[#6A6D65]">
@@ -388,6 +420,86 @@ export default function Checkout() {
                   </span>
                 )}
               </div>
+
+              {/* Express Buy Now / Quick Sign In Banner */}
+              {!isLoggedIn ? (
+                <div className="bg-[#FAF8F1] border border-[#C9A227]/40 rounded-xl p-3.5 sm:p-4 text-xs space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-lg">✨</span>
+                      <div>
+                        <span className="font-bold text-[#064E3B] text-xs block">
+                          Already have an account with Nithi Clothings?
+                        </span>
+                        <span className="text-[11px] text-[#5C635E]">
+                          Sign in to auto-fill your saved address & complete Buy Now in 1 click.
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowCheckoutSignIn(!showCheckoutSignIn)}
+                      className="px-3.5 py-1.5 bg-[#064E3B] hover:bg-[#0B3D2E] text-white rounded-lg font-bold text-xs transition-colors shrink-0 cursor-pointer self-start sm:self-auto"
+                    >
+                      {showCheckoutSignIn ? "✕ Close" : "Sign In to Auto-Fill →"}
+                    </button>
+                  </div>
+
+                  {showCheckoutSignIn && (
+                    <form onSubmit={handleCheckoutQuickSignIn} className="pt-3 border-t border-[#C9A227]/20 space-y-2.5 animate-in fade-in duration-200">
+                      {checkoutAuthError && (
+                        <div className="p-2 bg-rose-50 border border-rose-200 text-rose-700 text-[11px] rounded-lg">
+                          ⚠️ {checkoutAuthError}
+                        </div>
+                      )}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          required
+                          value={checkoutAuthInput}
+                          onChange={(e) => setCheckoutAuthInput(e.target.value)}
+                          placeholder="Mobile Number (e.g. 9840123456) or Email"
+                          className="w-full px-3 py-2 bg-white border border-[#E8E2D5] rounded-lg text-xs focus:outline-none focus:border-[#064E3B]"
+                        />
+                        <input
+                          type="text"
+                          value={checkoutAuthName}
+                          onChange={(e) => setCheckoutAuthName(e.target.value)}
+                          placeholder="Your Name (Optional)"
+                          className="w-full px-3 py-2 bg-white border border-[#E8E2D5] rounded-lg text-xs focus:outline-none focus:border-[#064E3B]"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between pt-1">
+                        <span className="text-[10px] text-[#5C635E]">Direct sign in — no OTP password delays.</span>
+                        <button
+                          type="submit"
+                          disabled={isSubmittingCheckoutAuth}
+                          className="px-4 py-2 bg-[#C9A227] hover:bg-[#DFC15E] text-[#171A18] rounded-lg font-bold text-xs transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          {isSubmittingCheckoutAuth ? "Signing in..." : "Instant Sign In & Auto-fill"}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              ) : (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-emerald-700 font-bold">✓</span>
+                    <div>
+                      <span className="font-bold text-emerald-900 block">
+                        Signed In: {customer?.name || "Customer"} {customer?.phone && `(${customer.phone})`}
+                      </span>
+                      <span className="text-[11px] text-emerald-700">
+                        Saved delivery address auto-filled for express Buy Now.
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold bg-white text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
+                    Verified
+                  </span>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>

@@ -11,12 +11,16 @@ import {
   CheckIcon,
   SparklesIcon,
   ExternalLinkIcon,
+  TrashIcon,
 } from "../../components/admin/AdminIcons";
 
 export default function AdminDashboardHome() {
   const [metrics, setMetrics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeRange, setActiveRange] = useState<"7D" | "30D" | "90D">("7D");
+  const [showPurgeModal, setShowPurgeModal] = useState(false);
+  const [purgingTarget, setPurgingTarget] = useState<string | null>(null);
+  const [purgeFeedback, setPurgeFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     loadMetrics();
@@ -124,6 +128,14 @@ export default function AdminDashboardHome() {
               <ProductsIcon size={15} />
               <span>Manage Catalog</span>
             </Link>
+            <button
+              type="button"
+              onClick={() => setShowPurgeModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 hover:text-white font-semibold text-xs border border-rose-500/30 transition-all cursor-pointer"
+            >
+              <TrashIcon size={14} />
+              <span>Purge Test Data</span>
+            </button>
           </div>
         </div>
       </div>
@@ -503,41 +515,49 @@ export default function AdminDashboardHome() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
-                {metrics.recentOrders.map((order: any) => (
-                  <tr key={order.id} className="hover:bg-stone-50/70 transition-colors">
-                    <td className="py-3.5 font-bold text-stone-900 font-mono">
-                      <Link to="/admin/orders" className="hover:text-[#064E3B] underline underline-offset-2">
-                        {order.id}
-                      </Link>
-                    </td>
-                    <td className="py-3.5 text-stone-700">
-                      <div className="font-semibold text-stone-900">{order.customerName}</div>
-                      <div className="text-[10px] text-stone-400">{order.shippingState}</div>
-                    </td>
-                    <td className="py-3.5 text-stone-500 font-medium">
-                      {order.items.length} items
-                    </td>
-                    <td className="py-3.5 font-bold text-stone-900">
-                      ₹{order.total.toLocaleString("en-IN")}
-                    </td>
-                    <td className="py-3.5">
-                      <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold border ${
-                        order.paymentMethod === "COD"
-                          ? "bg-amber-50 text-amber-900 border-amber-200"
-                          : "bg-emerald-50 text-emerald-900 border-emerald-200"
-                      }`}>
-                        {order.paymentMethod}
-                      </span>
-                    </td>
-                    <td className="py-3.5">
-                      <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold border ${
-                        statusBadgeClasses[order.status] || "bg-stone-100 text-stone-700 border-stone-200"
-                      }`}>
-                        {order.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {metrics.recentOrders.map((order: any, idx: number) => {
+                  const orderKey = order.id || order.orderId || order._id || `recent-ord-${idx}`;
+                  const orderDisplayId = order.orderId || order.id || orderKey;
+                  const orderStage = order.orderStatus || order.status || "Pending";
+                  const itemCount = Array.isArray(order.items) ? order.items.length : (order.quantity || 1);
+                  const totalAmount = typeof order.total === "number" ? order.total : 0;
+
+                  return (
+                    <tr key={orderKey} className="hover:bg-stone-50/70 transition-colors">
+                      <td className="py-3.5 font-bold text-stone-900 font-mono">
+                        <Link to="/admin/orders" className="hover:text-[#064E3B] underline underline-offset-2">
+                          {orderDisplayId}
+                        </Link>
+                      </td>
+                      <td className="py-3.5 text-stone-700">
+                        <div className="font-semibold text-stone-900">{order.customerName || "Customer"}</div>
+                        <div className="text-[10px] text-stone-400">{order.shippingState || "Tamil Nadu"}</div>
+                      </td>
+                      <td className="py-3.5 text-stone-500 font-medium">
+                        {itemCount} items
+                      </td>
+                      <td className="py-3.5 font-bold text-stone-900">
+                        ₹{totalAmount.toLocaleString("en-IN")}
+                      </td>
+                      <td className="py-3.5">
+                        <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold border ${
+                          order.paymentMethod === "COD"
+                            ? "bg-amber-50 text-amber-900 border-amber-200"
+                            : "bg-emerald-50 text-emerald-900 border-emerald-200"
+                        }`}>
+                          {order.paymentMethod || "COD"}
+                        </span>
+                      </td>
+                      <td className="py-3.5">
+                        <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold border ${
+                          statusBadgeClasses[orderStage] || "bg-stone-100 text-stone-700 border-stone-200"
+                        }`}>
+                          {orderStage}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -558,33 +578,223 @@ export default function AdminDashboardHome() {
           </div>
 
           <div className="space-y-3.5">
-            {metrics.topSelling.map((p: any, idx: number) => (
-              <div key={p.id} className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-stone-50 border border-transparent hover:border-stone-200 transition-all">
-                <span className="font-display font-black text-sm text-[#C9A227] w-5 text-center">
-                  0{idx + 1}
-                </span>
-                <img
-                  src={p.images[0]}
-                  alt={p.name}
-                  className="w-12 h-12 rounded-xl object-cover border border-stone-200 shrink-0 shadow-2xs"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-bold text-stone-900 truncate">{p.name}</p>
-                  <p className="text-[11px] text-stone-500 font-semibold mt-0.5">
-                    ₹{p.price} <span className="line-through text-stone-400 text-[10px]">₹{p.mrp}</span>
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    ★ {p.rating}
+            {metrics.topSelling.map((p: any, idx: number) => {
+              const topKey = p.id || p._id || `top-prod-${idx}`;
+              const imageSrc = (Array.isArray(p.images) && p.images[0]) || p.coverImage || "/placeholder.jpg";
+
+              return (
+                <div key={topKey} className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-stone-50 border border-transparent hover:border-stone-200 transition-all">
+                  <span className="font-display font-black text-sm text-[#C9A227] w-5 text-center">
+                    0{idx + 1}
                   </span>
-                  <p className="text-[10px] text-stone-400 font-medium mt-1">{p.reviews} reviews</p>
+                  <img
+                    src={imageSrc}
+                    alt={p.name}
+                    className="w-12 h-12 rounded-xl object-cover border border-stone-200 shrink-0 shadow-2xs"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-stone-900 truncate">{p.name}</p>
+                    <p className="text-[11px] text-stone-500 font-semibold mt-0.5">
+                      ₹{p.price} <span className="line-through text-stone-400 text-[10px]">₹{p.mrp || p.price}</span>
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      ★ {p.rating || 5}
+                    </span>
+                    <p className="text-[10px] text-stone-400 font-medium mt-1">{p.reviews || 0} reviews</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
+
+      {/* Purge Test Data Modal */}
+      {showPurgeModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-lg w-full p-6 sm:p-7 text-stone-800 animate-in zoom-in-95 duration-150 space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+              <div className="flex items-center gap-3 text-rose-600">
+                <div className="w-10 h-10 rounded-2xl bg-rose-50 flex items-center justify-center border border-rose-200">
+                  <TrashIcon size={20} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-stone-900 leading-tight">Database Purge Center</h3>
+                  <p className="text-xs text-rose-600 font-semibold">MongoDB Atlas Cloud Database</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowPurgeModal(false)}
+                className="text-stone-400 hover:text-stone-700 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-stone-600 leading-relaxed">
+              Select which collection to purge to reset test records in MongoDB Atlas before production launch:
+            </p>
+
+            {purgeFeedback && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 font-semibold">
+                ✓ {purgeFeedback}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                disabled={Boolean(purgingTarget)}
+                onClick={async () => {
+                  if (confirm("Permanently purge all orders?")) {
+                    setPurgingTarget("orders");
+                    const res = await adminApi.deleteAllOrders();
+                    setPurgingTarget(null);
+                    setPurgeFeedback(res.message || "Orders purged.");
+                    loadMetrics();
+                  }
+                }}
+                className="p-3 rounded-2xl border border-stone-200 hover:border-rose-300 hover:bg-rose-50/50 text-left transition flex flex-col justify-between"
+              >
+                <div>
+                  <p className="font-bold text-xs text-stone-900">Orders</p>
+                  <p className="text-[11px] text-stone-500">Purge customer orders</p>
+                </div>
+                <span className="text-[10px] text-rose-600 font-bold mt-2">
+                  {purgingTarget === "orders" ? "Purging..." : "Purge Orders →"}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                disabled={Boolean(purgingTarget)}
+                onClick={async () => {
+                  if (confirm("Permanently purge all categories?")) {
+                    setPurgingTarget("categories");
+                    const res = await adminApi.deleteAllCategories();
+                    setPurgingTarget(null);
+                    setPurgeFeedback(res.message || "Categories purged.");
+                    loadMetrics();
+                  }
+                }}
+                className="p-3 rounded-2xl border border-stone-200 hover:border-rose-300 hover:bg-rose-50/50 text-left transition flex flex-col justify-between"
+              >
+                <div>
+                  <p className="font-bold text-xs text-stone-900">Categories</p>
+                  <p className="text-[11px] text-stone-500">Purge taxonomies</p>
+                </div>
+                <span className="text-[10px] text-rose-600 font-bold mt-2">
+                  {purgingTarget === "categories" ? "Purging..." : "Purge Categories →"}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                disabled={Boolean(purgingTarget)}
+                onClick={async () => {
+                  if (confirm("Permanently purge all customers?")) {
+                    setPurgingTarget("customers");
+                    const res = await adminApi.deleteAllCustomers();
+                    setPurgingTarget(null);
+                    setPurgeFeedback(res.message || "Customers purged.");
+                    loadMetrics();
+                  }
+                }}
+                className="p-3 rounded-2xl border border-stone-200 hover:border-rose-300 hover:bg-rose-50/50 text-left transition flex flex-col justify-between"
+              >
+                <div>
+                  <p className="font-bold text-xs text-stone-900">Customers</p>
+                  <p className="text-[11px] text-stone-500">Purge shoppers</p>
+                </div>
+                <span className="text-[10px] text-rose-600 font-bold mt-2">
+                  {purgingTarget === "customers" ? "Purging..." : "Purge Customers →"}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                disabled={Boolean(purgingTarget)}
+                onClick={async () => {
+                  if (confirm("Permanently purge all bookings?")) {
+                    setPurgingTarget("bookings");
+                    const res = await adminApi.deleteAllBookings();
+                    setPurgingTarget(null);
+                    setPurgeFeedback(res.message || "Bookings purged.");
+                    loadMetrics();
+                  }
+                }}
+                className="p-3 rounded-2xl border border-stone-200 hover:border-rose-300 hover:bg-rose-50/50 text-left transition flex flex-col justify-between"
+              >
+                <div>
+                  <p className="font-bold text-xs text-stone-900">Bookings</p>
+                  <p className="text-[11px] text-stone-500">Purge consultations</p>
+                </div>
+                <span className="text-[10px] text-rose-600 font-bold mt-2">
+                  {purgingTarget === "bookings" ? "Purging..." : "Purge Bookings →"}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                disabled={Boolean(purgingTarget)}
+                onClick={async () => {
+                  if (confirm("Permanently purge all combo offers?")) {
+                    setPurgingTarget("combos");
+                    const res = await adminApi.deleteAllComboOffers();
+                    setPurgingTarget(null);
+                    setPurgeFeedback(res.message || "Combo deals purged.");
+                    loadMetrics();
+                  }
+                }}
+                className="p-3 rounded-2xl border border-stone-200 hover:border-rose-300 hover:bg-rose-50/50 text-left transition flex flex-col justify-between"
+              >
+                <div>
+                  <p className="font-bold text-xs text-stone-900">Combo Offers</p>
+                  <p className="text-[11px] text-stone-500">Purge deal bundles</p>
+                </div>
+                <span className="text-[10px] text-rose-600 font-bold mt-2">
+                  {purgingTarget === "combos" ? "Purging..." : "Purge Combos →"}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                disabled={Boolean(purgingTarget)}
+                onClick={async () => {
+                  if (confirm("Permanently clear all audit logs?")) {
+                    setPurgingTarget("audit");
+                    const res = await adminApi.clearAuditLogs();
+                    setPurgingTarget(null);
+                    setPurgeFeedback(res.message || "Audit logs cleared.");
+                    loadMetrics();
+                  }
+                }}
+                className="p-3 rounded-2xl border border-stone-200 hover:border-rose-300 hover:bg-rose-50/50 text-left transition flex flex-col justify-between"
+              >
+                <div>
+                  <p className="font-bold text-xs text-stone-900">Audit Logs</p>
+                  <p className="text-[11px] text-stone-500">Purge activity logs</p>
+                </div>
+                <span className="text-[10px] text-rose-600 font-bold mt-2">
+                  {purgingTarget === "audit" ? "Clearing..." : "Clear Logs →"}
+                </span>
+              </button>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setShowPurgeModal(false)}
+                className="px-4 py-2 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

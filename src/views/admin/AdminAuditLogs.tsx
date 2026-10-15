@@ -1,16 +1,35 @@
 import { useState, useEffect } from "react";
 import type { AuditLog } from "../../types/store";
 import { adminApi } from "../../services/api";
-import { AuditIcon, SearchIcon, SparklesIcon } from "../../components/admin/AdminIcons";
+import { AuditIcon, SearchIcon, SparklesIcon, TrashIcon } from "../../components/admin/AdminIcons";
 
 export default function AdminAuditLogs() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [search, setSearch] = useState("");
   const [targetType, setTargetType] = useState("all");
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
+
+  const loadLogs = async () => {
+    const res = await adminApi.getAuditLogs();
+    setLogs(res);
+  };
 
   useEffect(() => {
-    adminApi.getAuditLogs().then((res) => setLogs(res));
+    loadLogs();
   }, []);
+
+  const handleConfirmClearAll = async () => {
+    setDeletingAll(true);
+    const res = await adminApi.clearAuditLogs();
+    setDeletingAll(false);
+    setShowDeleteAllModal(false);
+    if (res.success) {
+      loadLogs();
+    } else {
+      alert(`Failed to clear audit logs: ${res.error || "Unknown error"}`);
+    }
+  };
 
   const filtered = logs.filter((l) => {
     if (targetType !== "all" && l.targetType !== targetType) return false;
@@ -27,18 +46,29 @@ export default function AdminAuditLogs() {
 
   return (
     <div className="space-y-6 font-body">
-      <div>
-        <div className="flex items-center gap-2">
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
-            Security & System Audit Logs
-          </h1>
-          <span className="px-2.5 py-0.5 rounded-full bg-[#FAF8F1] border border-[#C9A227]/40 text-[#8A5F38] text-xs font-bold font-mono">
-            {logs.length} Logged Events
-          </span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+              Security & System Audit Logs
+            </h1>
+            <span className="px-2.5 py-0.5 rounded-full bg-[#FAF8F1] border border-[#C9A227]/40 text-[#8A5F38] text-xs font-bold font-mono">
+              {logs.length} Logged Events
+            </span>
+          </div>
+          <p className="text-xs text-stone-500 mt-1">
+            Immutable, chronological timeline of catalog mutations, batch restocks, price changes, and rule revisions.
+          </p>
         </div>
-        <p className="text-xs text-stone-500 mt-1">
-          Immutable, chronological timeline of catalog mutations, batch restocks, price changes, and rule revisions.
-        </p>
+
+        <button
+          type="button"
+          onClick={() => setShowDeleteAllModal(true)}
+          className="px-3.5 py-2 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100/80 border border-rose-200/80 rounded-xl shadow-2xs transition-all inline-flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+        >
+          <TrashIcon size={14} />
+          <span>Clear All Logs</span>
+        </button>
       </div>
 
       <div className="bg-white p-5 rounded-3xl border border-stone-200 flex flex-col sm:flex-row items-center gap-3 text-xs shadow-2xs">
@@ -119,6 +149,58 @@ export default function AdminAuditLogs() {
           </table>
         </div>
       </div>
+
+      {/* Clear All Audit Logs Confirmation Modal */}
+      {showDeleteAllModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-md w-full p-6 sm:p-7 text-stone-800 animate-in zoom-in-95 duration-150 space-y-4">
+            <div className="flex items-center gap-3 text-rose-600">
+              <div className="w-11 h-11 rounded-2xl bg-rose-50 flex items-center justify-center border border-rose-200">
+                <TrashIcon size={22} />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-stone-900 leading-tight">Clear All Audit Logs?</h3>
+                <p className="text-xs text-rose-600 font-semibold">Irreversible Action</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-stone-600 leading-relaxed">
+              Are you sure you want to permanently clear <strong>all {logs.length} system audit logs</strong> from MongoDB Atlas?
+            </p>
+
+            <div className="p-3.5 bg-rose-50 rounded-2xl border border-rose-200 text-xs text-rose-900 space-y-1">
+              <p className="font-bold">⚠️ Warning:</p>
+              <p>System activity records and audit trails will be purged.</p>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-2">
+              <button
+                type="button"
+                disabled={deletingAll}
+                onClick={() => setShowDeleteAllModal(false)}
+                className="px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deletingAll}
+                onClick={handleConfirmClearAll}
+                className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 shadow-md transition disabled:opacity-50 flex items-center gap-2"
+              >
+                {deletingAll ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Clearing Logs...</span>
+                  </>
+                ) : (
+                  <span>Yes, Clear All Logs</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

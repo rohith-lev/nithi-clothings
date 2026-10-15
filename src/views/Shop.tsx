@@ -10,7 +10,7 @@ import SEO from "../components/SEO";
 import { useRecentlyViewed } from "../utils/recentlyViewed";
 import { ProductGridSkeleton } from "../components/SkeletonLoaders";
 
-type SortOption = "featured" | "newest" | "price-asc" | "price-desc" | "rating" | "discount";
+type SortOption = "featured" | "newest" | "price-asc" | "price-desc" | "rating" | "discount" | "name-asc" | "name-desc";
 
 export default function Shop() {
   const { slug, sub: routeSub } = useParams();
@@ -310,6 +310,12 @@ export default function Shop() {
       case "price-desc":
         list = [...list].sort((a, b) => b.price - a.price);
         break;
+      case "name-asc":
+        list = [...list].sort((a, b) => (a.name || "").localeCompare(b.name || "", undefined, { sensitivity: "base" }));
+        break;
+      case "name-desc":
+        list = [...list].sort((a, b) => (b.name || "").localeCompare(a.name || "", undefined, { sensitivity: "base" }));
+        break;
       case "rating":
         list = [...list].sort((a, b) => b.rating - a.rating);
         break;
@@ -430,6 +436,8 @@ export default function Shop() {
               >
                 <option value="featured">Featured</option>
                 <option value="newest">Newest First</option>
+                <option value="name-asc">Alphabetical: A to Z</option>
+                <option value="name-desc">Alphabetical: Z to A</option>
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>
                 <option value="discount">Discount %</option>

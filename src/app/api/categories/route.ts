@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import Category from "@/lib/models/Category";
 import { requireAdmin, escapeRegex } from "@/lib/auth";
-import { categories as defaultCategories, CATEGORY_HIERARCHY } from "@/data/products";
 
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
   "90s": "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=600&h=700&fit=crop&auto=format",
@@ -46,56 +45,6 @@ async function getSynchronizedCategories(activeOnly = false) {
   await connectToDatabase();
 
   let dbCategories = await Category.find().sort({ priority: 1, createdAt: 1 }).lean();
-
-  // If DB has no categories at all (e.g. initial setup), seed from defaultCategories once
-  if (!dbCategories || dbCategories.length === 0) {
-    try {
-      const seedList = defaultCategories.map((c, idx) => {
-        const hierarchy = CATEGORY_HIERARCHY[c.name];
-        let subcategories = c.subcategories || [];
-
-        if ((!subcategories || subcategories.length === 0) && hierarchy) {
-          if (hierarchy.groups) {
-            subcategories = hierarchy.groups.flatMap((grp) =>
-              grp.items.map((it) => ({
-                id: `sub-${it.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-                name: it,
-                parentGroup: grp.name,
-                image: "",
-              }))
-            );
-          } else if (hierarchy.items) {
-            subcategories = hierarchy.items.map((it) => ({
-              id: `sub-${it.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-              name: it,
-              parentGroup: "",
-              image: "",
-            }));
-          }
-        }
-
-        return {
-          id: c.id,
-          name: c.name,
-          slug: c.slug || c.id,
-          image: resolveCategoryImage(c.name, c.slug, c.image),
-          description: "",
-          subcategories: subcategories || [],
-          isCustom: false,
-          isActive: true,
-          showOnHome: true,
-          priority: idx + 1,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-      });
-
-      await Category.insertMany(seedList);
-      dbCategories = await Category.find().sort({ priority: 1, createdAt: 1 }).lean();
-    } catch (seedErr) {
-      console.error("Auto-seeding categories error:", seedErr);
-    }
-  }
 
   // Permanently purge any test/deleted Priya categories from database
   try {
@@ -254,6 +203,16 @@ export async function DELETE(request: NextRequest) {
     const queryId = searchParams.get("id");
     const body = await request.json().catch(() => ({}));
     const id = (queryId || body.id || "").trim();
+
+    const isAll = searchParams.get("all") === "true" || id === "all";
+    if (isAll) {
+      const res = await Category.deleteMany({});
+      return NextResponse.json({
+        success: true,
+        message: `All ${res.deletedCount} categories deleted successfully`,
+        data: { deletedCount: res.deletedCount },
+      });
+    }
 
     if (!id) {
       return NextResponse.json(

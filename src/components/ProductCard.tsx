@@ -13,7 +13,9 @@ export default function ProductCard({ product }: Props) {
   const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [selectedSize] = useState(
-    (product.sizes && product.sizes[0]) || "Free Size"
+    (product.sizes && product.sizes[0]) ||
+      (product.sizeOptions && product.sizeOptions[0]?.size) ||
+      "Free Size"
   );
   const [addedToast, setAddedToast] = useState(false);
   const [wishlistAnimate, setWishlistAnimate] = useState(false);
@@ -49,12 +51,15 @@ export default function ProductCard({ product }: Props) {
   const basePrice = Math.max(activeSizeOpt?.mrp || product.mrp || rawSizePrice, effectiveFinalPrice);
   const dynamicDiscount = basePrice > effectiveFinalPrice ? Math.round(((basePrice - effectiveFinalPrice) / basePrice) * 100) : 0;
   const sizeStock = activeSizeOpt ? Number(activeSizeOpt.stock) : Number(product.stock || 0);
-  const isOutOfStock = sizeStock <= 0 || !product.inStock || product.status === "OUT OF STOCK";
+  const isOutOfStock = (product && product.status === "OUT OF STOCK") || (sizeStock <= 0 && (product.stock || 0) <= 0);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (isOutOfStock) return;
+
+    const finalSize = selectedSize || (product.sizes && product.sizes[0]) || (product.sizeOptions && product.sizeOptions[0]?.size) || "Free Size";
+    const finalColor = (product.colors && product.colors[0]) || product.color || "Standard";
 
     dispatch({
       type: "ADD_TO_CART",
@@ -65,12 +70,12 @@ export default function ProductCard({ product }: Props) {
           mrp: basePrice,
         },
         quantity: 1,
-        selectedColor: "Standard",
-        selectedSize,
+        selectedColor: finalColor,
+        selectedSize: finalSize,
         unitPrice: effectiveFinalPrice,
         mrp: basePrice,
         colorImage: primaryImage,
-        stock: sizeStock,
+        stock: sizeStock > 0 ? sizeStock : (product.stock || 50),
       },
     });
 

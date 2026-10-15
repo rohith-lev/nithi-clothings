@@ -96,6 +96,8 @@ export default function MobileFilterDrawer({
             {[
               { id: "featured", label: "Featured" },
               { id: "newest", label: "Newest Arrivals" },
+              { id: "name-asc", label: "Alphabetical: A to Z" },
+              { id: "name-desc", label: "Alphabetical: Z to A" },
               { id: "price-asc", label: "Price: Low to High" },
               { id: "price-desc", label: "Price: High to Low" },
               { id: "discount", label: "Discount %" },
