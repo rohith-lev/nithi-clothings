@@ -46,18 +46,6 @@ async function getSynchronizedCategories(activeOnly = false) {
 
   let dbCategories = await Category.find().sort({ priority: 1, createdAt: 1 }).lean();
 
-  // Permanently purge any test/deleted Priya categories from database
-  try {
-    await Category.deleteMany({
-      $or: [
-        { name: /priya/i },
-        { slug: /priya/i },
-        { id: /priya/i },
-      ],
-    });
-    dbCategories = await Category.find().sort({ priority: 1, createdAt: 1 }).lean();
-  } catch {}
-
   // Format DB categories directly without re-inserting deleted/stale records
   const formatted = (dbCategories || []).map((cat: any) => ({
     id: cat.id || String(cat._id),

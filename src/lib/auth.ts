@@ -137,15 +137,17 @@ export function getCustomerUser(request: NextRequest): CustomerTokenPayload | nu
 }
 
 /**
- * Sign a JWT token with the given user payload (24h expiry).
+ * Sign a JWT token with the given user payload.
+ * Admin tokens: 24h (default). Customer tokens: pass "30d" to match cookie maxAge.
  */
-export function signToken(user: object): string {
+export function signToken(user: object, expiresIn: string = "24h"): string {
   const effectiveSecret = JWT_SECRET || "nithi_dev_jwt_secret_key_2026_secured";
   return jwt.sign(user, effectiveSecret, {
-    expiresIn: "24h",
+    expiresIn: expiresIn as jwt.SignOptions["expiresIn"],
     algorithm: "HS256",
   });
 }
+
 
 /**
  * Escape user input for safe usage in MongoDB RegExp queries to prevent ReDoS / NoSQL Injection.

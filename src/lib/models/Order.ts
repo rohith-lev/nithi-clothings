@@ -69,9 +69,5 @@ const OrderSchema = new Schema(
   { timestamps: true }
 );
 
-if (mongoose.models && mongoose.models.Order) {
-  delete (mongoose.models as any).Order;
-}
-
-const Order = mongoose.model("Order", OrderSchema);
+const Order = mongoose.models.Order || mongoose.model("Order", OrderSchema);
 export default Order;

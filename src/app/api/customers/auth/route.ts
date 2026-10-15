@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       role: "Customer",
     };
 
-    const token = signToken(tokenPayload);
+    const token = signToken(tokenPayload, "30d");
 
     const response = NextResponse.json({
       success: true,

@@ -1,32 +1,40 @@
 import nodemailer from "nodemailer";
 import StorageSetting from "@/lib/models/StorageSetting";
 
+// ── SMTP Transporter ──────────────────────────────────────────────────────────
 async function getTransporter() {
+  // Priority 1: DB-stored SMTP settings (configurable from Admin > Settings)
   try {
     const settings = await StorageSetting.findOne({ id: "storage_config_main" }).lean();
     if (settings && settings.smtpHost && settings.smtpUser) {
       return nodemailer.createTransport({
         host: settings.smtpHost,
-        port: settings.smtpPort || 587,
-        secure: settings.smtpPort === 465,
+        port: Number(settings.smtpPort) || 587,
+        secure: Number(settings.smtpPort) === 465,
         auth: { user: settings.smtpUser, pass: settings.smtpPass },
       });
     }
   } catch (e) {
-    console.error("Error fetching SMTP settings:", e);
+    console.error("[SMTP] Error fetching DB settings:", e);
   }
 
-  if (process.env.SMTP_HOST) {
+  // Priority 2: Vercel / .env environment variables
+  if (process.env.SMTP_HOST && process.env.SMTP_USER) {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT) || 587,
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      secure: Number(process.env.SMTP_PORT) === 465,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
     });
   }
 
+  // Fallback: console-only mock (dev mode)
   return {
     sendMail: async (options: { to: string; subject: string; text?: string }) => {
-      console.log(`\n📧 [EMAIL DISPATCHED] To: ${options.to}`);
+      console.log(`\n📧 [EMAIL MOCK] To: ${options.to}`);
       console.log(`   Subject: ${options.subject}`);
       console.log(`   Text: ${options.text ? options.text.slice(0, 140) : "HTML email"}\n`);
       return { messageId: `mock-msg-${Date.now()}` };
@@ -34,6 +42,7 @@ async function getTransporter() {
   };
 }
 
+// ── Storage Alert Email ───────────────────────────────────────────────────────
 export async function sendStorageAlertEmail({
   usedMB, limitMB, percent, remainingMB, alertEmail,
 }: {
@@ -41,8 +50,11 @@ export async function sendStorageAlertEmail({
 }) {
   try {
     const transporter = await getTransporter();
+    const toEmail = alertEmail || process.env.ADMIN_NOTIFICATION_EMAIL || "admin@nithicollection.com";
+    const fromEmail = process.env.SMTP_FROM || "no-reply@nithicollection.com";
+
     const subject = `⚠️ URGENT: MongoDB Storage Alert - ${percent}% Capacity Reached (${usedMB} MB / ${limitMB} MB)`;
-    const text = `MongoDB Storage Warning: Usage at ${percent}%. Used: ${usedMB}MB / ${limitMB}MB. Remaining: ${remainingMB}MB. Please download a backup from the Admin Console.`;
+    const text = `MongoDB Storage Warning: Usage at ${percent}%. Used: ${usedMB}MB / ${limitMB}MB. Remaining: ${remainingMB}MB.`;
     const html = `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;background:#ffffff;">
   <div style="background:#041D16;padding:24px;text-align:center;border-bottom:3px solid #C9A227;">
@@ -58,21 +70,18 @@ export async function sendStorageAlertEmail({
       <tr><td style="padding:8px 0;color:#777;">Allocated Limit:</td><td style="text-align:right;font-weight:bold;">${limitMB} MB</td></tr>
       <tr><td style="padding:8px 0;color:#777;">Remaining Space:</td><td style="text-align:right;font-weight:bold;color:#064E3B;">${remainingMB} MB</td></tr>
     </table>
-    <p style="font-size:12px;color:#555;margin-top:16px;">🛡️ Data Retention Guarantee: Products, orders, and customer records will NEVER be automatically deleted.</p>
   </div>
 </div>`;
-    await (transporter as { sendMail: (opts: unknown) => Promise<unknown> }).sendMail({
-      from: '"Nithi Collection System" <no-reply@nithicollection.com>',
-      to: alertEmail || "admin@nithicollection.com",
-      subject, text, html,
-    });
+
+    await (transporter as any).sendMail({ from: `"Nithi Collection System" <${fromEmail}>`, to: toEmail, subject, text, html });
     return { success: true };
   } catch (error) {
-    console.error("Failed to send storage alert:", error);
+    console.error("[SMTP] Storage alert send failed:", error);
     return { success: false, error: (error as Error).message };
   }
 }
 
+// ── Order Confirmation Email (to Customer) ────────────────────────────────────
 export async function sendOrderConfirmationEmail(order: {
   orderId: string; customerName: string; customerEmail: string; customerPhone: string;
   shippingAddress: string; shippingState: string; shippingPincode: string;
@@ -83,6 +92,8 @@ export async function sendOrderConfirmationEmail(order: {
 
   try {
     const transporter = await getTransporter();
+    const fromEmail = process.env.SMTP_FROM || "orders@nithicollection.com";
+
     const itemsHtml = (order.items || [])
       .map(
         (it) => `<tr style="border-bottom:1px solid #eee;font-size:12px;">
@@ -124,29 +135,110 @@ export async function sendOrderConfirmationEmail(order: {
   </div>
 </div>`;
 
-    await (transporter as { sendMail: (opts: unknown) => Promise<unknown> }).sendMail({
-      from: '"Nithi Collection Orders" <orders@nithicollection.com>',
+    await (transporter as any).sendMail({
+      from: `"Nithi Collection Orders" <${fromEmail}>`,
       to: order.customerEmail,
       subject: `Order Confirmation #${order.orderId} - Nithi Collection`,
       html,
     });
+
+    // Also notify admin
+    await sendAdminOrderAlert(order, fromEmail);
+
     return { success: true };
   } catch (e) {
-    console.error("Failed to send order email (non-fatal):", (e as Error).message);
+    console.error("[SMTP] Order confirmation email failed:", (e as Error).message);
     return { success: false, error: (e as Error).message };
   }
 }
 
-export async function sendWhatsAppNotification(order: { orderId: string }) {
+// ── Admin New Order Alert Email ───────────────────────────────────────────────
+async function sendAdminOrderAlert(
+  order: { orderId: string; customerName: string; customerPhone: string; total: number; paymentMethod: string; items: any[] },
+  fromEmail: string
+) {
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+  if (!adminEmail) return;
+
+  try {
+    const transporter = await getTransporter();
+    await (transporter as any).sendMail({
+      from: `"Nithi Collection Orders" <${fromEmail}>`,
+      to: adminEmail,
+      subject: `🛍️ New Order #${order.orderId} — ₹${order.total} (${order.paymentMethod})`,
+      html: `
+<div style="font-family:Arial,sans-serif;max-width:500px;padding:20px;border:1px solid #ddd;border-radius:8px;">
+  <h3 style="color:#041D16;">New Order Received!</h3>
+  <p><strong>Order ID:</strong> #${order.orderId}</p>
+  <p><strong>Customer:</strong> ${order.customerName} — ${order.customerPhone}</p>
+  <p><strong>Items:</strong> ${order.items.length} item(s)</p>
+  <p><strong>Total:</strong> ₹${order.total}</p>
+  <p><strong>Payment:</strong> ${order.paymentMethod}</p>
+  <p style="margin-top:16px;"><a href="${process.env.NEXT_PUBLIC_SITE_URL || "https://nithi-clothings.vercel.app"}/admin/orders" style="background:#041D16;color:#DFC15E;padding:10px 20px;border-radius:6px;text-decoration:none;">View Order in Admin</a></p>
+</div>`,
+    });
+  } catch (e) {
+    console.warn("[SMTP] Admin order alert failed (non-fatal):", (e as Error).message);
+  }
+}
+
+// ── WhatsApp Business API Notification ───────────────────────────────────────
+export async function sendWhatsAppNotification(order: {
+  orderId: string;
+  customerName?: string;
+  customerPhone?: string;
+  total?: number;
+  paymentMethod?: string;
+}) {
+  const apiToken = process.env.WHATSAPP_API_TOKEN;
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+  // Also check DB settings
   try {
     const settings = await StorageSetting.findOne({ id: "storage_config_main" }).lean();
     if (settings && settings.whatsappApiEnabled && settings.whatsappWebhookUrl) {
-      console.log(`[WHATSAPP NOTIFICATION] Order #${order.orderId}`);
+      // Legacy webhook mode
+      console.log(`[WHATSAPP] Order #${order.orderId} — webhook mode`);
       return { success: true, status: "Sent via Webhook" };
     }
-    return { success: true, status: "Skipped (API not enabled)" };
+  } catch {}
+
+  // Meta Cloud API mode (using Vercel env vars)
+  if (!apiToken || !phoneNumberId) {
+    console.log(`[WHATSAPP] Skipped — WHATSAPP_API_TOKEN or WHATSAPP_PHONE_NUMBER_ID not configured`);
+    return { success: true, status: "Skipped (API not configured)" };
+  }
+
+  try {
+    const res = await fetch(
+      `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          to: process.env.ADMIN_WHATSAPP_NUMBER || "",
+          type: "text",
+          text: {
+            body: `🛍️ New Nithi Collection Order!\n\nOrder: #${order.orderId}\nCustomer: ${order.customerName || "Customer"}\nPhone: ${order.customerPhone || "-"}\nTotal: ₹${order.total || 0}\nPayment: ${order.paymentMethod || "COD"}\n\nView: https://nithi-clothings.vercel.app/admin/orders`,
+          },
+        }),
+      }
+    );
+
+    if (res.ok) {
+      console.log(`[WHATSAPP] ✅ Notification sent for order #${order.orderId}`);
+      return { success: true, status: "Sent via Meta Cloud API" };
+    } else {
+      const err = await res.json().catch(() => ({}));
+      console.warn(`[WHATSAPP] API error:`, err);
+      return { success: false, status: "API Error", error: JSON.stringify(err) };
+    }
   } catch (e) {
-    console.error("WhatsApp notification failed:", (e as Error).message);
+    console.error("[WHATSAPP] Notification failed:", (e as Error).message);
     return { success: false, error: (e as Error).message };
   }
 }

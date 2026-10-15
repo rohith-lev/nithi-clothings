@@ -21,9 +21,5 @@ const CustomerSchema = new Schema(
   { timestamps: true }
 );
 
-if (mongoose.models && mongoose.models.Customer) {
-  delete (mongoose.models as any).Customer;
-}
-
-const Customer = mongoose.model("Customer", CustomerSchema);
+const Customer = mongoose.models.Customer || mongoose.model("Customer", CustomerSchema);
 export default Customer;

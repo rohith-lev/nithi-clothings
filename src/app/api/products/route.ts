@@ -18,19 +18,6 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const activeOnly = searchParams.get("activeOnly") === "true";
 
-    // Permanently purge any test/deleted Priya products from database
-    try {
-      await Product.deleteMany({
-        $or: [
-          { name: /priya/i },
-          { category: /priya/i },
-          { code: /priya/i },
-          { sku: /priya/i },
-          { id: /priya/i },
-        ],
-      });
-    } catch {}
-
     const filter: Record<string, unknown> = {};
 
     if (activeOnly) {
@@ -296,6 +283,8 @@ export async function POST(request: NextRequest) {
               name: subName,
               parentGroup,
             });
+            // Must markModified so Mongoose detects nested array mutation
+            categoryDoc.markModified("subcategories");
           }
         }
 
@@ -390,13 +379,26 @@ export async function DELETE(request: NextRequest) {
 
     let deleteFilter: any = {};
     if (Array.isArray(ids) && ids.length > 0) {
-      const validObjectIds = ids.filter((id: string) => mongoose.Types.ObjectId.isValid(id));
+      const cleanIds = ids.map((i: string) => String(i).trim()).filter(Boolean);
+      if (cleanIds.length === 0) {
+        return NextResponse.json(
+          { success: false, error: "No valid product IDs provided for deletion." },
+          { status: 400 }
+        );
+      }
+      const validObjectIds = cleanIds.filter((id: string) => mongoose.Types.ObjectId.isValid(id));
       deleteFilter = {
         $or: [
-          { id: { $in: ids } },
+          { id: { $in: cleanIds } },
           ...(validObjectIds.length > 0 ? [{ _id: { $in: validObjectIds } }] : []),
         ],
       };
+    } else {
+      // Safety guard: never allow deleting all products without explicit IDs
+      return NextResponse.json(
+        { success: false, error: "Product IDs are required. Pass ids[] in request body." },
+        { status: 400 }
+      );
     }
 
     const result = await Product.deleteMany(deleteFilter);

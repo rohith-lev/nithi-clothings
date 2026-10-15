@@ -100,9 +100,12 @@ export async function POST(request: NextRequest) {
 
     const targetUser = DEMO_ACCOUNTS[rawEmail];
     const isMasterPassword = safeCompare(rawPassword, ADMIN_PASSWORD);
-    const isStandardDemoPass = rawPassword === "password" || rawPassword === "admin" || rawPassword === "admin123" || rawPassword === "adminpassword123";
+    // Demo password shortcuts only allowed in local development — NEVER in production
+    const isDevDemoPass =
+      process.env.NODE_ENV !== "production" &&
+      (rawPassword === "password" || rawPassword === "admin" || rawPassword === "admin123" || rawPassword === "adminpassword123");
 
-    if (targetUser && (isMasterPassword || isStandardDemoPass || process.env.NODE_ENV !== "production")) {
+    if (targetUser && (isMasterPassword || isDevDemoPass)) {
       const user = {
         id: targetUser.id,
         name: targetUser.name,
