@@ -148,7 +148,12 @@ export async function getMediaBuffer(filename: string): Promise<GetMediaResult |
     const media = await Media.findOne({ filename: safeFilename }).lean();
 
     if (media && media.data) {
-      const buffer = Buffer.isBuffer(media.data) ? media.data : Buffer.from(media.data);
+      const binaryData = media.data as unknown as { value?: (asRaw: boolean) => Buffer | string };
+      const buffer = Buffer.isBuffer(media.data)
+        ? media.data
+        : typeof binaryData.value === "function"
+          ? Buffer.from(binaryData.value(true))
+          : Buffer.from(media.data);
       return {
         data: buffer,
         contentType: media.contentType || "image/jpeg",
