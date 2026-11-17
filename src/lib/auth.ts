@@ -40,7 +40,13 @@ export function getAuthUser(request: NextRequest): AuthUser | null {
   if (token && token.trim()) {
     try {
       const decoded = jwt.verify(token, effectiveSecret) as AuthUser;
-      if (decoded && decoded.id && decoded.role) {
+      if (
+        decoded &&
+        decoded.id &&
+        (decoded.role === "Super Admin" ||
+          decoded.role === "Store Manager" ||
+          decoded.role === "Inventory Admin")
+      ) {
         return decoded;
       }
     } catch {
@@ -48,8 +54,8 @@ export function getAuthUser(request: NextRequest): AuthUser | null {
     }
   }
 
-  // Development fallback when running locally with cookie present
-  if (process.env.NODE_ENV !== "production" && token) {
+  // Development fallback when running locally with dev token present
+  if (process.env.NODE_ENV !== "production" && token === "nithi_dev_session_token") {
     return {
       id: "adm-1",
       name: "Nithi (Founder & Owner)",
@@ -71,7 +77,12 @@ export function requireAdmin(request: NextRequest): {
 } {
   const user = getAuthUser(request);
 
-  if (!user) {
+  if (
+    !user ||
+    (user.role !== "Super Admin" &&
+      user.role !== "Store Manager" &&
+      user.role !== "Inventory Admin")
+  ) {
     return {
       user: null,
       errorResponse: NextResponse.json(

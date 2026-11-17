@@ -191,13 +191,15 @@ export default function AdminLogin() {
 
               {show2FA && (
                 <div className="space-y-2 pt-1">
-                  <button
-                    type="button"
-                    onClick={handleBypassOTP}
-                    className="w-full py-2.5 px-3 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/80 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <span>⚡ Bypass OTP & Login Instantly (Development Mode)</span>
-                  </button>
+                  {process.env.NODE_ENV !== "production" && (
+                    <button
+                      type="button"
+                      onClick={handleBypassOTP}
+                      className="w-full py-2.5 px-3 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/80 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <span>⚡ Bypass OTP & Login Instantly (Development Mode)</span>
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => setShow2FA(false)}
@@ -209,32 +211,34 @@ export default function AdminLogin() {
               )}
             </form>
 
-            {/* Quick Demo Switcher */}
-            <div className="mt-8 pt-6 border-t border-white/10">
-              <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#DFC15E] mb-3 text-center">
-                Quick Demo Switcher (Instant Evaluation)
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                {demoAccounts.map((acc) => (
-                  <button
-                    key={acc.id}
-                    type="button"
-                    onClick={() => handleQuickLogin(acc.email)}
-                    className="flex items-center justify-between px-3.5 py-2.5 text-xs rounded-xl bg-[#031711]/90 hover:bg-[#031711] border border-emerald-900/60 hover:border-[#C9A227]/60 text-stone-200 transition-all text-left group"
-                  >
-                    <div>
-                      <div className="font-bold text-white group-hover:text-[#DFC15E] transition-colors">
-                        {acc.name}
+            {/* Quick Demo Switcher - Development Only */}
+            {process.env.NODE_ENV !== "production" && (
+              <div className="mt-8 pt-6 border-t border-white/10">
+                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#DFC15E] mb-3 text-center">
+                  Development Demo Switcher (Local Testing Only)
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {demoAccounts.map((acc) => (
+                    <button
+                      key={acc.id}
+                      type="button"
+                      onClick={() => handleQuickLogin(acc.email)}
+                      className="flex items-center justify-between px-3.5 py-2.5 text-xs rounded-xl bg-[#031711]/90 hover:bg-[#031711] border border-emerald-900/60 hover:border-[#C9A227]/60 text-stone-200 transition-all text-left group cursor-pointer"
+                    >
+                      <div>
+                        <div className="font-bold text-white group-hover:text-[#DFC15E] transition-colors">
+                          {acc.name}
+                        </div>
+                        <div className="text-[10px] text-stone-400">{acc.email}</div>
                       </div>
-                      <div className="text-[10px] text-stone-400">{acc.email}</div>
-                    </div>
-                    <span className="text-[10px] px-2.5 py-1 rounded-full bg-[#0B3D2E] text-[#DFC15E] border border-[#C9A227]/30 font-bold">
-                      {acc.role}
-                    </span>
-                  </button>
-                ))}
+                      <span className="text-[10px] px-2.5 py-1 rounded-full bg-[#0B3D2E] text-[#DFC15E] border border-[#C9A227]/30 font-bold">
+                        {acc.role}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Customer store return */}

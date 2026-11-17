@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useCart } from "../store/cart";
 import { useCustomerAuth } from "../services/customerAuth";
+import { useAdminAuth } from "../services/auth";
 import { useStoreCategories } from "../services/storefront";
 import type { Category } from "../types/store";
 import BrandLogo from "./BrandLogo";
@@ -11,6 +12,7 @@ import InteractiveNavText from "./InteractiveNavText";
 export default function Header() {
   const { cartCount, state } = useCart();
   const { customer, isLoggedIn } = useCustomerAuth();
+  const { isAuthenticated: isAdminLoggedIn } = useAdminAuth();
   const rawCategories = useStoreCategories();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -301,18 +303,20 @@ export default function Header() {
                 )}
               </Link>
 
-              {/* Admin Panel Quick Access (hidden on mobile, available in drawer) */}
-              <Link
-                to="/admin/products"
-                className="hidden md:inline-flex items-center gap-1.5 bg-[#064E3B] hover:bg-[#0B3D2E] text-[#FAF8F1] text-[10px] font-bold uppercase tracking-wider px-3 py-2 rounded-xs border border-[#C9A227]/50 shadow-xs transition-colors shrink-0"
-                title="Admin Dashboard & Product Creator"
-              >
-                <svg className="w-3.5 h-3.5 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>Admin</span>
-              </Link>
+              {/* Admin Panel Quick Access (Only rendered for logged-in administrators) */}
+              {isAdminLoggedIn && (
+                <Link
+                  to="/admin"
+                  className="hidden md:inline-flex items-center gap-1.5 bg-[#064E3B] hover:bg-[#0B3D2E] text-[#FAF8F1] text-[10px] font-bold uppercase tracking-wider px-3 py-2 rounded-xs border border-[#C9A227]/50 shadow-xs transition-colors shrink-0"
+                  title="Admin Dashboard"
+                >
+                  <svg className="w-3.5 h-3.5 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span>Admin</span>
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -490,13 +494,15 @@ export default function Header() {
                 </svg>
                 <span>Wishlist ({state.wishlist.length})</span>
               </Link>
-              <Link to="/admin/products" onClick={() => setMobileMenuOpen(false)} className="text-[#064E3B] font-bold flex items-center gap-1.5">
-                <svg className="w-4 h-4 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span>Admin</span>
-              </Link>
+              {isAdminLoggedIn && (
+                <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="text-[#064E3B] font-bold flex items-center gap-1.5">
+                  <svg className="w-4 h-4 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span>Admin</span>
+                </Link>
+              )}
             </div>
           </div>
         )}

@@ -15,7 +15,6 @@ export default function ProductDetail() {
   const allProducts = useStoreProducts();
   const categories = useStoreCategories();
   const { state, dispatch } = useCart();
-
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -493,10 +492,10 @@ export default function ProductDetail() {
                       onClick={() => !isSoldOut && setSelectedSize(szName)}
                       disabled={isSoldOut}
                       className={`relative flex min-w-[80px] flex-col items-center justify-center rounded-2xl border px-3.5 py-2 text-xs font-bold transition-all duration-200 shadow-2xs cursor-pointer ${isSelected
-                          ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] ring-2 ring-[#C9A227]/50 scale-105 shadow-md"
-                          : isSoldOut
-                            ? "border-stone-200 bg-stone-100 text-stone-400 opacity-60 cursor-not-allowed"
-                            : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#C9A227] hover:bg-[#FAF8F1]"
+                        ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] ring-2 ring-[#C9A227]/50 scale-105 shadow-md"
+                        : isSoldOut
+                          ? "border-stone-200 bg-stone-100 text-stone-400 opacity-60 cursor-not-allowed"
+                          : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#C9A227] hover:bg-[#FAF8F1]"
                         }`}
                     >
                       <span className="flex items-center gap-1 font-display text-sm font-bold">
@@ -505,14 +504,14 @@ export default function ProductDetail() {
                       </span>
                       <span
                         className={`text-[10px] mt-0.5 font-medium ${isSoldOut
-                            ? "text-rose-500 font-bold"
-                            : remaining <= 5
-                              ? isSelected
-                                ? "text-amber-200 font-bold"
-                                : "text-amber-600 font-bold"
-                              : isSelected
-                                ? "text-[#FAF8F1]/80"
-                                : "text-emerald-700"
+                          ? "text-rose-500 font-bold"
+                          : remaining <= 5
+                            ? isSelected
+                              ? "text-amber-200 font-bold"
+                              : "text-amber-600 font-bold"
+                            : isSelected
+                              ? "text-[#FAF8F1]/80"
+                              : "text-emerald-700"
                           }`}
                       >
                         {isSoldOut ? "Out of Stock" : remaining <= 5 ? `Only ${remaining} left` : "In Stock"}
@@ -543,8 +542,8 @@ export default function ProductDetail() {
                         type="button"
                         onClick={() => setSelectedColor(col)}
                         className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${isColSelected
-                            ? "bg-[#064E3B] text-[#FAF8F1] border-[#064E3B] ring-2 ring-[#C9A227]/40 shadow-xs"
-                            : "bg-[#FFFFFF] text-[#171A18] border-[#E8E2D5] hover:border-[#C9A227]"
+                          ? "bg-[#064E3B] text-[#FAF8F1] border-[#064E3B] ring-2 ring-[#C9A227]/40 shadow-xs"
+                          : "bg-[#FFFFFF] text-[#171A18] border-[#E8E2D5] hover:border-[#C9A227]"
                           }`}
                       >
                         {col}
@@ -600,8 +599,8 @@ export default function ProductDetail() {
                   onClick={handleAddToCart}
                   disabled={isSizeOutOfStock}
                   className={`flex-1 rounded-2xl py-4 px-4 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] shadow-md transition-all text-center flex items-center justify-center gap-2 cursor-pointer ${isSizeOutOfStock
-                      ? "bg-stone-300 text-stone-500 cursor-not-allowed"
-                      : "bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] active:scale-[0.99] shadow-lg"
+                    ? "bg-stone-300 text-stone-500 cursor-not-allowed"
+                    : "bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] active:scale-[0.99] shadow-lg"
                     }`}
                 >
                   <svg className="w-4 h-4 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -615,8 +614,8 @@ export default function ProductDetail() {
                   onClick={handleBuyNow}
                   disabled={isSizeOutOfStock}
                   className={`flex-1 rounded-2xl py-4 px-4 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] transition-all shadow-md text-center cursor-pointer ${isSizeOutOfStock
-                      ? "bg-stone-200 text-stone-400 cursor-not-allowed"
-                      : "bg-[#C9A227] text-[#171A18] hover:bg-[#DFC15E] active:scale-[0.99]"
+                    ? "bg-stone-200 text-stone-400 cursor-not-allowed"
+                    : "bg-[#C9A227] text-[#171A18] hover:bg-[#DFC15E] active:scale-[0.99]"
                     }`}
                 >
                   Buy Now
