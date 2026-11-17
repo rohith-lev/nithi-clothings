@@ -377,9 +377,8 @@ export default function ProductDetail() {
               <button
                 type="button"
                 onClick={handleToggleWishlist}
-                className={`flex h-10 w-10 items-center justify-center rounded-full border border-[#E8E2D5] bg-[#FFFFFF] transition-all hover:scale-110 shadow-2xs cursor-pointer ${
-                  wishlistAnimate ? "animate-heart-pop" : ""
-                } ${isWishlisted ? "text-rose-600 border-rose-200 bg-rose-50" : "text-[#171A18] hover:text-rose-600"}`}
+                className={`flex h-10 w-10 items-center justify-center rounded-full border border-[#E8E2D5] bg-[#FFFFFF] transition-all hover:scale-110 shadow-2xs cursor-pointer ${wishlistAnimate ? "animate-heart-pop" : ""
+                  } ${isWishlisted ? "text-rose-600 border-rose-200 bg-rose-50" : "text-[#171A18] hover:text-rose-600"}`}
                 title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
                 aria-label="Wishlist"
               >
@@ -475,11 +474,11 @@ export default function ProductDetail() {
                 {(product.sizeOptions && product.sizeOptions.length > 0
                   ? product.sizeOptions
                   : (product.sizes || ["Free Size"]).map((sz) => ({
-                      size: sz,
-                      price: product.price,
-                      mrp: product.mrp,
-                      stock: product.stock,
-                    }))
+                    size: sz,
+                    price: product.price,
+                    mrp: product.mrp,
+                    stock: product.stock,
+                  }))
                 ).map((szOpt) => {
                   const szName = szOpt.size;
                   const isSelected = selectedSize.toLowerCase() === szName.toLowerCase();
@@ -493,30 +492,28 @@ export default function ProductDetail() {
                       type="button"
                       onClick={() => !isSoldOut && setSelectedSize(szName)}
                       disabled={isSoldOut}
-                      className={`relative flex min-w-[80px] flex-col items-center justify-center rounded-2xl border px-3.5 py-2 text-xs font-bold transition-all duration-200 shadow-2xs cursor-pointer ${
-                        isSelected
+                      className={`relative flex min-w-[80px] flex-col items-center justify-center rounded-2xl border px-3.5 py-2 text-xs font-bold transition-all duration-200 shadow-2xs cursor-pointer ${isSelected
                           ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] ring-2 ring-[#C9A227]/50 scale-105 shadow-md"
                           : isSoldOut
-                          ? "border-stone-200 bg-stone-100 text-stone-400 opacity-60 cursor-not-allowed"
-                          : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#C9A227] hover:bg-[#FAF8F1]"
-                      }`}
+                            ? "border-stone-200 bg-stone-100 text-stone-400 opacity-60 cursor-not-allowed"
+                            : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#C9A227] hover:bg-[#FAF8F1]"
+                        }`}
                     >
                       <span className="flex items-center gap-1 font-display text-sm font-bold">
                         {szName}
                         {isSelected && <span className="text-[10px] text-[#DFC15E]">✓</span>}
                       </span>
                       <span
-                        className={`text-[10px] mt-0.5 font-medium ${
-                          isSoldOut
+                        className={`text-[10px] mt-0.5 font-medium ${isSoldOut
                             ? "text-rose-500 font-bold"
                             : remaining <= 5
-                            ? isSelected
-                              ? "text-amber-200 font-bold"
-                              : "text-amber-600 font-bold"
-                            : isSelected
-                            ? "text-[#FAF8F1]/80"
-                            : "text-emerald-700"
-                        }`}
+                              ? isSelected
+                                ? "text-amber-200 font-bold"
+                                : "text-amber-600 font-bold"
+                              : isSelected
+                                ? "text-[#FAF8F1]/80"
+                                : "text-emerald-700"
+                          }`}
                       >
                         {isSoldOut ? "Out of Stock" : remaining <= 5 ? `Only ${remaining} left` : "In Stock"}
                       </span>
@@ -545,11 +542,10 @@ export default function ProductDetail() {
                         key={col}
                         type="button"
                         onClick={() => setSelectedColor(col)}
-                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
-                          isColSelected
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${isColSelected
                             ? "bg-[#064E3B] text-[#FAF8F1] border-[#064E3B] ring-2 ring-[#C9A227]/40 shadow-xs"
                             : "bg-[#FFFFFF] text-[#171A18] border-[#E8E2D5] hover:border-[#C9A227]"
-                        }`}
+                          }`}
                       >
                         {col}
                       </button>
@@ -603,11 +599,10 @@ export default function ProductDetail() {
                   type="button"
                   onClick={handleAddToCart}
                   disabled={isSizeOutOfStock}
-                  className={`flex-1 rounded-2xl py-4 px-4 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] shadow-md transition-all text-center flex items-center justify-center gap-2 cursor-pointer ${
-                    isSizeOutOfStock
+                  className={`flex-1 rounded-2xl py-4 px-4 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] shadow-md transition-all text-center flex items-center justify-center gap-2 cursor-pointer ${isSizeOutOfStock
                       ? "bg-stone-300 text-stone-500 cursor-not-allowed"
                       : "bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] active:scale-[0.99] shadow-lg"
-                  }`}
+                    }`}
                 >
                   <svg className="w-4 h-4 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -619,11 +614,10 @@ export default function ProductDetail() {
                   type="button"
                   onClick={handleBuyNow}
                   disabled={isSizeOutOfStock}
-                  className={`flex-1 rounded-2xl py-4 px-4 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] transition-all shadow-md text-center cursor-pointer ${
-                    isSizeOutOfStock
+                  className={`flex-1 rounded-2xl py-4 px-4 text-xs sm:text-sm font-bold uppercase tracking-[0.16em] transition-all shadow-md text-center cursor-pointer ${isSizeOutOfStock
                       ? "bg-stone-200 text-stone-400 cursor-not-allowed"
                       : "bg-[#C9A227] text-[#171A18] hover:bg-[#DFC15E] active:scale-[0.99]"
-                  }`}
+                    }`}
                 >
                   Buy Now
                 </button>
@@ -654,9 +648,8 @@ export default function ProductDetail() {
               </div>
               {pincodeMsg && (
                 <p
-                  className={`text-[11px] font-semibold pt-1 ${
-                    pincodeMsg.type === "success" ? "text-emerald-800" : "text-rose-600"
-                  }`}
+                  className={`text-[11px] font-semibold pt-1 ${pincodeMsg.type === "success" ? "text-emerald-800" : "text-rose-600"
+                    }`}
                 >
                   {pincodeMsg.text}
                 </p>

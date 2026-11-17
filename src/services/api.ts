@@ -46,15 +46,14 @@ function getAuthHeader(): Record<string, string> {
     const authDataStr = localStorage.getItem("nithi_admin_session_auth_v1");
     if (authDataStr) {
       const authData = JSON.parse(authDataStr);
-      if (authData.token) {
+      if (authData && authData.token) {
         return { Authorization: `Bearer ${authData.token}` };
       }
-      return { Authorization: "Bearer nithi_dev_session_token" };
     }
   } catch (e) {
     // ignore
   }
-  return { Authorization: "Bearer nithi_dev_session_token" };
+  return {};
 }
 
 async function apiFetch<T>(url: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
@@ -64,6 +63,14 @@ async function apiFetch<T>(url: string, options: RequestInit = {}): Promise<ApiR
       ...options.headers,
     };
     const res = await fetch(url, { ...options, credentials: "same-origin", headers });
+
+    // Handle token expiry on admin actions
+    if (res.status === 401 && typeof window !== "undefined" && window.location.pathname.startsWith("/admin") && window.location.pathname !== "/admin/login") {
+      try {
+        localStorage.removeItem("nithi_admin_session_auth_v1");
+      } catch {}
+    }
+
     const contentType = res.headers.get("content-type") || "";
     if (!contentType.includes("application/json")) {
       return {

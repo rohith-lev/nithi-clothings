@@ -7,6 +7,7 @@ export interface AdminUser {
   role: "Super Admin" | "Store Manager" | "Inventory Admin";
   avatar: string;
   twoFactorEnabled: boolean;
+  token?: string;
 }
 
 const DEMO_ADMINS: AdminUser[] = [
@@ -38,19 +39,42 @@ const DEMO_ADMINS: AdminUser[] = [
 
 const AUTH_STORAGE_KEY = "nithi_admin_session_auth_v1";
 
+function isTokenExpired(token: string): boolean {
+  if (!token) return true;
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      // Non-JWT token (e.g. dev token)
+      return false;
+    }
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    if (payload.exp && typeof payload.exp === "number") {
+      return Date.now() >= payload.exp * 1000;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 type AuthListener = (user: AdminUser | null) => void;
 const authListeners: Set<AuthListener> = new Set();
 
 export const authService = {
   getCurrentUser(): AdminUser | null {
+    if (typeof window === "undefined") return null;
     try {
       const raw = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (!raw) {
-        // Return default Super Admin
-        const defaultAdmin = DEMO_ADMINS[0];
-        return defaultAdmin;
-      }
+      if (!raw) return null;
       const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return null;
+
+      // Verify that token is present and not expired
+      if (!parsed.token || typeof parsed.token !== "string" || isTokenExpired(parsed.token)) {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        return null;
+      }
+
       return parsed;
     } catch {
       return null;
@@ -78,9 +102,10 @@ export const authService = {
       
       if (data && data.success && data.token) {
         // Store both user and token
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ ...data.user, token: data.token }));
-        authListeners.forEach((fn) => fn(data.user));
-        return { success: true, user: data.user };
+        const fullUser: AdminUser = { ...data.user, token: data.token };
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(fullUser));
+        authListeners.forEach((fn) => fn(fullUser));
+        return { success: true, user: fullUser };
       } else {
         return { success: false, error: data?.error || 'Authentication failed' };
       }
@@ -90,16 +115,21 @@ export const authService = {
       const found = DEMO_ADMINS.find((a) => a.email.toLowerCase() === cleanEmail);
       if (cleanEmail === "admin" || cleanEmail === "admin@nithi.com" || found) {
         const user = found || DEMO_ADMINS[0];
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ ...user, token: "nithi_dev_session_token" }));
-        authListeners.forEach((fn) => fn(user));
-        return { success: true, user };
+        const fullUser: AdminUser = { ...user, token: "nithi_dev_session_token" };
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(fullUser));
+        authListeners.forEach((fn) => fn(fullUser));
+        return { success: true, user: fullUser };
       }
       return { success: false, error: 'Could not reach authentication server.' };
     }
   },
 
   logout() {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
+    try {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      fetch('/api/login', { method: 'DELETE' }).catch(() => {});
+      document.cookie = "nithi_admin_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    } catch {}
     authListeners.forEach((fn) => fn(null));
   },
 
@@ -114,7 +144,7 @@ export const authService = {
 };
 
 export function useAdminAuth() {
-  const [user, setUser] = useState<AdminUser | null>(authService.getCurrentUser());
+  const [user, setUser] = useState<AdminUser | null>(() => authService.getCurrentUser());
 
   useEffect(() => {
     const unsub = authService.subscribe((newUser) => {
@@ -125,7 +155,7 @@ export function useAdminAuth() {
 
   return {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: Boolean(user && user.token),
     login: authService.login,
     logout: authService.logout,
     demoAccounts: DEMO_ADMINS,

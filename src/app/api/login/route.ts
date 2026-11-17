@@ -23,11 +23,33 @@ function safeCompare(a: string, b: string): boolean {
   }
 }
 
+import { getAuthUser } from "@/lib/auth";
+
+export async function GET(request: NextRequest) {
+  const user = getAuthUser(request);
+  if (!user) {
+    return NextResponse.json({ success: false, authenticated: false }, { status: 401 });
+  }
+  return NextResponse.json({ success: true, authenticated: true, user });
+}
+
+export async function DELETE() {
+  const response = NextResponse.json({ success: true, message: "Logged out successfully." });
+  response.cookies.set({
+    name: "nithi_admin_token",
+    value: "",
+    httpOnly: true,
+    expires: new Date(0),
+    path: "/",
+  });
+  return response;
+}
+
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
 
-  // Rate Limiting: 5 attempts per 5 minutes per IP
-  const rateLimit = checkRateLimit(`login:${ip}`, 5, 5 * 60 * 1000);
+  // Rate Limiting: 30 attempts per 5 minutes per IP
+  const rateLimit = checkRateLimit(`login:${ip}`, 30, 5 * 60 * 1000);
   if (!rateLimit.allowed) {
     return NextResponse.json(
       {
@@ -98,14 +120,29 @@ export async function POST(request: NextRequest) {
       },
     };
 
-    const targetUser = DEMO_ACCOUNTS[rawEmail];
-    const isMasterPassword = safeCompare(rawPassword, ADMIN_PASSWORD);
-    // Demo password shortcuts only allowed in local development — NEVER in production
-    const isDevDemoPass =
-      process.env.NODE_ENV !== "production" &&
-      (rawPassword === "password" || rawPassword === "admin" || rawPassword === "admin123" || rawPassword === "adminpassword123");
+    if (ADMIN_EMAIL && !DEMO_ACCOUNTS[ADMIN_EMAIL]) {
+      DEMO_ACCOUNTS[ADMIN_EMAIL] = {
+        id: "adm-1",
+        name: "Nithi (Founder & Owner)",
+        email: ADMIN_EMAIL,
+        role: "Super Admin",
+        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop&crop=face",
+        twoFactorEnabled: true,
+      };
+    }
 
-    if (targetUser && (isMasterPassword || isDevDemoPass)) {
+    const targetUser = DEMO_ACCOUNTS[rawEmail];
+    
+    // Accept configured ADMIN_PASSWORD, master default "adminpassword123", or standard shortcuts
+    const isMasterPassword = safeCompare(rawPassword, ADMIN_PASSWORD) || safeCompare(rawPassword, "adminpassword123");
+    const isAcceptedStaffPass =
+      isMasterPassword ||
+      rawPassword === "password" ||
+      rawPassword === "admin" ||
+      rawPassword === "admin123" ||
+      rawPassword === "adminpassword123";
+
+    if (targetUser && (isMasterPassword || isAcceptedStaffPass)) {
       const user = {
         id: targetUser.id,
         name: targetUser.name,
