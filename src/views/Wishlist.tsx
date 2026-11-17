@@ -56,7 +56,7 @@ export default function Wishlist() {
       (product.colorImages && product.colorImages[selectedColor]) ||
       product.coverImage ||
       (product.images && product.images[0]) ||
-      "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=600&fit=crop";
+      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&fit=crop";
 
     dispatch({
       type: "ADD_TO_CART",
@@ -175,7 +175,7 @@ export default function Wishlist() {
             const primaryImage =
               product.coverImage ||
               (product.images && product.images[0]) ||
-              "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=600&fit=crop";
+              "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&fit=crop";
 
             return (
               <div

@@ -30,7 +30,7 @@ export default function AdminReturns() {
     <div className="space-y-6 font-body">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-stone-900 font-display">
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 font-sans">
             Returns, Exchanges & Refund Desk
           </h1>
           <p className="text-xs text-stone-500 mt-1">

@@ -245,9 +245,9 @@ export const adminApi = {
       discountType: productData.discountType || "percentage",
       discountValue: discount,
       images: existingImages.length > 0 ? existingImages : [
-        "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format"
+        "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format"
       ],
-      coverImage: coverImage || "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format",
+      coverImage: coverImage || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format",
       color: productData.color || (productData.colors && productData.colors[0]) || "Green",
       colors: productData.colors && productData.colors.length > 0 ? productData.colors : [productData.color || "Green"],
       sizes: Array.isArray(productData.sizes) ? productData.sizes : [],

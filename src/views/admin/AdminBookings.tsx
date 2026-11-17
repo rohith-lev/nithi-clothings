@@ -127,7 +127,7 @@ export default function AdminBookings() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-display text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+            <h1 className="font-sans font-bold text-2xl sm:text-3xl text-stone-900 tracking-tight">
               Customer Bookings & Consultations
             </h1>
             <span className="px-2.5 py-0.5 rounded-full bg-[#FAF8F1] border border-[#C9A227]/40 text-[#8A5F38] text-xs font-bold font-mono">

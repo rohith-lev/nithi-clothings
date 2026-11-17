@@ -22,7 +22,7 @@ export default function ProductCard({ product }: Props) {
 
   const isWishlisted = state.wishlist.includes(product.id);
 
-  const FALLBACK_PRODUCT_IMG = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=600&fit=crop";
+  const FALLBACK_PRODUCT_IMG = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&fit=crop";
 
   // Filter and sanitize gallery images to eliminate blank/broken images
   const cleanImages = useMemo(() => {

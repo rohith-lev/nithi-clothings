@@ -183,7 +183,7 @@ export async function executeSafeImport(validRecords: Record<string, unknown>[],
             await existing.save(); updated++; continue;
           }
         }
-        await new Product({ ...rec, id: rec.id || `p${Date.now().toString().slice(-6)}`, finalPrice: Math.max(0, Math.round((rec.price as number) - ((rec.price as number) * ((rec.discount as number) || 0)) / 100)), inStock: ((rec.stock as number) || 0) > 0, status: (rec.stock as number) === 0 ? "OUT OF STOCK" : rec.status || "ACTIVE", sizes: ["Free Size"], colors: [rec.color || "Standard"], images: ["https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400&h=500&fit=crop"], coverImage: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400&h=500&fit=crop", updatedAt: new Date() }).save();
+        await new Product({ ...rec, id: rec.id || `p${Date.now().toString().slice(-6)}`, finalPrice: Math.max(0, Math.round((rec.price as number) - ((rec.price as number) * ((rec.discount as number) || 0)) / 100)), inStock: ((rec.stock as number) || 0) > 0, status: (rec.stock as number) === 0 ? "OUT OF STOCK" : rec.status || "ACTIVE", sizes: ["Free Size"], colors: [rec.color || "Standard"], images: ["https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=500&fit=crop"], coverImage: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=500&fit=crop", updatedAt: new Date() }).save();
         imported++;
       } catch (e) { failed++; errorDetails.push(`Failed on "${rec.name}": ${(e as Error).message}`); }
     }

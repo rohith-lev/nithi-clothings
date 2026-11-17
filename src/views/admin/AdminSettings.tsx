@@ -72,7 +72,7 @@ export default function AdminSettings() {
 
       <div>
         <div className="flex items-center gap-2">
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-stone-900 tracking-tight">
+          <h1 className="font-sans font-bold text-2xl sm:text-3xl text-stone-900 tracking-tight">
             System & Store Management
           </h1>
           <span className="px-2.5 py-0.5 rounded-full bg-[#FAF8F1] border border-[#C9A227]/40 text-[#8A5F38] text-xs font-bold font-mono">
@@ -118,7 +118,7 @@ export default function AdminSettings() {
         <div className="space-y-6">
           <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-2xs space-y-6 text-xs">
             <div>
-              <h3 className="font-display font-bold text-lg text-stone-900">
+              <h3 className="font-sans font-bold text-lg text-stone-900 tracking-tight">
                 Promotional Announcements & Marquee Ticker
               </h3>
               <p className="text-stone-500 text-xs mt-0.5">
@@ -153,7 +153,7 @@ export default function AdminSettings() {
           </div>
 
           <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-8 shadow-2xs space-y-5 text-xs">
-            <h3 className="font-display font-bold text-lg text-stone-900">
+            <h3 className="font-sans font-bold text-lg text-stone-900 tracking-tight">
               General Merchant Information
             </h3>
 

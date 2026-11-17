@@ -158,7 +158,7 @@ export default function Footer() {
                 { label: "Order Tracking", to: "/account" },
                 { label: "Privacy Policy", to: "/#privacy" },
                 { label: "Terms & Conditions", to: "/#terms" },
-                { label: "Admin Panel & Product Manager", to: "/admin/products" },
+                { label: "Merchant Admin Portal", to: "/admin/login" },
               ].map((link) => (
                 <li key={link.label}>
                   <Link to={link.to} className="hover:text-[#C9A227] hover:translate-x-1 inline-block transition-all">

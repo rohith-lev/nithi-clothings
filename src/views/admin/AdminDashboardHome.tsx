@@ -159,7 +159,7 @@ export default function AdminDashboardHome() {
                 <ProductsIcon size={16} />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-stone-900 font-display">
+            <div className="text-2xl sm:text-3xl font-sans font-bold text-stone-900 tracking-tight">
               {metrics.totalProducts}
             </div>
             <div className="text-[11px] text-stone-500 mt-1 flex items-center gap-1 font-medium">
@@ -175,7 +175,7 @@ export default function AdminDashboardHome() {
                 <InventoryIcon size={16} />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-stone-900 font-display">
+            <div className="text-2xl sm:text-3xl font-sans font-bold text-stone-900 tracking-tight">
               {metrics.totalStock}
             </div>
             <div className="text-[11px] text-emerald-700 mt-1 font-medium">
@@ -191,7 +191,7 @@ export default function AdminDashboardHome() {
                 <AlertTriangleIcon size={16} />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-amber-800 font-display">
+            <div className="text-2xl sm:text-3xl font-sans font-bold text-amber-800 tracking-tight">
               {metrics.lowStockCount}
             </div>
             <div className="text-[11px] text-amber-700 mt-1 font-medium">
@@ -207,7 +207,7 @@ export default function AdminDashboardHome() {
                 <span className="font-bold text-sm">0</span>
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-rose-800 font-display">
+            <div className="text-2xl sm:text-3xl font-sans font-bold text-rose-800 tracking-tight">
               {metrics.outOfStockCount}
             </div>
             <div className="text-[11px] text-rose-700 mt-1 font-medium">
@@ -223,7 +223,7 @@ export default function AdminDashboardHome() {
                 ₹
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-[#064E3B] font-display">
+            <div className="text-2xl sm:text-3xl font-sans font-bold text-[#064E3B] tracking-tight">
               ₹{metrics.todaySales.toLocaleString("en-IN")}
             </div>
             <div className="text-[11px] text-emerald-700 mt-1 font-semibold flex items-center gap-1">
@@ -240,7 +240,7 @@ export default function AdminDashboardHome() {
                 <OrdersIcon size={16} />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-stone-900 font-display">
+            <div className="text-2xl sm:text-3xl font-sans font-bold text-stone-900 tracking-tight">
               {metrics.todayOrdersCount}
             </div>
             <div className="text-[11px] text-stone-500 mt-1 font-medium">
@@ -256,7 +256,7 @@ export default function AdminDashboardHome() {
                 <span className="text-xs font-bold">⏳</span>
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-blue-800 font-display">
+            <div className="text-2xl sm:text-3xl font-sans font-bold text-blue-800 tracking-tight">
               {metrics.pendingOrdersCount}
             </div>
             <div className="text-[11px] text-blue-700 mt-1 font-medium">
@@ -272,7 +272,7 @@ export default function AdminDashboardHome() {
                 COD
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-stone-900 font-display">
+            <div className="text-2xl sm:text-3xl font-sans font-bold text-stone-900 tracking-tight">
               {metrics.codOrdersCount}
             </div>
             <div className="text-[11px] text-stone-500 mt-1 font-medium">
@@ -288,7 +288,7 @@ export default function AdminDashboardHome() {
                 <CheckIcon size={16} />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-bold text-emerald-800 font-display">
+            <div className="text-2xl sm:text-3xl font-sans font-bold text-emerald-800 tracking-tight">
               {metrics.onlineOrdersCount}
             </div>
             <div className="text-[11px] text-emerald-700 mt-1 font-medium">
@@ -310,7 +310,7 @@ export default function AdminDashboardHome() {
               Status: NORMAL (0% / 500 MB)
             </span>
           </div>
-          <h3 className="font-display font-bold text-base sm:text-lg text-white">
+          <h3 className="font-sans font-bold text-base sm:text-lg text-white tracking-tight">
             Permanent Data Protection & Offline Backups
           </h3>
           <p className="text-[11px] text-stone-300 leading-relaxed max-w-xl">
@@ -344,7 +344,7 @@ export default function AdminDashboardHome() {
             <div>
               <div className="flex items-center gap-2">
                 <TrendingUpIcon size={18} className="text-[#064E3B]" />
-                <h3 className="font-display font-bold text-lg text-stone-900">
+                <h3 className="font-sans font-bold text-lg text-stone-900 tracking-tight">
                   Revenue Velocity & Daily Performance
                 </h3>
               </div>
@@ -419,7 +419,7 @@ export default function AdminDashboardHome() {
               <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
                 <AlertTriangleIcon size={15} />
               </div>
-              <h3 className="font-display font-bold text-base text-stone-900">
+              <h3 className="font-sans font-bold text-base text-stone-900 tracking-tight">
                 Low-Stock Alert
               </h3>
             </div>
@@ -451,8 +451,12 @@ export default function AdminDashboardHome() {
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item.image || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=200&h=200&fit=crop"}
+                      alt=""
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src =
+                          "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=200&h=200&fit=crop";
+                      }}
                       className="w-11 h-11 rounded-xl object-cover border border-amber-200 shrink-0 shadow-2xs"
                     />
                     <div className="truncate">
@@ -486,7 +490,7 @@ export default function AdminDashboardHome() {
             <div>
               <div className="flex items-center gap-2">
                 <OrdersIcon size={18} className="text-[#064E3B]" />
-                <h3 className="font-display font-bold text-lg text-stone-900">
+                <h3 className="font-sans font-bold text-lg text-stone-900 tracking-tight">
                   Recent Orders & Fulfillment Stream
                 </h3>
               </div>
@@ -567,7 +571,7 @@ export default function AdminDashboardHome() {
         <div className="bg-white rounded-3xl border border-stone-200 p-6 sm:p-7 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-display font-bold text-lg text-stone-900">
+              <h3 className="font-sans font-bold text-lg text-stone-900 tracking-tight">
                 Top Performers
               </h3>
               <p className="text-xs text-stone-500">Highest volume dresses</p>
@@ -579,17 +583,21 @@ export default function AdminDashboardHome() {
 
           <div className="space-y-3.5">
             {metrics.topSelling.map((p: any, idx: number) => {
-              const topKey = p.id || p._id || `top-prod-${idx}`;
-              const imageSrc = (Array.isArray(p.images) && p.images[0]) || p.coverImage || "/placeholder.jpg";
+              const topKey = p.id || p.sku || p._id || `top-prod-${idx}`;
+              const imageSrc = (Array.isArray(p.images) && p.images[0]) || p.coverImage || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=200&h=200&fit=crop";
 
               return (
                 <div key={topKey} className="flex items-center gap-3 p-2.5 rounded-2xl hover:bg-stone-50 border border-transparent hover:border-stone-200 transition-all">
-                  <span className="font-display font-black text-sm text-[#C9A227] w-5 text-center">
+                  <span className="font-sans font-bold text-sm text-[#C9A227] w-5 text-center">
                     0{idx + 1}
                   </span>
                   <img
                     src={imageSrc}
-                    alt={p.name}
+                    alt={p.name || "Product"}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src =
+                        "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=200&h=200&fit=crop";
+                    }}
                     className="w-12 h-12 rounded-xl object-cover border border-stone-200 shrink-0 shadow-2xs"
                   />
                   <div className="min-w-0 flex-1">

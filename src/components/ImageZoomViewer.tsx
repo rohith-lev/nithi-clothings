@@ -7,7 +7,7 @@ interface ImageZoomViewerProps {
   alt: string;
 }
 
-const FALLBACK_ZOOM_IMG = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&fit=crop";
+const FALLBACK_ZOOM_IMG = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&fit=crop";
 
 export default function ImageZoomViewer({
   images,

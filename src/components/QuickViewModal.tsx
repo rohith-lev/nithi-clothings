@@ -44,7 +44,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
 
   if (!isOpen || !product) return null;
 
-  const FALLBACK_MODAL_IMG = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=700&fit=crop";
+  const FALLBACK_MODAL_IMG = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=700&fit=crop";
 
   const galleryImages = [product.coverImage, ...(product.images || [])]
     .filter((img): img is string => typeof img === "string" && img.trim().length > 0)

@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
       .filter((p: any) => (p.stock || 0) <= 10)
       .slice(0, 5)
       .map((p: any) => ({
-        id: p.id,
+        id: p.id || (p._id ? String(p._id) : p.sku || ""),
         name: p.name,
         sku: p.sku || p.code,
         category: p.category,
@@ -49,7 +49,11 @@ export async function GET(request: NextRequest) {
 
     const topSelling = products
       .filter((p: any) => p.isBestSeller || (p.reviews && p.reviews > 50))
-      .slice(0, 5);
+      .slice(0, 5)
+      .map((p: any) => ({
+        ...p,
+        id: p.id || (p._id ? String(p._id) : p.sku || ""),
+      }));
 
     const recentOrders = orders
       .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())

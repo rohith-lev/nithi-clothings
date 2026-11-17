@@ -124,7 +124,7 @@ export default function Cart() {
               (item.product.colorOptions && item.product.colorOptions.find(c => c.name.toLowerCase() === item.selectedColor?.toLowerCase())?.image) ||
               item.product.coverImage ||
               item.product.images[0] ||
-              "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400";
+              "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400";
 
             const unitPrice = item.unitPrice !== undefined ? item.unitPrice : (item.product.finalPrice || item.product.price);
             const itemTotal = unitPrice * item.quantity;

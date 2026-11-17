@@ -411,7 +411,7 @@ export default function AdminProductsList() {
             </span>
             <span className="text-xs font-semibold text-stone-400">Live Inventory</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-stone-900 mt-1 font-display">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-stone-900 mt-1 font-sans">
             Product Management
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 mt-1 max-w-xl">
@@ -830,7 +830,7 @@ export default function AdminProductsList() {
                     const isLow = (p.stock || 0) <= 10 && (p.stock || 0) > 0;
                     const isOut = (p.stock || 0) <= 0;
                     const finalPr = p.finalPrice || (p.discount > 0 ? Math.round(p.price * (1 - p.discount / 100)) : p.price);
-                    const coverImg = p.coverImage || p.images?.[0] || "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=200&h=200&fit=crop";
+                    const coverImg = p.coverImage || p.images?.[0] || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=200&h=200&fit=crop";
 
                     return (
                       <tr
@@ -855,9 +855,9 @@ export default function AdminProductsList() {
                             <div className="relative w-11 h-14 rounded-xl overflow-hidden bg-stone-100 border border-stone-200/90 shrink-0 shadow-2xs group-hover:shadow-sm transition-all">
                               <img
                                 src={coverImg}
-                                alt={p.name}
+                                alt=""
                                 onError={(e) => {
-                                  (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=200&h=200&fit=crop";
+                                  (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=200&h=200&fit=crop";
                                 }}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />
@@ -875,7 +875,7 @@ export default function AdminProductsList() {
                             <div className="min-w-0 space-y-0.5">
                               <Link
                                 to={`/admin/products/edit/${p.id}`}
-                                className="font-display font-bold text-stone-900 hover:text-[#064E3B] transition-colors block text-xs sm:text-sm truncate max-w-[200px] leading-snug"
+                                className="font-sans font-bold text-stone-900 hover:text-[#064E3B] transition-colors block text-xs sm:text-sm truncate max-w-[220px] leading-snug"
                                 title={p.name}
                               >
                                 {p.name}
@@ -1095,7 +1095,7 @@ export default function AdminProductsList() {
             const finalPr = p.finalPrice || (p.discount > 0 ? Math.round(p.price * (1 - p.discount / 100)) : p.price);
             const isLow = (p.stock || 0) <= 10 && (p.stock || 0) > 0;
             const isOut = (p.stock || 0) <= 0;
-            const coverImg = p.coverImage || p.images?.[0] || "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400&h=500&fit=crop";
+            const coverImg = p.coverImage || p.images?.[0] || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=500&fit=crop";
 
             return (
               <div
@@ -1106,9 +1106,9 @@ export default function AdminProductsList() {
                 <div className="relative aspect-[3/4] bg-stone-100 overflow-hidden">
                   <img
                     src={coverImg}
-                    alt={p.name}
+                    alt=""
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400&h=500&fit=crop";
+                      (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=500&fit=crop";
                     }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />

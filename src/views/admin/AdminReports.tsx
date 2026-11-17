@@ -30,7 +30,7 @@ export default function AdminReports() {
     <div className="space-y-6 font-body">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-stone-900 font-display">
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 font-sans">
             Business Intelligence & Reports
           </h1>
           <p className="text-xs text-stone-500 mt-1">
@@ -50,19 +50,19 @@ export default function AdminReports() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-5 rounded-3xl bg-white border border-stone-200 shadow-2xs">
           <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Inventory Valuation</p>
-          <p className="text-2xl font-bold font-display text-stone-900 mt-1">₹{totalStockVal.toLocaleString('en-IN')}</p>
+          <p className="text-2xl font-bold font-sans text-stone-900 mt-1">₹{totalStockVal.toLocaleString('en-IN')}</p>
           <span className="text-[11px] text-emerald-700 font-medium">Wholesale Stock Asset</span>
         </div>
 
         <div className="p-5 rounded-3xl bg-white border border-stone-200 shadow-2xs">
           <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Top Performing Category</p>
-          <p className="text-2xl font-bold font-display text-stone-900 mt-1">Nighties (68%)</p>
+          <p className="text-2xl font-bold font-sans text-stone-900 mt-1">Nighties (68%)</p>
           <span className="text-[11px] text-stone-500 font-medium">Pure Cotton Series</span>
         </div>
 
         <div className="p-5 rounded-3xl bg-white border border-stone-200 shadow-2xs">
           <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Avg. Order Value (AOV)</p>
-          <p className="text-2xl font-bold font-display text-stone-900 mt-1">₹1,450</p>
+          <p className="text-2xl font-bold font-sans text-stone-900 mt-1">₹1,450</p>
           <span className="text-[11px] text-stone-500 font-medium">3 Dresses per customer basket</span>
         </div>
       </div>

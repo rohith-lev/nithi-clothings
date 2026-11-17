@@ -5,16 +5,18 @@ import type { ComboOffer } from "../types/store";
 const SESSION_DISMISSED_KEY = "nithi_combo_popup_dismissed_session";
 
 const FALLBACK_CATEGORY_IMAGES: Record<string, string> = {
-  nighty: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=900&fit=crop&auto=format",
-  nighties: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=900&fit=crop&auto=format",
+  nighty: "/uploads/WhatsApp_Image_2026-10-06_at_7.22.03_PM.jpeg",
+  nighties: "/uploads/WhatsApp_Image_2026-10-06_at_7.22.03_PM.jpeg",
   "night-dress": "https://images.unsplash.com/photo-1617019114583-affb34d1b3cd?w=800&h=900&fit=crop&auto=format",
   "unstitched-salwar": "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=900&fit=crop&auto=format",
   "cord-set": "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&h=900&fit=crop&auto=format",
   kurtis: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=800&h=900&fit=crop&auto=format",
   "salwar-set": "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=900&fit=crop&auto=format",
-  maxi: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800&h=900&fit=crop&auto=format",
-  default: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=900&fit=crop&auto=format",
+  maxi: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=900&fit=crop&auto=format",
+  default: "/uploads/WhatsApp_Image_2026-10-06_at_7.22.03_PM.jpeg",
 };
+
+const ULTIMATE_FALLBACK = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=900&fit=crop&auto=format";
 
 interface TimeLeft {
   days: number;
@@ -201,6 +203,12 @@ export default function ComboOfferPopup() {
               alt={currentOffer.name}
               className="w-full h-full object-cover object-center"
               loading="lazy"
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                if (target.src !== ULTIMATE_FALLBACK) {
+                  target.src = ULTIMATE_FALLBACK;
+                }
+              }}
             />
             <div className="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-r from-black/60 via-black/20 to-transparent" />
 

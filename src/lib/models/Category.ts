@@ -16,7 +16,7 @@ const categorySchema = new Schema({
   slug: { type: String, required: true, unique: true },
   image: {
     type: String,
-    default: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format",
+    default: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format",
   },
   description: { type: String, default: "" },
   subcategories: { type: [subCategorySchema], default: [] },

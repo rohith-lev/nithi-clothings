@@ -29,7 +29,7 @@ export default function AdminPayments() {
     <div className="space-y-6 font-body">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-stone-900 font-display">
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900 font-sans">
             Payments & Financial Settlement
           </h1>
           <p className="text-xs text-stone-500 mt-1">
@@ -55,19 +55,19 @@ export default function AdminPayments() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="p-5 rounded-3xl bg-white border border-stone-200 shadow-2xs">
           <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Total Sales Today</p>
-          <p className="text-2xl font-bold font-display text-stone-900 mt-1">₹18,450</p>
+          <p className="text-2xl font-bold font-sans text-stone-900 mt-1">₹18,450</p>
           <span className="text-[11px] text-emerald-700 font-medium">100% Settled</span>
         </div>
 
         <div className="p-5 rounded-3xl bg-white border border-stone-200 shadow-2xs">
           <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">COD Advances Collected</p>
-          <p className="text-2xl font-bold font-display text-blue-900 mt-1">₹1,800</p>
+          <p className="text-2xl font-bold font-sans text-blue-900 mt-1">₹1,800</p>
           <span className="text-[11px] text-blue-700 font-medium">18 Orders Verified</span>
         </div>
 
         <div className="p-5 rounded-3xl bg-white border border-stone-200 shadow-2xs">
           <p className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Pending COD Balance</p>
-          <p className="text-2xl font-bold font-display text-amber-900 mt-1">₹6,420</p>
+          <p className="text-2xl font-bold font-sans text-amber-900 mt-1">₹6,420</p>
           <span className="text-[11px] text-amber-700 font-medium">Due upon courier delivery</span>
         </div>
       </div>

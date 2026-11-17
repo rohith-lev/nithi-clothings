@@ -6,9 +6,9 @@ import { SparklesIcon, CheckIcon, AlertTriangleIcon } from "../../components/adm
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const { login, demoAccounts } = useAdminAuth();
-  const [email, setEmail] = useState("admin@nithicollection.com");
-  const [password, setPassword] = useState("••••••••••••");
+  const { login, demoAccounts, isAuthenticated } = useAdminAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [twoFactorCode, setTwoFactorCode] = useState("");
   const [show2FA, setShow2FA] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -17,15 +17,20 @@ export default function AdminLogin() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // If already authenticated, redirect to /admin dashboard
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/admin", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     setTimeout(async () => {
-      // Direct login bypassing OTP requirement
-      const pass = password === "••••••••••••" ? "adminpassword123" : password;
-      const res = await login(email, pass);
+      const res = await login(email, password);
       setLoading(false);
 
       if (res.success) {
@@ -33,7 +38,7 @@ export default function AdminLogin() {
       } else {
         setError(res.error || "Authentication failed. Please verify credentials.");
       }
-    }, 300);
+    }, 200);
   };
 
   const handleBypassOTP = async () => {
@@ -50,11 +55,15 @@ export default function AdminLogin() {
 
   const handleQuickLogin = async (userEmail: string) => {
     setEmail(userEmail);
-    // Use the backend hardcoded password for the main admin
-    const pass = userEmail === "admin@nithicollection.com" ? "adminpassword123" : "password";
-    const res = await login(userEmail, pass);
+    setPassword("adminpassword123");
+    setError(null);
+    setLoading(true);
+    const res = await login(userEmail, "adminpassword123");
+    setLoading(false);
     if (res.success) {
       navigate("/admin");
+    } else {
+      setError(res.error || "Quick demo login failed.");
     }
   };
 
@@ -245,7 +254,7 @@ export default function AdminLogin() {
       {showForgotModal && (
         <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <div className="bg-[#072920] border border-[#C9A227]/40 rounded-3xl max-w-md w-full p-6 sm:p-8 text-stone-200 shadow-2xl">
-            <h3 className="font-display text-xl font-bold text-white mb-2">Reset Portal Password</h3>
+            <h3 className="font-sans text-xl font-bold text-white mb-2 tracking-tight">Reset Portal Password</h3>
             <p className="text-xs text-[#A8B6B0] mb-5 leading-relaxed">
               Enter your authorized staff email. A secure recovery link with a temporary access token will be generated.
             </p>

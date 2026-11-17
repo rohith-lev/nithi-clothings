@@ -91,7 +91,7 @@ export default function ProductDetail() {
   const isSizeOutOfStock = (product && product.status === "OUT OF STOCK") || (sizeStock <= 0 && (product?.stock ?? 0) <= 0);
   const isWishlisted = product ? state.wishlist.includes(product.id) : false;
 
-  const FALLBACK_DETAIL_IMG = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&fit=crop";
+  const FALLBACK_DETAIL_IMG = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&fit=crop";
 
   // Build clean gallery images without empty strings or dead blob URLs
   const cleanGallery = useMemo(() => {

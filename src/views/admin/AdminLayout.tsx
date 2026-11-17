@@ -101,6 +101,7 @@ export default function AdminLayout() {
 
   // Load low stock alerts & products
   useEffect(() => {
+    if (!isAuthenticated) return;
     let mounted = true;
     adminApi.getProducts().then((products) => {
       if (!mounted) return;
@@ -115,7 +116,7 @@ export default function AdminLayout() {
     return () => {
       mounted = false;
     };
-  }, [location.pathname]);
+  }, [location.pathname, isAuthenticated]);
 
   const handleNavClick = (e: React.MouseEvent, path: string) => {
     if (isDirty) {
@@ -240,7 +241,7 @@ export default function AdminLayout() {
           price: finalPr,
           stock: p.stock ?? 0,
           category: p.category,
-          image: p.coverImage || p.images?.[0] || "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=100&h=100&fit=crop",
+          image: p.coverImage || p.images?.[0] || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=100&h=100&fit=crop",
           action: () => navigate(`/admin/products/edit/${p.id}`),
         };
       });
@@ -839,8 +840,12 @@ export default function AdminLayout() {
                               >
                                 <div className="flex items-center gap-3 min-w-0">
                                   <img
-                                    src={item.image}
-                                    alt={item.title}
+                                    src={item.image || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=200&h=200&fit=crop"}
+                                    alt=""
+                                    onError={(e) => {
+                                      (e.currentTarget as HTMLImageElement).src =
+                                        "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=200&h=200&fit=crop";
+                                    }}
                                     className="w-10 h-11 rounded-xl object-cover border border-stone-200 shrink-0"
                                   />
                                   <div className="min-w-0">
@@ -943,7 +948,7 @@ export default function AdminLayout() {
               <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mb-4">
                 <AlertTriangleIcon size={24} />
               </div>
-              <h3 className="font-display text-xl font-bold text-stone-900 mb-1.5">
+              <h3 className="font-sans text-xl font-bold text-stone-900 mb-1.5 tracking-tight">
                 Unsaved Catalog Changes
               </h3>
               <p className="text-xs text-stone-600 leading-relaxed mb-6">
