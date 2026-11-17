@@ -149,10 +149,10 @@ export default function AdminProductEdit() {
     newArrival: true,
     isBestSeller: false,
     images: [
-      "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format",
-      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format"
+      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format",
+      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&h=1000&fit=crop&auto=format"
     ],
-    coverImage: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format",
+    coverImage: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format",
     seo: {
       title: "Pure Cotton Floral Nighty | Nithi Collection",
       metaDescription: "Buy pure cotton nightwear online at Nithi Collection with front zipper and fast all-India delivery.",
@@ -796,7 +796,7 @@ export default function AdminProductEdit() {
 
       const safeFinalImages = cleanedFinalImages.length > 0
         ? cleanedFinalImages
-        : ["https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format"];
+        : ["https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format"];
 
       let safeCoverImage = formData.coverImage;
       if (!safeCoverImage || safeCoverImage.startsWith("blob:") || safeCoverImage.includes("__LOCAL_") || !safeCoverImage.trim()) {
@@ -2288,7 +2288,7 @@ export default function AdminProductEdit() {
           <div className="max-w-xs mx-auto border border-[#E8E2D5] rounded-2xl overflow-hidden bg-white shadow-md p-3">
             <div className="aspect-[3/4] bg-stone-100 rounded-xl overflow-hidden mb-3">
               <img
-                src={formData.coverImage || formData.images[0] || "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400&fit=crop"}
+                src={formData.coverImage || formData.images[0] || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&fit=crop"}
                 alt={formData.name}
                 className="w-full h-full object-cover"
               />

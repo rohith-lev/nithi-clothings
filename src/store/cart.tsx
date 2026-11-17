@@ -159,7 +159,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
           p.product.colorOptions.find((c) => c.name.toLowerCase() === color.toLowerCase())?.image) ||
         p.product.coverImage ||
         primaryPhoto ||
-        "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400";
+        "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400";
 
       const existingIndex = state.items.findIndex((i) => {
         const k = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));

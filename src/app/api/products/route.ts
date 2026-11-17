@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     }
 
     const rawProducts = await Product.find(filter).sort({ createdAt: -1 }).lean();
-    const FALLBACK_PRODUCT_IMAGE = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format";
+    const FALLBACK_PRODUCT_IMAGE = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format";
 
     const products = rawProducts.map((p: any) => {
       const rawList = [p.coverImage, ...(Array.isArray(p.images) ? p.images : [])];
@@ -188,7 +188,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Default fallback image if empty
-    const DEFAULT_FALLBACK_IMG = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=700&h=900&fit=crop";
+    const DEFAULT_FALLBACK_IMG = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format";
 
     // Clean up any remaining blob or __LOCAL_ placeholders in productData
     const sanitizeUrl = (url: string) => {
@@ -256,7 +256,7 @@ export async function POST(request: NextRequest) {
             id: catId,
             name: catName,
             slug: catSlug,
-            image: savedProduct.coverImage || "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format",
+            image: savedProduct.coverImage || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format",
             description: "",
             subcategories: [],
             isCustom: true,

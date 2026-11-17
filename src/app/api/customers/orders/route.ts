@@ -41,9 +41,43 @@ export async function GET(request: NextRequest) {
       .limit(100)
       .lean();
 
+    const FALLBACK_IMG = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format";
+
+    // Enrich and sanitize order items (replace dead unsplash URLs and generic fallback names)
+    const sanitizedOrders = orders.map((o: any) => ({
+      ...o,
+      items: (o.items || []).map((it: any) => {
+        let safeImg = it.image;
+        if (!safeImg || typeof safeImg !== "string" || safeImg.includes("photo-1594938298603-c8148c4b4e75")) {
+          safeImg = FALLBACK_IMG;
+        }
+
+        let safeName = it.productName || it.name;
+        if (!safeName || safeName === "Nighty Garment") {
+          if (it.productId === "prod-nighty-1") {
+            safeName = "Pure Cotton Daily Wear Nighty";
+          } else if (it.productId === "p018") {
+            safeName = "Yellow Floral Cotton Nighty";
+          } else if (it.productId === "p020") {
+            safeName = "Classic Print Designer Kurti";
+          } else if (it.productId === "p7965") {
+            safeName = "Emerald Green Full Open Nighty";
+          } else {
+            safeName = "Pure Cotton Handcrafted Garment";
+          }
+        }
+
+        return {
+          ...it,
+          productName: safeName,
+          image: safeImg,
+        };
+      }),
+    }));
+
     return NextResponse.json({
       success: true,
-      data: orders,
+      data: sanitizedOrders,
     });
   } catch (error: any) {
     console.error("Customer orders fetch error:", error);

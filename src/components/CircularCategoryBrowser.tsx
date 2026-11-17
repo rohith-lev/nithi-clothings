@@ -16,8 +16,8 @@ interface Props {
 
 // Curated high-resolution fallback image map for all fashion categories
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
-  nighty: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400&h=400&fit=crop&auto=format",
-  nighties: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400&h=400&fit=crop&auto=format",
+  nighty: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=400&fit=crop&auto=format",
+  nighties: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=400&fit=crop&auto=format",
   "night-dress": "https://images.unsplash.com/photo-1617019114583-affb34d1b3cd?w=400&h=400&fit=crop&auto=format",
   "night dress": "https://images.unsplash.com/photo-1617019114583-affb34d1b3cd?w=400&h=400&fit=crop&auto=format",
   "90s": "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&h=400&fit=crop&auto=format",
@@ -40,7 +40,7 @@ const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
   "salwar sets": "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=400&fit=crop&auto=format",
   maxi: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&h=400&fit=crop&auto=format",
   "maxi gowns": "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&h=400&fit=crop&auto=format",
-  default: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400&h=400&fit=crop&auto=format",
+  default: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=400&fit=crop&auto=format",
 };
 
 export default function CircularCategoryBrowser({

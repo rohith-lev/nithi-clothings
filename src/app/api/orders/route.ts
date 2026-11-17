@@ -209,16 +209,21 @@ export async function POST(request: NextRequest) {
       const itemSubtotal = authenticUnitPrice * quantity;
       serverCalculatedSubtotal += itemSubtotal;
 
+      const rawItemImage = product?.coverImage || product?.images?.[0] || sanitizeString(item.image, 500);
+      const safeItemImage = rawItemImage && !rawItemImage.includes("photo-1594938298603-c8148c4b4e75")
+        ? rawItemImage
+        : "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format";
+
       validatedItems.push({
         productId: rawProductId,
-        productName: product ? product.name : sanitizeString(item.productName || "Nighty Garment", 100),
-        selectedColor: sanitizeString(item.selectedColor || "Standard", 30),
+        productName: product ? product.name : sanitizeString(item.productName || item.name || item.title || "Pure Cotton Nighty", 100),
+        selectedColor: sanitizeString(item.selectedColor || item.color || "Standard", 30),
         selectedSize,
         quantity,
         price: authenticUnitPrice,
         mrp: authenticMrp,
         finalPrice: authenticUnitPrice,
-        image: product?.coverImage || product?.images?.[0] || sanitizeString(item.image, 500),
+        image: safeItemImage,
       });
 
       // Deduct stock atomically and size-specifically if product exists

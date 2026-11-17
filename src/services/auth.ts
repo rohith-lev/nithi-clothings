@@ -39,19 +39,33 @@ const DEMO_ADMINS: AdminUser[] = [
 
 const AUTH_STORAGE_KEY = "nithi_admin_session_auth_v1";
 
-function isTokenExpired(token: string): boolean {
-  if (!token) return true;
+function isValidAdminJwtToken(token: string): boolean {
+  if (!token || typeof token !== "string") return false;
   try {
     const parts = token.split(".");
     if (parts.length !== 3) {
-      // Non-JWT token (e.g. dev token)
       return false;
     }
     const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
-    if (payload.exp && typeof payload.exp === "number") {
-      return Date.now() >= payload.exp * 1000;
+    if (!payload || typeof payload !== "object") return false;
+    if (!payload.id || !payload.role) return false;
+
+    // Strictly ensure token belongs to an authorized administrator, not a customer
+    if (
+      payload.role !== "Super Admin" &&
+      payload.role !== "Store Manager" &&
+      payload.role !== "Inventory Admin"
+    ) {
+      return false;
     }
-    return false;
+
+    if (payload.exp && typeof payload.exp === "number") {
+      if (Date.now() >= payload.exp * 1000) {
+        return false;
+      }
+    }
+
+    return true;
   } catch {
     return false;
   }
@@ -67,10 +81,13 @@ export const authService = {
       const raw = localStorage.getItem(AUTH_STORAGE_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      if (!parsed || typeof parsed !== "object") return null;
+      if (!parsed || typeof parsed !== "object") {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        return null;
+      }
 
-      // Verify that token is present and not expired
-      if (!parsed.token || typeof parsed.token !== "string" || isTokenExpired(parsed.token)) {
+      // Strictly verify that token is a valid, unexpired administrative JWT token
+      if (!parsed.token || !isValidAdminJwtToken(parsed.token)) {
         localStorage.removeItem(AUTH_STORAGE_KEY);
         return null;
       }
@@ -111,15 +128,6 @@ export const authService = {
       }
     } catch (err) {
       console.error("Login fetch error:", err);
-      // Fallback for demo users if backend is totally down
-      const found = DEMO_ADMINS.find((a) => a.email.toLowerCase() === cleanEmail);
-      if (cleanEmail === "admin" || cleanEmail === "admin@nithi.com" || found) {
-        const user = found || DEMO_ADMINS[0];
-        const fullUser: AdminUser = { ...user, token: "nithi_dev_session_token" };
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(fullUser));
-        authListeners.forEach((fn) => fn(fullUser));
-        return { success: true, user: fullUser };
-      }
       return { success: false, error: 'Could not reach authentication server.' };
     }
   },

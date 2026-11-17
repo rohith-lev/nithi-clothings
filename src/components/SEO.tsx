@@ -16,7 +16,7 @@ const DEFAULT_DESCRIPTION =
 const DEFAULT_KEYWORDS =
   "pure cotton nighties, feeding nighties, zip nighty, collar nighty, titanic model nighty, cotton night dress, feeding kurtis, south indian cotton nighty, maternity nightwear, buy nighties online, Nithi Clothings";
 const SITE_URL = typeof window !== "undefined" ? window.location.origin : "https://nithiclothings.com";
-const DEFAULT_OG_IMAGE = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=1200&h=630&fit=crop&q=85";
+const DEFAULT_OG_IMAGE = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&h=630&fit=crop&q=85";
 
 export default function SEO({
   title,

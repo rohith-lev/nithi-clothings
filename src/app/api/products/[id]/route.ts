@@ -41,7 +41,7 @@ export async function GET(
       );
     }
 
-    const FALLBACK_PRODUCT_IMAGE = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format";
+    const FALLBACK_PRODUCT_IMAGE = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format";
     const rawList = [(product as any).coverImage, ...(Array.isArray((product as any).images) ? (product as any).images : [])];
     const valid = rawList
       .filter((img): img is string => typeof img === "string" && img.trim().length > 0)

@@ -109,7 +109,7 @@ export default function AdminCategories() {
     setEditingCategory(null);
     setFormCatName("");
     setFormCatSlug("");
-    setFormCatImage("https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format");
+    setFormCatImage("https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format");
     setFormCatPriority(categoriesList.length + 1);
     setFormCatShowOnHome(true);
     setFormCatIsActive(true);
@@ -206,7 +206,7 @@ export default function AdminCategories() {
       id: editingCategory?.id,
       name: formCatName.trim(),
       slug: formCatSlug.trim() || formCatName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-      image: formCatImage.trim() || "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=800&h=1000&fit=crop&auto=format",
+      image: formCatImage.trim() || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format",
       priority: Number(formCatPriority) || 0,
       showOnHome: Boolean(formCatShowOnHome),
       isActive: Boolean(formCatIsActive),
@@ -610,7 +610,7 @@ export default function AdminCategories() {
                         alt="Category circular preview"
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=400&h=400&fit=crop";
+                          (e.currentTarget as HTMLImageElement).src = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&h=400&fit=crop";
                         }}
                       />
                     ) : (

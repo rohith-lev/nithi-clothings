@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     siteName: "Nithi Clothings",
     images: [
       {
-        url: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=1200&h=630&fit=crop&q=85",
+        url: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&h=630&fit=crop&q=85",
         width: 1200,
         height: 630,
         alt: "Nithi Clothings Pure Cotton Nighties Collection",
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     title: "Nithi Clothings | Pure Cotton Nighties & Ethnic Wear",
     description:
       "Handcrafted 100% pure cotton nighties, feeding friendly designs, and loungewear. Fast shipping across India.",
-    images: ["https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=1200&h=630&fit=crop&q=85"],
+    images: ["https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&h=630&fit=crop&q=85"],
   },
   robots: {
     index: true,
@@ -99,7 +99,7 @@ const structuredData = {
       name: "Nithi Clothings",
       url: siteUrl,
       logo: `${siteUrl}/favicon.ico`,
-      image: "https://images.unsplash.com/photo-1594938298603-c8148c4b4e75?w=1200&h=630&fit=crop&q=85",
+      image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&h=630&fit=crop&q=85",
       description: "Premium pure cotton nighties, feeding zip nighties, and ethnic loungewear handcrafted for women.",
       priceRange: "₹₹",
       currenciesAccepted: "INR",

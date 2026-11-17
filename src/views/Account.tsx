@@ -10,6 +10,8 @@ const INDIAN_STATES = [
   "Haryana", "Assam", "Other",
 ];
 
+const DEFAULT_FALLBACK_ORDER_IMG = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format";
+
 export default function Account() {
   const { customer, isLoggedIn, login, updateProfile, logout } = useCustomerAuth();
   const [searchParams] = useSearchParams();
@@ -506,13 +508,22 @@ export default function Account() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {trackingOrder.items.map((item, i) => (
                       <div key={i} className="flex items-center gap-3 p-2.5 bg-white rounded-lg border border-[#E8E2D5]">
-                        {item.image && (
-                          <img src={item.image} alt={item.productName} className="w-12 h-14 object-cover rounded-md border border-stone-200" />
-                        )}
+                        <img
+                          src={item.image || DEFAULT_FALLBACK_ORDER_IMG}
+                          alt={item.productName || "Garment"}
+                          className="w-12 h-14 object-cover rounded-md border border-stone-200 shrink-0 bg-stone-100"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = DEFAULT_FALLBACK_ORDER_IMG;
+                          }}
+                        />
                         <div className="text-xs">
-                          <p className="font-bold text-[#171A18] line-clamp-1">{item.productName}</p>
+                          <p className="font-bold text-[#171A18] line-clamp-1">{item.productName || "Pure Cotton Nighty"}</p>
                           <p className="text-[10px] text-[#5C635E]">
-                            Size: <span className="font-semibold text-[#064E3B]">{item.size}</span> • Qty: {item.quantity}
+                            Size: <span className="font-semibold text-[#064E3B]">{item.size}</span>
+                            {item.color && item.color !== "Standard" && (
+                              <span> • <span className="text-stone-700 font-medium">{item.color}</span></span>
+                            )}
+                            <span> • Qty: {item.quantity}</span>
                           </p>
                           <p className="text-xs font-bold text-[#064E3B] mt-0.5">₹{(item.price * item.quantity).toLocaleString("en-IN")}</p>
                         </div>
@@ -973,24 +984,42 @@ export default function Account() {
 
                       {/* Items row */}
                       <div className="py-3 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div className="flex items-center gap-3 overflow-x-auto">
+                        <div className="flex items-center gap-3 overflow-x-auto py-1">
                           {ord.items.slice(0, 3).map((it, idx) => (
-                            <div key={idx} className="flex items-center gap-2 shrink-0">
-                              {it.image && (
-                                <img src={it.image} alt={it.productName} className="w-10 h-12 object-cover rounded-md border border-stone-200" />
-                              )}
-                              <div className="text-xs">
-                                <p className="font-bold text-[#171A18] max-w-[140px] truncate">{it.productName}</p>
-                                <p className="text-[10px] text-[#5C635E]">
-                                  Size: <span className="font-semibold text-[#064E3B]">{it.size}</span> • Qty: {it.quantity}
+                            <div key={idx} className="flex items-center gap-2.5 shrink-0 bg-white/90 p-1.5 rounded-xl border border-stone-200 shadow-2xs">
+                              <img
+                                src={it.image || DEFAULT_FALLBACK_ORDER_IMG}
+                                alt={it.productName || "Garment"}
+                                className="w-11 h-13 object-cover rounded-lg border border-stone-200 shrink-0 bg-stone-100"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLImageElement).src = DEFAULT_FALLBACK_ORDER_IMG;
+                                }}
+                              />
+                              <div className="text-xs pr-1">
+                                <p className="font-bold text-[#171A18] max-w-[150px] truncate" title={it.productName}>
+                                  {it.productName || "Pure Cotton Nighty"}
+                                </p>
+                                <p className="text-[10px] text-[#5C635E] mt-0.5">
+                                  Size: <span className="font-semibold text-[#064E3B]">{it.size}</span>
+                                  {it.color && it.color !== "Standard" && (
+                                    <span> • {it.color}</span>
+                                  )}
+                                  <span> • Qty: {it.quantity}</span>
+                                </p>
+                                <p className="text-[11px] font-bold text-[#064E3B] mt-0.5">
+                                  ₹{(it.price * it.quantity).toLocaleString("en-IN")}
                                 </p>
                               </div>
                             </div>
                           ))}
                           {ord.items.length > 3 && (
-                            <span className="text-xs font-semibold text-stone-500">
-                              +{ord.items.length - 3} more
-                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedOrderModal(ord)}
+                              className="text-xs font-bold text-[#064E3B] bg-white border border-[#C9A227]/40 hover:bg-[#064E3B] hover:text-white px-3 py-2 rounded-xl transition-all shrink-0 cursor-pointer shadow-2xs"
+                            >
+                              +{ord.items.length - 3} more items
+                            </button>
                           )}
                         </div>
 
@@ -1169,112 +1198,167 @@ export default function Account() {
               <div className="flex items-center justify-between pb-3 border-b border-stone-200 mb-4">
                 <div>
                   <span className="text-[10px] uppercase font-bold text-[#C9A227] tracking-wider block">
-                    Order Confirmation Summary
+                    Verified Order Details
                   </span>
-                  <h3 className="font-display font-bold text-lg text-stone-900">
-                    Order #{selectedOrderModal.id}
-                  </h3>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <h3 className="font-display font-bold text-xl text-stone-900">
+                      Order #{selectedOrderModal.id}
+                    </h3>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider ${getStatusBadge(selectedOrderModal.status)}`}>
+                      {selectedOrderModal.status}
+                    </span>
+                  </div>
                   <span className="text-[11px] text-[#5C635E]">
-                    Order Date: {new Date(selectedOrderModal.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
+                    Placed on {new Date(selectedOrderModal.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedOrderModal(null)}
-                  className="text-stone-400 hover:text-stone-700 text-sm p-1 rounded-lg cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center text-sm font-bold transition-colors cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
               <div className="space-y-4">
-                {/* Status & Courier Info */}
-                <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 space-y-2">
+                {/* Delivery Address & Customer Info */}
+                <div className="p-3.5 bg-[#FAF8F1] rounded-xl border border-[#E8E2D5] space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-stone-900 text-sm">{selectedOrderModal.customerName}</span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${getStatusBadge(selectedOrderModal.status)}`}>
-                      {selectedOrderModal.status}
-                    </span>
+                    <span className="font-bold text-stone-900 text-sm">📍 Delivery Address</span>
+                    <span className="font-mono text-stone-600 text-[11px]">📞 {selectedOrderModal.customerPhone}</span>
                   </div>
-                  <p className="text-stone-600 leading-relaxed">{selectedOrderModal.shippingAddress}</p>
-                  <p className="font-mono text-stone-500 text-[11px]">📞 {selectedOrderModal.customerPhone}</p>
-                  
-                  {/* Courier & Tracking Details */}
-                  <div className="pt-2 border-t border-stone-200 grid grid-cols-2 gap-2 text-xs">
+                  <p className="font-semibold text-stone-800">{selectedOrderModal.customerName}</p>
+                  <p className="text-stone-600 leading-relaxed">{selectedOrderModal.shippingAddress || selectedOrderModal.shippingState}</p>
+                </div>
+
+                {/* Dispatch & Tracking Info */}
+                <div className="p-3.5 bg-emerald-50/60 rounded-xl border border-emerald-200/80 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase font-bold text-emerald-900 tracking-wider">🚚 Courier & Consignment Status</span>
+                    <span className="text-[10px] text-emerald-800 font-semibold">{selectedOrderModal.dispatchDate || "Within 24–48 hours"}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
                       <span className="text-[10px] text-stone-500 uppercase block font-semibold">Courier Partner</span>
-                      <span className="font-bold text-stone-900">{selectedOrderModal.courierName || "To be updated"}</span>
+                      <span className="font-bold text-stone-900">{selectedOrderModal.courierName || "Standard Express Courier"}</span>
                     </div>
                     <div>
                       <span className="text-[10px] text-stone-500 uppercase block font-semibold">Tracking ID / AWB</span>
-                      <span className="font-mono font-bold text-[#064E3B]">{selectedOrderModal.trackingId || "Pending dispatch"}</span>
+                      {selectedOrderModal.trackingId ? (
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="font-mono font-bold text-[#064E3B] bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300 text-xs">
+                            {selectedOrderModal.trackingId}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyTrackingId(selectedOrderModal.trackingId || "")}
+                            className="px-1.5 py-0.5 text-[10px] bg-white border border-stone-300 rounded hover:border-[#064E3B] cursor-pointer"
+                            title="Copy Tracking ID"
+                          >
+                            {copiedTrackId === selectedOrderModal.trackingId ? "✓" : "📋"}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-amber-800 font-medium text-[11px]">Awaiting Courier Dispatch</span>
+                      )}
                     </div>
                   </div>
                 </div>
 
+                {/* Payment Method Banner */}
+                <div className="flex items-center justify-between p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-stone-500 block">Payment Method</span>
+                    <span className="font-bold text-stone-900">
+                      {selectedOrderModal.paymentMethod === "COD" || selectedOrderModal.paymentMethod?.toLowerCase() === "cod"
+                        ? "💵 Cash on Delivery (COD)"
+                        : "💳 Online Payment (Prepaid)"}
+                    </span>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold border bg-white border-stone-300 text-stone-700">
+                    Payment: {selectedOrderModal.paymentMethod === "COD" || selectedOrderModal.paymentMethod?.toLowerCase() === "cod" ? "Pay on Delivery" : "Paid"}
+                  </span>
+                </div>
+
                 {/* Items */}
                 <div>
-                  <span className="font-bold uppercase tracking-wider text-stone-500 text-[10px] block mb-2">
-                    Products Purchased ({selectedOrderModal.items.length})
+                  <span className="font-bold uppercase tracking-wider text-stone-600 text-[10px] block mb-2">
+                    Purchased Garments ({selectedOrderModal.items.length})
                   </span>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                  <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
                     {selectedOrderModal.items.map((it, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2.5 bg-stone-50 rounded-lg">
-                        <div className="flex items-center gap-2.5">
-                          {it.image && (
-                            <img src={it.image} alt={it.productName} className="w-10 h-12 object-cover rounded border" />
-                          )}
+                      <div key={idx} className="flex items-center justify-between p-2.5 bg-stone-50 rounded-xl border border-stone-200">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={it.image || DEFAULT_FALLBACK_ORDER_IMG}
+                            alt={it.productName || "Garment"}
+                            className="w-12 h-14 object-cover rounded-lg border border-stone-200 shrink-0 bg-stone-100"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = DEFAULT_FALLBACK_ORDER_IMG;
+                            }}
+                          />
                           <div>
-                            <p className="font-bold text-stone-900 line-clamp-1">{it.productName}</p>
-                            <p className="text-[10px] text-stone-500">Size: {it.size} | Qty: {it.quantity}</p>
+                            <p className="font-bold text-stone-900 line-clamp-1">{it.productName || "Pure Cotton Nighty"}</p>
+                            <p className="text-[10px] text-stone-500 mt-0.5">
+                              Size: <span className="font-semibold text-[#064E3B]">{it.size}</span>
+                              {it.color && it.color !== "Standard" && (
+                                <span> • {it.color}</span>
+                              )}
+                              <span> • Qty: {it.quantity}</span>
+                              <span> • ₹{it.price} each</span>
+                            </p>
                           </div>
                         </div>
-                        <span className="font-bold text-stone-900">₹{(it.price * it.quantity).toLocaleString("en-IN")}</span>
+                        <span className="font-bold text-stone-900 text-xs shrink-0">
+                          ₹{(it.price * it.quantity).toLocaleString("en-IN")}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Totals */}
-                <div className="pt-3 border-t border-stone-200 space-y-1 text-xs">
+                <div className="pt-3 border-t border-stone-200 space-y-1.5 text-xs">
                   <div className="flex justify-between text-stone-600">
                     <span>Subtotal:</span>
-                    <span>₹{selectedOrderModal.subtotal.toLocaleString("en-IN")}</span>
+                    <span className="font-mono">₹{selectedOrderModal.subtotal.toLocaleString("en-IN")}</span>
                   </div>
                   <div className="flex justify-between text-stone-600">
                     <span>Shipping Fee:</span>
-                    <span>₹{selectedOrderModal.shippingFee}</span>
+                    <span className="font-mono">{selectedOrderModal.shippingFee === 0 ? "FREE" : `₹${selectedOrderModal.shippingFee}`}</span>
                   </div>
                   {selectedOrderModal.discount > 0 && (
                     <div className="flex justify-between text-emerald-700 font-semibold">
-                      <span>Discount:</span>
-                      <span>-₹{selectedOrderModal.discount}</span>
+                      <span>Combo / Coupon Discount:</span>
+                      <span className="font-mono">-₹{selectedOrderModal.discount.toLocaleString("en-IN")}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-bold text-stone-900 text-sm pt-2 border-t">
                     <span>Total Amount:</span>
-                    <span className="text-[#064E3B]">₹{selectedOrderModal.total.toLocaleString("en-IN")}</span>
+                    <span className="text-[#064E3B] font-display text-base">₹{selectedOrderModal.total.toLocaleString("en-IN")}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end gap-2 pt-3 border-t">
+              <div className="mt-6 flex justify-end gap-2.5 pt-3 border-t">
                 <button
                   type="button"
                   onClick={() => {
-                    setTrackInput(selectedOrderModal.trackingId || selectedOrderModal.id);
+                    const idToTrack = selectedOrderModal.trackingId || selectedOrderModal.id;
+                    setTrackInput(idToTrack);
                     setSelectedOrderModal(null);
-                    handleTrackQuery(selectedOrderModal.trackingId || selectedOrderModal.id);
+                    handleTrackQuery(idToTrack);
                     window.scrollTo({ top: 120, behavior: "smooth" });
                   }}
-                  className="px-4 py-2 bg-[#064E3B] text-[#FAF8F1] text-xs font-bold rounded-xl hover:bg-[#0B3D2E] cursor-pointer"
+                  className="px-4 py-2.5 bg-[#064E3B] text-[#FAF8F1] text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-[#0B3D2E] transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
                 >
-                  Track Consignment
+                  <span>🚚 Track Consignment</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedOrderModal(null)}
-                  className="px-4 py-2 border border-stone-300 text-stone-700 text-xs font-bold rounded-xl hover:bg-stone-50 cursor-pointer"
+                  className="px-4 py-2.5 border border-stone-300 text-stone-700 text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-stone-50 transition-colors cursor-pointer"
                 >
                   Close
                 </button>
