@@ -88,20 +88,12 @@ export async function saveMediaBuffer(
   const { mime, ext } = detectImageFormat(buffer, explicitMime);
 
   // Generate safe unique filename
-  let filename = originalFilename
-    ? path.basename(originalFilename).replace(/[^a-zA-Z0-9._-]/g, "_")
-    : "";
-
-  if (!filename || filename.startsWith("blob:") || filename.includes("__LOCAL_")) {
-    const randomHex = crypto.randomBytes(12).toString("hex");
-    filename = `img-${Date.now()}-${randomHex}${ext}`;
-  } else {
-    // If filename has no extension or mismatched extension, ensure correct one
-    const currentExt = path.extname(filename).toLowerCase();
-    if (!currentExt) {
-      filename = `${filename}${ext}`;
-    }
-  }
+  const cleanExt = ext || (originalFilename ? path.extname(originalFilename).toLowerCase() : ".jpg");
+  const randomHex = crypto.randomBytes(6).toString("hex");
+  const rawBase = originalFilename
+    ? path.basename(originalFilename, path.extname(originalFilename)).replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 30)
+    : "img";
+  const filename = `${rawBase || "img"}-${Date.now()}-${randomHex}${cleanExt}`;
 
   // Store raw binary buffer in MongoDB Atlas Media collection
   await Media.findOneAndUpdate(
