@@ -5,7 +5,9 @@ export default function OrderSuccess() {
   const orderId = params.get("orderId") || "NC00000001";
   const total = params.get("total") || "0";
   const method = params.get("method") || "online";
-  const isCOD = method === "cod";
+  const advance = params.get("advance") || "";
+  const balance = params.get("balance") || "";
+  const isCOD = method?.toLowerCase() === "cod";
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 font-body bg-[#FDFBF7]">
@@ -37,10 +39,26 @@ export default function OrderSuccess() {
             <span className="text-xs text-slate-500 uppercase tracking-wider">Total Amount</span>
             <span className="text-base font-bold text-[#0F172A]">₹{Number(total).toLocaleString("en-IN")}</span>
           </div>
+          {isCOD && advance && Number(advance) > 0 && (
+            <>
+              <div className="flex justify-between items-center text-[#064E3B] font-semibold">
+                <span className="text-xs uppercase tracking-wider">Advance Paid (Razorpay)</span>
+                <span className="text-sm font-bold">✓ ₹{Number(advance).toLocaleString("en-IN")}</span>
+              </div>
+              <div className="flex justify-between items-center text-amber-900 font-semibold">
+                <span className="text-xs uppercase tracking-wider">Balance on Delivery (COD)</span>
+                <span className="text-sm font-bold">₹{Number(balance).toLocaleString("en-IN")}</span>
+              </div>
+            </>
+          )}
           <div className="flex justify-between items-center">
             <span className="text-xs text-slate-500 uppercase tracking-wider">Payment Method</span>
             <span className="text-xs font-semibold text-[#0F172A] px-2.5 py-0.5 rounded-full bg-slate-100">
-              {isCOD ? "Cash on Delivery (10% Advance)" : "Online Prepaid (UPI / Cards)"}
+              {isCOD
+                ? advance && Number(advance) > 0
+                  ? `COD (₹${advance} Advance Paid via Razorpay)`
+                  : "Cash on Delivery"
+                : "Online Prepaid (Razorpay UPI/Cards)"}
             </span>
           </div>
           <div className="flex justify-between items-center">
@@ -56,12 +74,14 @@ export default function OrderSuccess() {
         </div>
 
         {isCOD && (
-          <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3.5 mb-6 text-xs text-[#0F172A] text-left space-y-1">
+          <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3.5 mb-6 text-xs text-[#0F172A] text-left space-y-1.5">
             <p className="font-bold text-[#064E3B] flex items-center gap-1.5">
-              <span>✦</span> Cash on Delivery Information
+              <span>✦</span> Cash on Delivery Confirmation
             </p>
             <p className="text-slate-600 leading-relaxed">
-              Your 10% advance is recorded and the remaining 90% balance is payable in cash upon parcel delivery to your doorstep.
+              {advance && Number(advance) > 0
+                ? `Your ₹${Number(advance).toLocaleString("en-IN")} advance booking payment has been verified via Razorpay. The remaining balance of ₹${Number(balance).toLocaleString("en-IN")} is payable in cash upon parcel delivery to your doorstep.`
+                : "Your COD order has been confirmed. The full amount is payable in cash upon parcel delivery."}
             </p>
           </div>
         )}

@@ -130,7 +130,7 @@ export default function Checkout() {
 
   const createOrderInBackend = async (
     paymentMethodType: "Online" | "COD",
-    paymentStatusType: "Paid" | "Pending",
+    paymentStatusType: "Paid" | "Pending" | "Advance Paid",
     paymentReference: string = "",
     razorpayOrderId: string = "",
     razorpaySignature: string = ""
@@ -238,7 +238,10 @@ export default function Checkout() {
     setProcessing(true);
 
     try {
-      if (paymentMethod === "online") {
+      const isCodWithAdvance = paymentMethod === "cod" && codAdvanceAmount > 0;
+      const isOnlinePayment = paymentMethod === "online";
+
+      if (isOnlinePayment || isCodWithAdvance) {
         // 1. Load Razorpay Checkout Script
         const isLoaded = await loadRazorpayScript();
         if (!isLoaded) {
@@ -247,17 +250,25 @@ export default function Checkout() {
           return;
         }
 
+        const payableAmount = isCodWithAdvance ? codAdvanceAmount : grandTotal;
+        const paymentDescription = isCodWithAdvance
+          ? `COD Advance Booking (₹${codAdvanceAmount} Advance, ₹${balanceOnDelivery} Balance on Delivery)`
+          : "Nithi Collections - Full Order Prepaid";
+
         // 2. Create Razorpay Order on Backend
         const rzpOrderRes = await fetch("/api/razorpay/order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            amount: grandTotal,
+            amount: payableAmount,
             currency: "INR",
             receipt: `rcpt_${Date.now().toString().slice(-6)}`,
             notes: {
               customerName: info.fullName,
               customerPhone: info.mobile,
+              paymentType: isCodWithAdvance ? "COD_ADVANCE" : "ONLINE_FULL",
+              codAdvanceAmount: isCodWithAdvance ? codAdvanceAmount : 0,
+              balanceOnDelivery: isCodWithAdvance ? balanceOnDelivery : 0,
             },
           }),
         });
@@ -282,10 +293,10 @@ export default function Checkout() {
         // 3. Open Razorpay Checkout Modal
         const options = {
           key: rzpKey,
-          amount: Math.round(grandTotal * 100),
+          amount: Math.round(payableAmount * 100),
           currency: "INR",
           name: "Nithi Collections",
-          description: "Handcrafted Indian Ethnic Wear & Nighties",
+          description: paymentDescription,
           order_id: rzpOrderId,
           prefill: {
             name: info.fullName,
@@ -334,15 +345,17 @@ export default function Checkout() {
 
               // 5. Create Order upon Successful Verification
               const finalOrderId = await createOrderInBackend(
-                "Online",
-                "Paid",
+                isCodWithAdvance ? "COD" : "Online",
+                isCodWithAdvance ? "Advance Paid" : "Paid",
                 response.razorpay_payment_id,
                 response.razorpay_order_id || rzpOrderId,
                 response.razorpay_signature
               );
 
               dispatch({ type: "CLEAR_CART" });
-              navigate(`/order-success?orderId=${finalOrderId}&total=${grandTotal}&method=Online`);
+              navigate(
+                `/order-success?orderId=${finalOrderId}&total=${grandTotal}&method=${isCodWithAdvance ? "cod" : "online"}&advance=${isCodWithAdvance ? codAdvanceAmount : 0}&balance=${isCodWithAdvance ? balanceOnDelivery : 0}`
+              );
             } catch (err: any) {
               alert(`Error completing verified order: ${err.message}`);
               setProcessing(false);
@@ -357,10 +370,10 @@ export default function Checkout() {
         });
         razorpayInstance.open();
       } else {
-        // Cash on Delivery Flow
+        // Direct Cash on Delivery Flow (if advance is 0)
         const finalOrderId = await createOrderInBackend("COD", "Pending");
         dispatch({ type: "CLEAR_CART" });
-        navigate(`/order-success?orderId=${finalOrderId}&total=${grandTotal}&method=COD`);
+        navigate(`/order-success?orderId=${finalOrderId}&total=${grandTotal}&method=cod`);
       }
     } catch (e: any) {
       alert(`Could not place order: ${e.message}`);
@@ -821,13 +834,17 @@ export default function Checkout() {
                 <button
                   onClick={handlePlaceOrder}
                   disabled={processing}
-                  className="flex-1 bg-[#064E3B] text-white py-3.5 text-xs font-bold uppercase tracking-widest hover:bg-[#0B3D2E] transition-colors disabled:opacity-70 flex items-center justify-center gap-2 rounded-sm shadow-md"
+                  className="flex-1 bg-[#064E3B] text-white py-3.5 text-xs font-bold uppercase tracking-widest hover:bg-[#0B3D2E] transition-colors disabled:opacity-70 flex items-center justify-center gap-2 rounded-sm shadow-md cursor-pointer"
                 >
                   {processing ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Placing Order...
+                      <span>{paymentMethod === "cod" && codAdvanceAmount > 0 ? "Opening Razorpay..." : "Processing Order..."}</span>
                     </>
+                  ) : paymentMethod === "cod" && codAdvanceAmount > 0 ? (
+                    `Pay ₹${codAdvanceAmount.toLocaleString("en-IN")} Advance via Razorpay →`
+                  ) : paymentMethod === "online" ? (
+                    `Pay ₹${grandTotal.toLocaleString("en-IN")} via Razorpay →`
                   ) : (
                     "Confirm & Place Order"
                   )}

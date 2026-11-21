@@ -42,7 +42,7 @@ const OrderSchema = new Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ["Pending", "pending", "Paid", "paid", "Failed", "failed", "Refunded", "refunded", "Advance_Paid", "advance_paid"],
+      enum: ["Pending", "pending", "Paid", "paid", "Failed", "failed", "Refunded", "refunded", "Advance_Paid", "advance_paid", "Advance Paid", "advance paid", "Partial Advance Paid"],
       default: "Pending",
     },
     orderStatus: {

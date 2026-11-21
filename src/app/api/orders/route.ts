@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
     // Verify Razorpay signature server-side if credentials present
     const rzpSecret = process.env.RAZORPAY_KEY_SECRET || "lce5f7oC0UtnH13owVdiEsOG";
     const { razorpay_order_id, razorpay_signature } = body;
-    if (normalizedPaymentMethod === "Online" && rzpSecret && razorpay_signature && razorpay_order_id && safePaymentReference) {
+    if ((normalizedPaymentMethod === "Online" || normalizedPaymentMethod === "COD") && rzpSecret && razorpay_signature && razorpay_order_id && safePaymentReference) {
       const crypto = await import("crypto");
       const generatedSignature = crypto
         .createHmac("sha256", rzpSecret)
@@ -305,7 +305,12 @@ export async function POST(request: NextRequest) {
 
     // Verify payment status
     const isOnlinePaid = normalizedPaymentMethod === "Online" && Boolean(safePaymentReference);
-    const paymentStatus = normalizedPaymentMethod === "COD" ? "Pending" : isOnlinePaid ? "Paid" : "Pending";
+    const isCodAdvancePaid = normalizedPaymentMethod === "COD" && Boolean(safePaymentReference);
+    const paymentStatus = isOnlinePaid
+      ? "Paid"
+      : isCodAdvancePaid
+      ? "Advance Paid"
+      : (body.paymentStatus || "Pending");
 
     const customerId = sanitizeString(body.customerId || body.customer?.customerId, 60);
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
