@@ -1,6 +1,7 @@
 import type {
   Product,
   ProductVariant,
+  ProductTypeOption,
   InventoryTransaction,
   ShippingRule,
   CODRule,
@@ -56,13 +57,35 @@ function getAuthHeader(): Record<string, string> {
   return {};
 }
 
+let _cleanFetch: typeof fetch | null = null;
+function getCleanFetch(): typeof fetch {
+  if (typeof window === "undefined") return fetch;
+  if (_cleanFetch) return _cleanFetch;
+  try {
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    document.documentElement.appendChild(iframe);
+    const nativeFetch = iframe.contentWindow?.fetch;
+    document.documentElement.removeChild(iframe);
+    if (typeof nativeFetch === "function") {
+      _cleanFetch = nativeFetch.bind(window);
+      return _cleanFetch;
+    }
+  } catch {}
+  _cleanFetch = window.fetch ? window.fetch.bind(window) : fetch;
+  return _cleanFetch;
+}
+
 async function apiFetch<T>(url: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   try {
     const headers = {
       ...getAuthHeader(),
       ...options.headers,
     };
-    const res = await fetch(url, { ...options, credentials: "same-origin", headers });
+    const fetchFn = getCleanFetch();
+    const res = await fetchFn(url, { ...options, credentials: "same-origin", headers }).catch((err) => {
+      throw new Error(err instanceof Error ? err.message : "Network error");
+    });
 
     // Handle token expiry on admin actions
     if (res.status === 401 && typeof window !== "undefined" && window.location.pathname.startsWith("/admin") && window.location.pathname !== "/admin/login") {
@@ -264,9 +287,9 @@ export const adminApi = {
       pattern: productData.pattern || "Printed",
       sleeveType: productData.sleeveType || "Half Sleeve",
       neckType: productData.neckType || "Round Neck",
-      description: productData.description || "",
-      shortDescription: productData.shortDescription || "",
-      care: productData.care || "Gentle machine wash with mild detergent.",
+      description: typeof productData.description === "string" ? productData.description : "",
+      shortDescription: typeof productData.shortDescription === "string" ? productData.shortDescription : "",
+      care: typeof productData.care === "string" ? productData.care : "Gentle machine wash with mild detergent.",
       sizeChart: productData.sizeChart || "Standard Free Size / Regular Indian Sizing",
       specialFeatures: productData.specialFeatures || "",
       inStock: stock > 0 && status !== "OUT OF STOCK" && status !== "DISCONTINUED",
@@ -571,8 +594,10 @@ export const adminApi = {
 
   // 8b. DELETE ALL PRODUCTS
   async deleteAllProducts(adminName: string = "Super Admin"): Promise<ApiResponse<{ count: number }>> {
-    const res = await apiFetch<any>("/api/products", {
+    const res = await apiFetch<any>("/api/products?all=true", {
       method: "DELETE",
+      body: JSON.stringify({ all: true }),
+      headers: { "Content-Type": "application/json" },
     });
     if (res.success && typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("nithi_products_updated"));
@@ -581,7 +606,28 @@ export const adminApi = {
     return {
       success: res.success,
       data: { count: res.data?.deletedCount || 0 },
-      message: res.message || "Products deleted successfully.",
+      message: res.success
+        ? res.message || `All products permanently deleted (${res.data?.deletedCount || 0} removed).`
+        : undefined,
+      error: res.error,
+    };
+  },
+
+  // 8c. PURGE TRASH PERMANENTLY
+  async purgeTrash(mode: "trash" | "all" = "trash"): Promise<ApiResponse<{ count: number }>> {
+    const res = await apiFetch<any>("/api/admin/trash/purge", {
+      method: "POST",
+      body: JSON.stringify({ mode }),
+      headers: { "Content-Type": "application/json" },
+    });
+    if (res.success && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_products_updated"));
+      try { localStorage.setItem("nithi_prod_version", Date.now().toString()); } catch (e) {}
+    }
+    return {
+      success: res.success,
+      data: { count: res.data?.deletedCount ?? res.data?.count ?? 0 },
+      message: res.message || `${res.data?.deletedCount ?? 0} item(s) permanently deleted.`,
       error: res.error,
     };
   },
@@ -795,6 +841,20 @@ export const adminApi = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(category),
+    });
+    if (res.success && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_categories_updated"));
+      try {
+        localStorage.setItem("nithi_cat_version", Date.now().toString());
+      } catch (e) {}
+    }
+    return res;
+  },
+  async reorderCategories(orders: { id: string; priority: number }[]): Promise<ApiResponse<{ modifiedCount: number }>> {
+    const res = await apiFetch<any>("/api/categories/reorder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orders }),
     });
     if (res.success && typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("nithi_categories_updated"));

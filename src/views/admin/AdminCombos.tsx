@@ -261,8 +261,8 @@ export default function AdminCombos() {
 
             <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-2">
               <div className="flex justify-between text-stone-600">
-                <span>Threshold Garment Count:</span>
-                <span className="font-bold text-stone-900">{c.requiredQuantity} Dresses</span>
+                <span>Threshold Quantity:</span>
+                <span className="font-bold text-stone-900">{c.requiredQuantity} Items</span>
               </div>
               <div className="flex justify-between text-stone-600">
                 <span>Special Combo Price:</span>

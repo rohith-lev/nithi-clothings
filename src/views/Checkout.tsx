@@ -52,22 +52,7 @@ export default function Checkout() {
     saveAddressToProfile: true,
   });
 
-  // Pre-fill from customer account if logged in
-  useEffect(() => {
-    if (customer) {
-      setInfo((prev) => ({
-        fullName: prev.fullName || customer.name || "",
-        mobile: prev.mobile || customer.phone || "",
-        email: prev.email || customer.email || "",
-        addressLine: prev.addressLine || customer.addressLine || customer.address || "",
-        areaLocality: prev.areaLocality || customer.areaLocality || "",
-        city: prev.city || customer.city || "",
-        state: prev.state || customer.state || "Tamil Nadu",
-        pincode: prev.pincode || customer.pincode || "",
-        saveAddressToProfile: true,
-      }));
-    }
-  }, [customer]);
+  // Manual opt-in autofill: fields start clean and are not automatically pre-filled
 
   const handleCheckoutQuickSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,6 +190,7 @@ export default function Checkout() {
           price: unitPrice,
           finalPrice: unitPrice,
           selectedSize: it.selectedSize || "Free Size",
+          selectedType: it.selectedType || "",
           selectedColor: "Standard",
           image: mappedImg,
         };
@@ -215,6 +201,8 @@ export default function Checkout() {
       total: grandTotal,
       paymentMethod: paymentMethodType,
       paymentStatus: paymentStatusType,
+      codAdvanceAmount: paymentMethodType === "COD" ? codAdvanceAmount : 0,
+      balanceOnDelivery: paymentMethodType === "COD" ? balanceOnDelivery : 0,
       paymentReference,
       razorpay_order_id: razorpayOrderId,
       razorpay_signature: razorpaySignature,
@@ -296,8 +284,8 @@ export default function Checkout() {
           key: rzpKey,
           amount: Math.round(grandTotal * 100),
           currency: "INR",
-          name: "Nithi Collection",
-          description: "Luxury Indian Garments & Coutures",
+          name: "Nithi Collections",
+          description: "Handcrafted Indian Ethnic Wear & Nighties",
           order_id: rzpOrderId,
           prefill: {
             name: info.fullName,
@@ -410,13 +398,30 @@ export default function Checkout() {
             <div className="bg-white border border-[#E8E2D5] rounded-sm p-6 space-y-4 shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-[#E8E2D5]">
                 <h2 className="font-display text-lg font-bold text-[#171A18]">Delivery Address & Contact Details</h2>
-                {isLoggedIn ? (
-                  <span className="text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded font-medium flex items-center gap-1.5">
-                    <span>✓</span> Saved Profile: {customer?.name || customer?.phone}
-                  </span>
+                {isLoggedIn && customer ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInfo({
+                        fullName: customer.name || "",
+                        mobile: customer.phone || "",
+                        email: customer.email || "",
+                        addressLine: customer.addressLine || customer.address || "",
+                        areaLocality: customer.areaLocality || "",
+                        city: customer.city || "",
+                        state: customer.state || "Tamil Nadu",
+                        pincode: customer.pincode || "",
+                        saveAddressToProfile: true,
+                      });
+                    }}
+                    className="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded font-semibold flex items-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto"
+                    title="Click to fill address fields with your saved profile details"
+                  >
+                    <span>⚡ Fill from saved profile ({customer.name || customer.phone})</span>
+                  </button>
                 ) : (
                   <span className="text-xs text-[#6A6D65]">
-                    No account required · Quick checkout
+                    No account required · Clean checkout
                   </span>
                 )}
               </div>
@@ -429,7 +434,7 @@ export default function Checkout() {
                       <span className="text-lg">✨</span>
                       <div>
                         <span className="font-bold text-[#064E3B] text-xs block">
-                          Already have an account with Nithi Clothings?
+                          Already have an account with Nithi Collections?
                         </span>
                         <span className="text-[11px] text-[#5C635E]">
                           Sign in to auto-fill your saved address & complete Buy Now in 1 click.

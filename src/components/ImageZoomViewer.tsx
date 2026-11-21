@@ -89,14 +89,11 @@ export default function ImageZoomViewer({
 
   return (
     <div className="space-y-4 select-none">
-      {/* Main Image Viewport with Desktop Lens Zoom */}
+      {/* Main Image Viewport (Clean view without hover zoom) */}
       <div
         ref={containerRef}
-        onMouseMove={handleMouseMove}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
         onClick={() => setIsFullscreen(true)}
-        className="relative aspect-[4/5] sm:aspect-[3/4] w-full cursor-zoom-in overflow-hidden rounded-2xl sm:rounded-3xl border border-[#E8E2D5] bg-[#F3EFE3] group shadow-sm"
+        className="relative aspect-[4/5] sm:aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-2xl sm:rounded-3xl border border-[#E8E2D5] bg-[#F3EFE3] group shadow-sm"
       >
         <img
           src={currentImage}
@@ -104,31 +101,16 @@ export default function ImageZoomViewer({
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src = FALLBACK_ZOOM_IMG;
           }}
-          className={`h-full w-full object-cover transition-transform duration-300 ${
-            isHovering ? "scale-100 opacity-0 md:opacity-0" : "opacity-100"
-          }`}
+          className="h-full w-full object-cover transition-opacity duration-200 opacity-100"
           loading="eager"
         />
 
-        {/* Desktop Smooth Follow Magnifier Viewport */}
-        {isHovering && (
-          <div
-            className="hidden md:block absolute inset-0 bg-no-repeat pointer-events-none transition-all duration-75 ease-out"
-            style={{
-              backgroundImage: `url(${currentImage})`,
-              backgroundPosition: `${lensPos.x}% ${lensPos.y}%`,
-              backgroundSize: "240%",
-            }}
-          />
-        )}
-
-        {/* Floating Zoom Hint Pill */}
+        {/* Floating Tap for Fullscreen Hint Pill */}
         <div className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-[#171A18]/70 px-3 py-1 text-[10px] font-medium text-[#FAF8F1] backdrop-blur-xs transition-opacity duration-200 group-hover:bg-[#064E3B]">
           <svg className="w-3.5 h-3.5 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
           </svg>
-          <span className="hidden sm:inline">Hover to Zoom / Tap for Fullscreen</span>
-          <span className="sm:hidden">Tap to Zoom</span>
+          <span>Tap for Fullscreen</span>
         </div>
 
         {/* Navigation Arrows overlay on main image */}

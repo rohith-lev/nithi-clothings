@@ -13,7 +13,7 @@ const INDIAN_STATES = [
 const DEFAULT_FALLBACK_ORDER_IMG = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format";
 
 export default function Account() {
-  const { customer, isLoggedIn, login, updateProfile, logout } = useCustomerAuth();
+  const { customer, isLoggedIn, login, forgotPassword, resetPassword, updateProfile, logout } = useCustomerAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -25,11 +25,24 @@ export default function Account() {
   const [isSearchingTrack, setIsSearchingTrack] = useState(false);
   const [copiedTrackId, setCopiedTrackId] = useState<string | null>(null);
 
-  // Sign In Form State (No OTP required!)
-  const [authIdentifier, setAuthIdentifier] = useState("");
+  // Sign In Form State (Individual Enter Boxes for Mobile Number & Email Address)
+  const [authPhone, setAuthPhone] = useState("");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
   const [authName, setAuthName] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Forgot Password / OTP State
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotIdentifier, setForgotIdentifier] = useState("");
+  const [forgotOtp, setForgotOtp] = useState("");
+  const [forgotNewPassword, setForgotNewPassword] = useState("");
+  const [forgotStep, setForgotStep] = useState<1 | 2>(1);
+  const [forgotMsg, setForgotMsg] = useState<string | null>(null);
+  const [forgotErr, setForgotErr] = useState<string | null>(null);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   // Customer Orders List
   const [customerOrders, setCustomerOrders] = useState<OrderRecord[]>([]);
@@ -205,22 +218,41 @@ export default function Account() {
     }
   };
 
-  // Direct Sign In (No OTP required!)
+  // Direct Sign In (with Mobile Number and/or Email Address)
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!authIdentifier.trim()) {
-      setAuthError("Please enter your mobile number or email address.");
+    const cleanPhone = authPhone.replace(/[^0-9]/g, "").slice(0, 10);
+    const cleanEmail = authEmail.trim();
+
+    if (!cleanPhone && !cleanEmail) {
+      setAuthError("Please enter your Mobile Number or Email Address.");
+      return;
+    }
+
+    if (cleanPhone && cleanPhone.length !== 10) {
+      setAuthError("Please enter a valid 10-digit Indian Mobile Number (e.g. 98401 23456).");
+      return;
+    }
+
+    if (cleanEmail && (!cleanEmail.includes("@") || !cleanEmail.includes("."))) {
+      setAuthError("Please enter a valid Email Address (e.g. name@example.com).");
       return;
     }
 
     setIsSubmitting(true);
     setAuthError(null);
 
-    const res = await login(authIdentifier, authName);
+    const primaryIdentifier = cleanPhone || cleanEmail;
+    const res = await login(primaryIdentifier, authPassword, authName, {
+      phone: cleanPhone,
+      email: cleanEmail,
+    });
     setIsSubmitting(false);
 
     if (res.success) {
-      setAuthIdentifier("");
+      setAuthPhone("");
+      setAuthEmail("");
+      setAuthPassword("");
       setAuthName("");
       const redirectUrl = searchParams.get("redirect");
       if (redirectUrl) {
@@ -232,6 +264,65 @@ export default function Account() {
       }
     } else {
       setAuthError(res.error || "Authentication failed. Please try again.");
+    }
+  };
+
+  // Request 6-digit OTP for password recovery
+  const handleRequestOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotIdentifier.trim()) {
+      setForgotErr("Please enter your registered email address or mobile number.");
+      return;
+    }
+    setIsSendingOtp(true);
+    setForgotErr(null);
+    setForgotMsg(null);
+
+    const res = await forgotPassword(forgotIdentifier);
+    setIsSendingOtp(false);
+
+    if (res.success) {
+      setForgotMsg(res.message || "A 6-digit OTP verification code has been dispatched to your email address.");
+      setForgotStep(2);
+    } else {
+      setForgotErr(res.error || "Failed to dispatch recovery code. Please check your details.");
+    }
+  };
+
+  // Verify OTP and reset password
+  const handleExecuteReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotOtp.trim() || forgotOtp.trim().length !== 6) {
+      setForgotErr("Please enter the 6-digit verification code sent to your email.");
+      return;
+    }
+    if (!forgotNewPassword || forgotNewPassword.length < 6) {
+      setForgotErr("Your new password must be at least 6 characters.");
+      return;
+    }
+
+    setIsResetting(true);
+    setForgotErr(null);
+    setForgotMsg(null);
+
+    const res = await resetPassword(forgotIdentifier, forgotOtp, forgotNewPassword);
+    setIsResetting(false);
+
+    if (res.success) {
+      setForgotMsg("Password successfully updated! You can now sign in with your new password.");
+      setTimeout(() => {
+        setShowForgotPassword(false);
+        setForgotStep(1);
+        setForgotOtp("");
+        setAuthPassword(forgotNewPassword);
+        if (forgotIdentifier.includes("@")) {
+          setAuthEmail(forgotIdentifier);
+        } else {
+          setAuthPhone(forgotIdentifier.replace(/[^0-9]/g, "").slice(0, 10));
+        }
+      }, 2000);
+    } else {
+      setForgotErr(res.error || "Verification failed. Please check the OTP code.");
     }
   };
 
@@ -307,7 +398,7 @@ export default function Account() {
         {/* Page Top Header */}
         <div className="text-center mb-10">
           <span className="text-xs uppercase tracking-[0.25em] text-[#C9A227] font-bold block mb-2">
-            ✦ Nithi Collection Client Concierge ✦
+            ✦ Nithi Collections Client Concierge ✦
           </span>
           <h1 className="font-display text-3xl sm:text-4xl font-bold text-[#064E3B] tracking-tight">
             {isLoggedIn ? `Welcome Back, ${customer?.name}` : "Customer Sign In & Consignment Tracking"}
@@ -510,7 +601,7 @@ export default function Account() {
                       <div key={i} className="flex items-center gap-3 p-2.5 bg-white rounded-lg border border-[#E8E2D5]">
                         <img
                           src={item.image || DEFAULT_FALLBACK_ORDER_IMG}
-                          alt={item.productName || "Garment"}
+                          alt={item.productName || "Product"}
                           className="w-12 h-14 object-cover rounded-md border border-stone-200 shrink-0 bg-stone-100"
                           onError={(e) => {
                             (e.currentTarget as HTMLImageElement).src = DEFAULT_FALLBACK_ORDER_IMG;
@@ -989,7 +1080,7 @@ export default function Account() {
                             <div key={idx} className="flex items-center gap-2.5 shrink-0 bg-white/90 p-1.5 rounded-xl border border-stone-200 shadow-2xs">
                               <img
                                 src={it.image || DEFAULT_FALLBACK_ORDER_IMG}
-                                alt={it.productName || "Garment"}
+                                alt={it.productName || "Product"}
                                 className="w-11 h-13 object-cover rounded-lg border border-stone-200 shrink-0 bg-stone-100"
                                 onError={(e) => {
                                   (e.currentTarget as HTMLImageElement).src = DEFAULT_FALLBACK_ORDER_IMG;
@@ -1060,7 +1151,7 @@ export default function Account() {
             </div>
           </div>
         ) : (
-          /* Customer Sign In Portal (No OTP required) */
+          /* Customer Sign In Portal (Email / Phone + Password & OTP Recovery) */
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
             <div className="bg-[#FFFFFF] border-2 border-[#C9A227]/30 rounded-2xl p-6 sm:p-8 shadow-sm">
               <div className="mb-6">
@@ -1068,84 +1159,257 @@ export default function Account() {
                   Customer Portal
                 </span>
                 <h3 className="font-display text-2xl font-bold text-[#064E3B]">
-                  Sign In to My Account & Tracking
+                  {showForgotPassword ? "Reset Your Password" : "Sign In to My Account"}
                 </h3>
                 <p className="text-xs text-[#5C635E] mt-1">
-                  Enter your mobile number or email to access your orders, view live courier Tracking IDs, and complete 1-click Buy Now checkout with saved addresses.
+                  {showForgotPassword
+                    ? "Enter your registered email address or mobile number to receive a 6-digit OTP code."
+                    : "Enter your mobile number or email address to access your orders, track consignments, and manage saved delivery addresses."}
                 </p>
               </div>
 
-              {authError && (
-                <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl mb-4">
-                  ⚠️ {authError}
+              {/* Forgot Password Flow */}
+              {showForgotPassword ? (
+                <div className="space-y-4">
+                  {forgotMsg && (
+                    <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs rounded-xl">
+                      ✓ {forgotMsg}
+                    </div>
+                  )}
+                  {forgotErr && (
+                    <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl">
+                      ⚠️ {forgotErr}
+                    </div>
+                  )}
+
+                  {forgotStep === 1 ? (
+                    <form onSubmit={handleRequestOtp} className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
+                          Registered Email Address or Mobile Number *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={forgotIdentifier}
+                          onChange={(e) => setForgotIdentifier(e.target.value)}
+                          placeholder="e.g. customer@example.com or 9840123456"
+                          className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#171A18] focus:outline-none transition-colors"
+                        />
+                        <p className="text-[10px] text-[#5C635E] mt-1">
+                          A 6-digit recovery OTP will be delivered immediately to your registered email.
+                        </p>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowForgotPassword(false);
+                            setForgotErr(null);
+                            setForgotMsg(null);
+                          }}
+                          className="px-4 py-3 border border-stone-300 text-stone-700 text-xs font-bold uppercase rounded-xl hover:bg-stone-50 transition-all cursor-pointer"
+                        >
+                          Back to Sign In
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={isSendingOtp}
+                          className="flex-1 py-3 bg-[#064E3B] text-white hover:bg-[#0B3D2E] text-xs font-bold uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          {isSendingOtp ? "Sending 6-Digit OTP..." : "Send Verification OTP →"}
+                        </button>
+                      </div>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleExecuteReset} className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
+                          6-Digit Verification OTP *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          maxLength={6}
+                          value={forgotOtp}
+                          onChange={(e) => setForgotOtp(e.target.value)}
+                          placeholder="Enter 6-digit OTP (e.g. 123456)"
+                          className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm font-mono tracking-widest text-center text-[#171A18] focus:outline-none transition-colors"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
+                          New Secure Password (min 6 characters) *
+                        </label>
+                        <input
+                          type="password"
+                          required
+                          minLength={6}
+                          value={forgotNewPassword}
+                          onChange={(e) => setForgotNewPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#171A18] focus:outline-none transition-colors"
+                        />
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setForgotStep(1)}
+                          className="px-4 py-3 border border-stone-300 text-stone-700 text-xs font-bold uppercase rounded-xl hover:bg-stone-50 transition-all cursor-pointer"
+                        >
+                          Resend OTP
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={isResetting}
+                          className="flex-1 py-3 bg-[#064E3B] text-white hover:bg-[#0B3D2E] text-xs font-bold uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          {isResetting ? "Updating Password..." : "Update Password & Sign In →"}
+                        </button>
+                      </div>
+                    </form>
+                  )}
                 </div>
-              )}
+              ) : (
+                /* Standard Sign In Form */
+                <>
+                  {authError && (
+                    <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl mb-4">
+                      ⚠️ {authError}
+                    </div>
+                  )}
 
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
-                    Mobile Number or Email Address *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={authIdentifier}
-                    onChange={(e) => setAuthIdentifier(e.target.value)}
-                    placeholder="e.g. 9840123456 or customer@example.com"
-                    className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#171A18] focus:outline-none transition-colors"
-                  />
-                  <p className="text-[10px] text-[#5C635E] mt-1">
-                    Direct instant sign-in — no OTP password delays.
-                  </p>
-                </div>
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    {/* Individual Enter Box 1: Mobile Number */}
+                    <div>
+                      <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
+                        Mobile Number
+                      </label>
+                      <div className="flex items-center rounded-xl border border-[#E8E2D5] bg-[#FAF8F1] focus-within:border-[#C9A227] focus-within:bg-white overflow-hidden transition-colors">
+                        <span className="px-3.5 py-3 bg-stone-100 text-stone-700 text-xs font-bold font-mono border-r border-[#E8E2D5] flex items-center gap-1 shrink-0 select-none">
+                          <span>🇮🇳</span>
+                          <span>+91</span>
+                        </span>
+                        <input
+                          type="tel"
+                          maxLength={10}
+                          value={authPhone}
+                          onChange={(e) => setAuthPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
+                          placeholder="e.g. 98401 23456"
+                          className="w-full bg-transparent px-4 py-3 text-sm font-mono text-[#171A18] placeholder:font-sans placeholder:text-stone-400 focus:outline-none"
+                        />
+                      </div>
+                      <p className="text-[10px] text-[#5C635E] mt-1">
+                        10-digit mobile number for order delivery & tracking alerts.
+                      </p>
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
-                    Your Full Name (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={authName}
-                    onChange={(e) => setAuthName(e.target.value)}
-                    placeholder="e.g. Priya Rajendran"
-                    className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#171A18] focus:outline-none transition-colors"
-                  />
-                </div>
+                    {/* Divider */}
+                    <div className="relative flex items-center justify-center my-2">
+                      <div className="w-full border-t border-[#E8E2D5]" />
+                      <span className="absolute bg-white px-3 text-[10px] font-bold uppercase tracking-wider text-stone-400 select-none">
+                        OR / AND
+                      </span>
+                    </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-3.5 bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] text-xs font-bold uppercase tracking-[0.16em] rounded-xl shadow-md transition-all mt-2 cursor-pointer disabled:opacity-50"
-                >
-                  {isSubmitting ? "Signing in..." : "Sign In to My Account →"}
-                </button>
-              </form>
+                    {/* Individual Enter Box 2: Email Address */}
+                    <div>
+                      <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={authEmail}
+                        onChange={(e) => setAuthEmail(e.target.value)}
+                        placeholder="e.g. customer@example.com"
+                        className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#171A18] focus:outline-none transition-colors"
+                      />
+                      <p className="text-[10px] text-[#5C635E] mt-1">
+                        Used for tax invoices, order receipts, and OTP password recovery.
+                      </p>
+                    </div>
 
-              {/* Demo Quick Logins */}
-              <div className="mt-8 pt-6 border-t border-[#E8E2D5]">
-                <span className="text-[10px] uppercase font-bold text-[#5C635E] tracking-wider block mb-2">
-                  Instant One-Click Customer Login:
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { name: "Priya Rajendran", phone: "9840123456" },
-                    { name: "Saranya Devi", phone: "9789054321" },
-                  ].map((demo) => (
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider">
+                          Password (Optional for Instant Sign-In)
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setForgotIdentifier(authEmail || authPhone);
+                            setShowForgotPassword(true);
+                            setForgotErr(null);
+                            setForgotMsg(null);
+                          }}
+                          className="text-xs font-semibold text-[#064E3B] hover:text-[#C9A227] hover:underline cursor-pointer"
+                        >
+                          Forgot Password?
+                        </button>
+                      </div>
+                      <input
+                        type="password"
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        placeholder="Enter password..."
+                        className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#171A18] focus:outline-none transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#171A18] uppercase tracking-wider mb-1.5">
+                        Your Full Name (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={authName}
+                        onChange={(e) => setAuthName(e.target.value)}
+                        placeholder="e.g. Priya Rajendran"
+                        className="w-full bg-[#FAF8F1] border border-[#E8E2D5] focus:border-[#C9A227] focus:bg-white rounded-xl px-4 py-3 text-sm text-[#171A18] focus:outline-none transition-colors"
+                      />
+                    </div>
+
                     <button
-                      key={demo.phone}
-                      type="button"
-                      onClick={async () => {
-                        setAuthIdentifier(demo.phone);
-                        setAuthName(demo.name);
-                        await login(demo.phone, demo.name);
-                      }}
-                      className="px-3 py-1.5 rounded-lg bg-[#FAF8F1] border border-[#C9A227]/40 hover:bg-[#C9A227]/10 text-xs text-[#064E3B] font-semibold transition-colors cursor-pointer"
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full py-3.5 bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] text-xs font-bold uppercase tracking-[0.16em] rounded-xl shadow-md transition-all mt-2 cursor-pointer disabled:opacity-50"
                     >
-                      👤 {demo.name}
+                      {isSubmitting ? "Signing in..." : "Sign In to My Account →"}
                     </button>
-                  ))}
-                </div>
-              </div>
+                  </form>
+
+                  {/* Demo Quick Logins */}
+                  <div className="mt-8 pt-6 border-t border-[#E8E2D5]">
+                    <span className="text-[10px] uppercase font-bold text-[#5C635E] tracking-wider block mb-2">
+                      Instant One-Click Customer Login:
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { name: "Priya Rajendran", phone: "9840123456", email: "priya@example.com" },
+                        { name: "Saranya Devi", phone: "9789054321", email: "saranya@example.com" },
+                      ].map((demo) => (
+                        <button
+                          key={demo.phone}
+                          type="button"
+                          onClick={async () => {
+                            setAuthPhone(demo.phone);
+                            setAuthEmail(demo.email);
+                            setAuthName(demo.name);
+                            await login(demo.phone, "", demo.name, { phone: demo.phone, email: demo.email });
+                          }}
+                          className="px-3 py-1.5 rounded-lg bg-[#FAF8F1] border border-[#C9A227]/40 hover:bg-[#C9A227]/10 text-xs text-[#064E3B] font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
+                        >
+                          <span>👤</span>
+                          <span>{demo.name} ({demo.phone})</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Privileges Card */}
@@ -1155,7 +1419,7 @@ export default function Account() {
                 Boutique Privileges
               </span>
               <h3 className="font-display text-2xl font-bold text-[#FAF8F1] mb-4">
-                Why Sign In with Nithi Collection?
+                Why Sign In with Nithi Collections?
               </h3>
 
               <ul className="space-y-4 text-xs text-[#FAF8F1]/85">
@@ -1183,7 +1447,7 @@ export default function Account() {
                   </span>
                   <div>
                     <strong className="text-white block">Order History:</strong>
-                    Review past garment sizes, colors, and tax invoices anytime.
+                    Review past product sizes, types, and tax invoices anytime.
                   </div>
                 </li>
               </ul>
@@ -1284,7 +1548,7 @@ export default function Account() {
                 {/* Items */}
                 <div>
                   <span className="font-bold uppercase tracking-wider text-stone-600 text-[10px] block mb-2">
-                    Purchased Garments ({selectedOrderModal.items.length})
+                    Purchased Products ({selectedOrderModal.items.length})
                   </span>
                   <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
                     {selectedOrderModal.items.map((it, idx) => (
@@ -1292,7 +1556,7 @@ export default function Account() {
                         <div className="flex items-center gap-3">
                           <img
                             src={it.image || DEFAULT_FALLBACK_ORDER_IMG}
-                            alt={it.productName || "Garment"}
+                            alt={it.productName || "Product"}
                             className="w-12 h-14 object-cover rounded-lg border border-stone-200 shrink-0 bg-stone-100"
                             onError={(e) => {
                               (e.currentTarget as HTMLImageElement).src = DEFAULT_FALLBACK_ORDER_IMG;

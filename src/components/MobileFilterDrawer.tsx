@@ -54,7 +54,14 @@ export default function MobileFilterDrawer({
 
   if (!isOpen) return null;
 
-  const allSizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+  const allSizes = ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "Free Size"];
+
+  const isCordSet = Boolean(
+    selectedCategory &&
+    (selectedCategory.toLowerCase().includes("cord") ||
+     selectedCategory.toLowerCase().includes("coord") ||
+     (activeCatObj && (activeCatObj.name.toLowerCase().includes("cord") || activeCatObj.name.toLowerCase().includes("coord"))))
+  );
 
   return (
     <div className="fixed inset-0 z-50 lg:hidden flex flex-col justify-end bg-[#171A18]/70 backdrop-blur-xs font-body animate-fade-in">
@@ -87,6 +94,36 @@ export default function MobileFilterDrawer({
           </div>
         </div>
 
+        {/* Conditional Size Filter: Hidden when Cord set is selected */}
+        {!isCordSet && (
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-[#064E3B] mb-2 flex items-center justify-between">
+              <span>Filter by Size</span>
+              {selectedSizes.length > 0 && (
+                <span className="text-[10px] text-[#064E3B] font-bold">
+                  {selectedSizes.join(", ")} Active
+                </span>
+              )}
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {allSizes.map((sz) => (
+                <button
+                  key={sz}
+                  type="button"
+                  onClick={() => onToggleSize(sz)}
+                  className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer ${
+                    selectedSizes.includes(sz)
+                      ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1]"
+                      : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#064E3B]"
+                  }`}
+                >
+                  {sz === "XXL" ? "XXL / 2XL" : sz}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Sort */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-[#064E3B] mb-2">
@@ -100,17 +137,15 @@ export default function MobileFilterDrawer({
               { id: "name-desc", label: "Alphabetical: Z to A" },
               { id: "price-asc", label: "Price: Low to High" },
               { id: "price-desc", label: "Price: High to Low" },
-              { id: "discount", label: "Discount %" },
-              { id: "rating", label: "Top Rated" },
             ].map((s) => (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => onSortChange(s.id)}
-                className={`py-2 px-3 rounded-xs border text-left transition-colors ${
+                className={`py-2 px-3 rounded-lg border text-left transition-colors cursor-pointer ${
                   sort === s.id
                     ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
-                    : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18]"
+                    : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#064E3B]"
                 }`}
               >
                 {s.label}
@@ -119,65 +154,84 @@ export default function MobileFilterDrawer({
           </div>
         </div>
 
-        {/* Categories */}
+        {/* Collections */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-[#064E3B] mb-2">
-            Collections
-          </label>
-          <div className="flex flex-wrap gap-1.5">
-            <button
-              type="button"
-              onClick={() => {
-                onSelectCategory("");
-                if (onSelectSubcategory) onSelectSubcategory("");
-              }}
-              className={`px-3 py-1.5 rounded-xs border text-xs transition-colors ${
-                !selectedCategory
-                  ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
-                  : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18]"
-              }`}
-            >
-              All Categories
-            </button>
-            {categories.map((c) => (
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-[#064E3B]">
+              {selectedCategory ? "Active Collection" : "Collections"}
+            </label>
+            {selectedCategory && (
               <button
-                key={c.id}
                 type="button"
                 onClick={() => {
-                  onSelectCategory(c.id);
+                  onSelectCategory("");
                   if (onSelectSubcategory) onSelectSubcategory("");
                 }}
-                className={`px-3 py-1.5 rounded-xs border text-xs transition-colors ${
-                  selectedCategory === c.id
-                    ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
-                    : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18]"
-                }`}
+                className="text-[11px] font-semibold text-[#C9A227] hover:underline cursor-pointer"
               >
-                {c.name}
+                ← All Categories
               </button>
-            ))}
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-1.5">
+            {selectedCategory ? (
+              // When a specific category is selected, hide other categories!
+              <div className="w-full space-y-2">
+                <div className="px-3.5 py-2 rounded-xl bg-[#064E3B] text-[#FAF8F1] font-bold text-xs flex items-center justify-between">
+                  <span>{activeCatObj ? activeCatObj.name : selectedCategory}</span>
+                  <span className="text-amber-300">✓ Active</span>
+                </div>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onSelectCategory("");
+                    if (onSelectSubcategory) onSelectSubcategory("");
+                  }}
+                  className="px-3 py-1.5 rounded-lg border text-xs transition-colors cursor-pointer border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
+                >
+                  All Categories
+                </button>
+                {categories.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => {
+                      onSelectCategory(c.id);
+                      if (onSelectSubcategory) onSelectSubcategory("");
+                    }}
+                    className="px-3 py-1.5 rounded-lg border border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] text-xs transition-colors cursor-pointer hover:border-[#064E3B]"
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         </div>
 
-        {/* Subcategories (if Category selected) */}
-        {activeCatObj && activeCatObj.subcategories && activeCatObj.subcategories.length > 0 && (
+        {/* Styles / Subcategories (when Category is active) */}
+        {activeCatObj && (
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-[#C9A227] mb-2">
-              Subcategories ({activeCatObj.name})
+              Filter by Style ({activeCatObj.name})
             </label>
             <div className="flex flex-wrap gap-1.5">
               <button
                 type="button"
                 onClick={() => onSelectSubcategory && onSelectSubcategory("")}
-                className={`px-3 py-1.5 rounded-xs border text-xs transition-colors ${
+                className={`px-3 py-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${
                   !selectedSubcategory
                     ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
                     : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18]"
                 }`}
               >
-                All {activeCatObj.name}
+                All Styles
               </button>
-              {activeCatObj.subcategories.map((sub) => {
+              {(activeCatObj.subcategories || []).map((sub) => {
                 const subName = sub.name;
                 const isSelected =
                   selectedSubcategory === sub.id ||
@@ -188,7 +242,7 @@ export default function MobileFilterDrawer({
                     key={sub.id || subName}
                     type="button"
                     onClick={() => onSelectSubcategory && onSelectSubcategory(subName)}
-                    className={`px-3 py-1.5 rounded-xs border text-xs transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${
                       isSelected
                         ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
                         : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18]"
@@ -201,46 +255,6 @@ export default function MobileFilterDrawer({
             </div>
           </div>
         )}
-
-        {/* Sizes */}
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-[#064E3B] mb-2">
-            Sizes
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {allSizes.map((sz) => (
-              <button
-                key={sz}
-                type="button"
-                onClick={() => onToggleSize(sz)}
-                className={`px-3 py-1.5 rounded-xs border text-xs font-semibold transition-colors ${
-                  selectedSizes.includes(sz)
-                    ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1]"
-                    : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18]"
-                }`}
-              >
-                {sz}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Max Price */}
-        <div>
-          <div className="flex justify-between text-xs font-bold text-[#064E3B] mb-1.5">
-            <span>Price Range</span>
-            <span>Up to ₹{priceRange[1].toLocaleString("en-IN")}</span>
-          </div>
-          <input
-            type="range"
-            min={300}
-            max={5000}
-            step={100}
-            value={priceRange[1]}
-            onChange={(e) => onPriceChange([priceRange[0], Number(e.target.value)])}
-            className="w-full accent-[#064E3B]"
-          />
-        </div>
 
         {/* Bottom Apply Bar */}
         <div className="pt-2 sticky bottom-0 bg-[#FAF8F1] pb-2">

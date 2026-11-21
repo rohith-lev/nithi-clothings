@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET || "lce5f7oC0UtnH13owVdiEsOG";
 
     // If live/test secret key is provided, perform HMAC SHA256 cryptographic verification
     if (key_secret && razorpay_signature) {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/mongodb";
 import Order from "@/lib/models/Order";
 import { requireAdmin, escapeRegex } from "@/lib/auth";
+import { sendCustomerTrackingWhatsAppNotification } from "@/services/notificationService";
 
 const VALID_ORDER_STATUSES = new Set([
   "Pending",
@@ -125,6 +126,13 @@ export async function PATCH(
       return NextResponse.json(
         { success: false, error: "Order not found" },
         { status: 404 }
+      );
+    }
+
+    // Trigger automated customer tracking notification on WhatsApp if tracking ID was entered/updated
+    if (updateFields.trackingId && typeof updateFields.trackingId === "string" && updateFields.trackingId.trim()) {
+      sendCustomerTrackingWhatsAppNotification(updated).catch((e) =>
+        console.error("Customer tracking WhatsApp error:", e)
       );
     }
 

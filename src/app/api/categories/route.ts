@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/mongodb";
 import Category from "@/lib/models/Category";
+import Product from "@/lib/models/Product";
 import { requireAdmin, escapeRegex } from "@/lib/auth";
 
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
@@ -46,18 +47,46 @@ async function getSynchronizedCategories(activeOnly = false) {
 
   let dbCategories = await Category.find().sort({ priority: 1, createdAt: 1 }).lean();
 
+  // Aggregate dynamic product types per category from the live product catalogue
+  const typeMap: Record<string, string[]> = {};
+  try {
+    const products = await Product.find({ status: "ACTIVE" }, "category productTypes").lean();
+    for (const p of products) {
+      if (!p.category || !Array.isArray(p.productTypes)) continue;
+      const catKey = p.category.toLowerCase().trim();
+      if (!typeMap[catKey]) typeMap[catKey] = [];
+      for (const pt of p.productTypes) {
+        if (pt && pt.name && pt.active !== false && !typeMap[catKey].includes(pt.name.trim())) {
+          typeMap[catKey].push(pt.name.trim());
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Could not aggregate product types for categories:", err);
+  }
+
   // Format DB categories directly without re-inserting deleted/stale records
-  const formatted = (dbCategories || []).map((cat: any) => ({
-    id: cat.id || String(cat._id),
-    name: cat.name,
-    slug: cat.slug || cat.id,
-    image: resolveCategoryImage(cat.name, cat.slug, cat.image),
-    description: cat.description || "",
-    isActive: cat.isActive !== false,
-    showOnHome: cat.showOnHome !== false,
-    priority: typeof cat.priority === "number" ? cat.priority : 0,
-    subcategories: Array.isArray(cat.subcategories) ? cat.subcategories : [],
-  }));
+  const formatted = (dbCategories || []).map((cat: any) => {
+    const catNameKey = (cat.name || "").toLowerCase().trim();
+    const catSlugKey = (cat.slug || "").toLowerCase().trim();
+    const dynamicTypes = Array.from(new Set([
+      ...(typeMap[catNameKey] || []),
+      ...(typeMap[catSlugKey] || []),
+    ]));
+
+    return {
+      id: cat.id || String(cat._id),
+      name: cat.name,
+      slug: cat.slug || cat.id,
+      image: resolveCategoryImage(cat.name, cat.slug, cat.image),
+      description: cat.description || "",
+      isActive: cat.isActive !== false,
+      showOnHome: cat.showOnHome !== false,
+      priority: typeof cat.priority === "number" ? cat.priority : 0,
+      subcategories: Array.isArray(cat.subcategories) ? cat.subcategories : [],
+      productTypes: dynamicTypes,
+    };
+  });
 
   if (activeOnly) {
     return formatted.filter((c) => c.isActive !== false);

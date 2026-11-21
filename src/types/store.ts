@@ -3,12 +3,15 @@ import {
   type SubCategory,
   type Product,
   type ProductVariant,
+  type ProductTypeOption,
   type SizeOption,
   type ColorOption,
   CATEGORY_HIERARCHY,
 } from "../data/products";
 
-export type { Category, SubCategory, Product, ProductVariant, SizeOption, ColorOption };
+export type {
+  Category, SubCategory, Product, ProductVariant, ProductTypeOption, SizeOption, ColorOption,
+};
 export { CATEGORY_HIERARCHY };
 
 export interface InventoryRecord {
@@ -136,4 +139,7 @@ export interface SiteSettings {
   circularBadgeLink?: string;
   freeShippingThreshold?: number;
   storeAddress?: string;
+  razorpayKeyId?: string;
+  razorpayKeySecret?: string;
+  razorpayEnabled?: boolean;
 }

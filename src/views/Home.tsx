@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useNavigate } from "react-router";
 import { useStoreProducts, useStoreCategories } from "../services/storefront";
 import ProductCard from "../components/ProductCard";
-import CircularOfferBadge from "../components/CircularOfferBadge";
 import CircularCategoryBrowser from "../components/CircularCategoryBrowser";
 import SEO from "../components/SEO";
 
@@ -90,12 +89,12 @@ export default function Home() {
   const whyChooseUs = [
     {
       icon: (
-        <svg className="w-5 h-5 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-5 h-5 text-[#2563EB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
         </svg>
       ),
-      title: "Artisanal Craftsmanship",
-      desc: "Fine tailoring, durable dyes, and master stitchwork built for lasting elegance.",
+      title: "Quality Stitching & Finish",
+      desc: "Reinforced seams, colorfast dyes, and durable cotton tailored for long-lasting comfort.",
     },
     {
       icon: (
@@ -103,8 +102,8 @@ export default function Home() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       ),
-      title: "100% Breathable Fabrics",
-      desc: "Pure combed cotton, mulmul, and handpicked silks designed for tropical comfort.",
+      title: "100% Breathable Cotton",
+      desc: "Pure combed cotton, mulmul, and soft everyday fabrics designed for daily comfort.",
     },
     {
       icon: (
@@ -112,137 +111,132 @@ export default function Home() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
       ),
-      title: "Express Pan-India Delivery",
-      desc: "Rapid dispatch with Cash on Delivery and complimentary shipping above ₹999.",
+      title: "Pan-India Express Delivery",
+      desc: "Fast dispatch with Cash on Delivery (COD) and free shipping on orders above ₹999.",
     },
     {
       icon: (
         <svg className="w-5 h-5 text-[#064E3B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
         </svg>
       ),
-      title: "WhatsApp Personal Concierge",
-      desc: "Direct stylist assistance on WhatsApp for size selection and order guidance.",
+      title: "Customer Support Helpline",
+      desc: "Dedicated support team at 8122436850 & 9345136762 for order tracking and sizing help.",
     },
   ];
 
   return (
-    <div ref={containerRef} className="bg-[#FAF8F1] text-[#171A18] font-body relative overflow-x-hidden">
+    <div ref={containerRef} className="bg-slate-50 text-slate-800 font-body relative overflow-x-hidden">
       <SEO
         title="Pure Cotton Nighties, Feeding Nighties & Ethnic Loungewear"
-        description="Shop online at Nithi Clothings for 100% pure cotton nighties, nursing zip nighties, and daily ethnic wear. Breathable quality fabrics with all-India cash on delivery."
+        description="Shop online at Nithi Collections for 100% pure cotton nighties, nursing zip nighties, and daily ethnic wear. Breathable quality fabrics with all-India cash on delivery."
         canonical="/"
       />
-      {/* Circular Floating Offer Badge */}
-      <CircularOfferBadge />
 
-      {/* 1. HERO SECTION (Editorial Fashion Design) */}
-      <section className="relative min-h-[580px] lg:min-h-[720px] flex items-center overflow-hidden bg-[#064E3B]">
+      {/* 1. HERO SECTION (Clean Retail Design) */}
+      <section className="relative min-h-[540px] lg:min-h-[640px] flex items-center overflow-hidden bg-[#041D16]">
         <div className="absolute inset-0 z-0">
           <img
             src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1600&h=900&fit=crop&auto=format"
-            alt="Nithi Collection Indian Couture Hero"
+            alt="Nithi Collections Everyday Pure Cotton Wear"
             className="w-full h-full object-cover object-center scale-105 transition-transform duration-1000 ease-out"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#064E3B]/95 via-[#064E3B]/80 to-[#0B3D2E]/40" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#041D16]/95 via-[#041D16]/85 to-[#064E3B]/50" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(201,162,39,0.18),transparent_60%)]" />
 
-          {/* Ambient Decorative Glowing Orbs for Luxury Depth */}
-          <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#C9A227]/10 blur-3xl animate-hero-glow" />
-          <div className="pointer-events-none absolute -bottom-24 right-1/4 w-80 h-80 rounded-full bg-[#064E3B]/40 blur-2xl animate-hero-glow [animation-delay:3s]" />
+          {/* Ambient Decorative Glowing Orbs */}
+          <div className="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl animate-hero-glow" />
+          <div className="pointer-events-none absolute -bottom-24 right-1/4 w-80 h-80 rounded-full bg-[#064E3B]/30 blur-2xl animate-hero-glow [animation-delay:3s]" />
         </div>
 
         {/* Hero Text & CTA Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 w-full animate-fade-in-up">
-          <div className="max-w-2xl text-[#FAF8F1] space-y-6">
-            {/* Top luxury badge */}
-            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#FAF8F1]/10 border border-[#C9A227]/50 backdrop-blur-sm shadow-sm transition-transform duration-500 hover:scale-105">
-              <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-ping" />
-              <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#C9A227]">
-                Authentic Indian Couture & Daily Wear
+          <div className="max-w-2xl text-white space-y-6">
+            {/* Top retail badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm shadow-sm transition-transform duration-500 hover:scale-105">
+              <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-pulse" />
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-200">
+                100% Pure Combed Cotton & Everyday Wear
               </span>
             </div>
 
             {/* Headline */}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.12] text-[#FAF8F1] tracking-tight">
-              Elegance Woven <br />
-              <span className="text-[#C9A227] italic font-normal">With Heritage & Grace</span>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.12] text-white tracking-tight">
+              Everyday Comfort <br />
+              <span className="text-[#DFC15E] font-normal">Crafted In Pure Cotton</span>
             </h1>
 
             {/* Supporting Copy */}
-            <p className="text-sm sm:text-base text-[#FAF8F1]/90 max-w-lg leading-relaxed font-light">
-              Immerse yourself in authentic pure cotton nighties, nursing maternity wear, and ethnic ensembles handcrafted for timeless comfort.
+            <p className="text-sm sm:text-base text-slate-200 max-w-lg leading-relaxed font-light">
+              Shop online for premium pure cotton nighties, nursing zip nighties, cord sets, and daily ethnic wear designed for soft, breathable comfort.
             </p>
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link
                 to="/shop"
-                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-[#C9A227] text-[#171A18] font-bold text-xs uppercase tracking-[0.2em] shadow-lg hover:bg-[#E5BE4B] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
+                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-[#064E3B] text-white font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-[#0B3D2E] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 <span>Shop All Collections</span>
                 <span className="ml-2">→</span>
               </Link>
               <Link
-                to="/category/nighty"
-                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-[#FAF8F1]/10 text-[#FAF8F1] border border-[#FAF8F1]/30 font-semibold text-xs uppercase tracking-[0.2em] backdrop-blur-sm hover:bg-[#FAF8F1] hover:text-[#064E3B] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
+                to="/shop?category=nighty"
+                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-white/10 text-white border border-white/30 font-semibold text-xs uppercase tracking-wider backdrop-blur-sm hover:bg-white hover:text-[#064E3B] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 <span>Nighty Special</span>
               </Link>
             </div>
 
             {/* Trust Badges in Hero */}
-            <div className="pt-8 border-t border-[#FAF8F1]/15 grid grid-cols-3 gap-4 max-w-md">
+            <div className="pt-8 border-t border-white/15 grid grid-cols-3 gap-4 max-w-md">
               <div className="transition-transform duration-300 hover:-translate-y-1">
-                <span className="font-display text-2xl lg:text-3xl font-bold text-[#C9A227]">100%</span>
-                <p className="text-[10px] text-[#FAF8F1]/70 uppercase tracking-wider mt-0.5">Pure Cotton</p>
+                <span className="font-display text-2xl lg:text-3xl font-bold text-[#DFC15E]">100%</span>
+                <p className="text-[10px] text-slate-300 uppercase tracking-wider mt-0.5">Pure Cotton</p>
               </div>
               <div className="transition-transform duration-300 hover:-translate-y-1">
-                <span className="font-display text-2xl lg:text-3xl font-bold text-[#C9A227]">50k+</span>
-                <p className="text-[10px] text-[#FAF8F1]/70 uppercase tracking-wider mt-0.5">Happy Shoppers</p>
+                <span className="font-display text-2xl lg:text-3xl font-bold text-amber-300">50k+</span>
+                <p className="text-[10px] text-slate-300 uppercase tracking-wider mt-0.5">Happy Shoppers</p>
               </div>
               <div className="transition-transform duration-300 hover:-translate-y-1">
-                <span className="font-display text-2xl lg:text-3xl font-bold text-[#C9A227]">Pan-India</span>
-                <p className="text-[10px] text-[#FAF8F1]/70 uppercase tracking-wider mt-0.5">COD Delivery</p>
+                <span className="font-display text-2xl lg:text-3xl font-bold text-amber-300">Pan-India</span>
+                <p className="text-[10px] text-slate-300 uppercase tracking-wider mt-0.5">COD Delivery</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Floating Luxury Couture Badge Card on Desktop */}
+        {/* Floating Feature Card on Desktop */}
         <div className="hidden lg:block absolute right-12 xl:right-20 top-1/2 -translate-y-1/2 z-20 pointer-events-none animate-hero-float">
-          <div className="bg-[#FFFFFF]/10 backdrop-blur-md border border-[#C9A227]/40 p-5 rounded-2xl shadow-2xl max-w-xs text-[#FAF8F1] space-y-3">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl shadow-2xl max-w-xs text-white space-y-3">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#C9A227]">Signature Edit</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300">Special Focus</span>
             </div>
             <p className="font-display text-lg font-semibold leading-snug">
-              Pure Mulmul Cotton & Banarasi Weaves
+              Combed Cotton Nighties & Daily Wear
             </p>
-            <div className="flex items-center justify-between text-[11px] text-[#FAF8F1]/80 pt-2 border-t border-[#FAF8F1]/15">
-              <span>Handcrafted in India</span>
-              <span className="text-[#C9A227] font-bold">100% Authentic</span>
+            <div className="flex items-center justify-between text-[11px] text-white/80 pt-2 border-t border-white/15">
+              <span>Standard Retail Quality</span>
+              <span className="text-amber-300 font-bold">100% Cotton</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* 2. DYNAMIC "SELECT CATEGORY" DISCOVERY SHOWCASE (Navigation Only) */}
-      <section className="py-12 lg:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-8 reveal-up">
-          <div className="flex items-center justify-center gap-2 mb-2">
+      <section className="py-4 sm:py-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-2 sm:mb-3 reveal-up">
+          <div className="flex items-center justify-center gap-2 mb-1">
             <span className="w-8 h-[1px] bg-[#C9A227]" />
-            <span className="text-xs uppercase tracking-[0.28em] text-[#C9A227] font-semibold">
-              Curated Wardrobe
+            <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#064E3B] font-semibold">
+              Storefront Categories
             </span>
             <span className="w-8 h-[1px] bg-[#C9A227]" />
           </div>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold text-[#064E3B] tracking-tight">
+          <h2 className="font-display text-xl sm:text-2xl font-bold text-[#064E3B] tracking-tight">
             Select Category
           </h2>
-          <p className="text-xs sm:text-sm text-[#5C635E] mt-2.5 leading-relaxed">
-            Click any collection to explore matching styles, exclusive patterns, and handcrafted designs.
-          </p>
         </div>
 
         {/* Category Cards - Only Category Discovery, Click to Navigate to Separate Category Page */}
@@ -254,23 +248,23 @@ export default function Home() {
             if (!targetIdentifier) {
               navigate("/shop");
             } else {
-              navigate(`/category/${encodeURIComponent(targetIdentifier)}`);
+              navigate(`/shop?category=${encodeURIComponent(targetIdentifier)}`);
             }
           }}
           title="Select Category"
-          subtitle="Explore our handcrafted collections designed for daily luxury"
+          subtitle="Explore our retail collections designed for daily comfort"
         />
       </section>
 
       {/* 3. NEW ARRIVALS SECTION */}
-      <section className="py-16 bg-[#F3EFE3]/50 border-y border-[#E8E2D5]">
+      <section className="py-16 bg-white border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-end justify-between gap-4 mb-10">
             <div className="reveal-left">
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="w-6 h-[1px] bg-[#C9A227]" />
-                <span className="text-xs uppercase tracking-[0.25em] text-[#C9A227] font-semibold">
-                  Fresh Off The Loom
+                <span className="text-xs uppercase tracking-wider text-[#064E3B] font-semibold">
+                  Latest Drops
                 </span>
               </div>
               <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-[#064E3B] tracking-tight">
@@ -279,7 +273,7 @@ export default function Home() {
             </div>
             <Link
               to="/shop?filter=new"
-              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#064E3B] hover:text-[#C9A227] transition-colors pb-1 border-b border-[#064E3B] reveal-right"
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#064E3B] hover:text-[#0B3D2E] transition-colors pb-1 border-b border-[#064E3B] reveal-right"
             >
               <span>View All</span>
               <span>→</span>
@@ -302,7 +296,7 @@ export default function Home() {
           <div className="reveal-left">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-6 h-[1px] bg-[#C9A227]" />
-              <span className="text-xs uppercase tracking-[0.25em] text-[#C9A227] font-semibold">
+              <span className="text-xs uppercase tracking-wider text-[#064E3B] font-semibold">
                 Customer Favorites
               </span>
             </div>
@@ -312,7 +306,7 @@ export default function Home() {
           </div>
           <Link
             to="/shop?filter=sale"
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#064E3B] hover:text-[#C9A227] transition-colors pb-1 border-b border-[#064E3B] reveal-right"
+            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#064E3B] hover:text-[#0B3D2E] transition-colors pb-1 border-b border-[#064E3B] reveal-right"
           >
             <span>Explore Offers</span>
             <span>→</span>
@@ -329,14 +323,14 @@ export default function Home() {
       </section>
 
       {/* 5. BESTSELLERS & FEATURED SECTION TABS */}
-      <section className="py-16 bg-[#F3EFE3]/40 border-y border-[#E8E2D5]">
+      <section className="py-16 bg-slate-100/60 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
             <div className="reveal-left">
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="w-6 h-[1px] bg-[#C9A227]" />
-                <span className="text-xs uppercase tracking-[0.25em] text-[#C9A227] font-semibold">
-                  Heritage Selections
+                <span className="text-xs uppercase tracking-wider text-[#064E3B] font-semibold">
+                  Popular Picks
                 </span>
               </div>
               <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-[#064E3B] tracking-tight">
@@ -345,37 +339,34 @@ export default function Home() {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center gap-2 bg-[#FFFFFF] p-1.5 rounded-xl border border-[#E8E2D5] text-xs font-semibold uppercase tracking-wider shadow-2xs reveal-right">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 text-xs font-semibold uppercase tracking-wider shadow-2xs reveal-right">
               <button
                 type="button"
                 onClick={() => setActiveTab("featured")}
-                className={`px-4 py-2 rounded-lg transition-all ${
-                  activeTab === "featured"
-                    ? "bg-[#064E3B] text-[#FAF8F1] shadow-xs"
-                    : "text-[#5C635E] hover:text-[#064E3B]"
-                }`}
+                className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${activeTab === "featured"
+                  ? "bg-[#064E3B] text-white shadow-xs"
+                  : "text-slate-600 hover:text-[#064E3B]"
+                  }`}
               >
                 Featured
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("bestseller")}
-                className={`px-4 py-2 rounded-lg transition-all ${
-                  activeTab === "bestseller"
-                    ? "bg-[#064E3B] text-[#FAF8F1] shadow-xs"
-                    : "text-[#5C635E] hover:text-[#064E3B]"
-                }`}
+                className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${activeTab === "bestseller"
+                  ? "bg-[#064E3B] text-white shadow-xs"
+                  : "text-slate-600 hover:text-[#064E3B]"
+                  }`}
               >
                 Best Sellers
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab("new")}
-                className={`px-4 py-2 rounded-lg transition-all ${
-                  activeTab === "new"
-                    ? "bg-[#064E3B] text-[#FAF8F1] shadow-xs"
-                    : "text-[#5C635E] hover:text-[#064E3B]"
-                }`}
+                className={`px-4 py-2 rounded-lg transition-all cursor-pointer ${activeTab === "new"
+                  ? "bg-[#064E3B] text-white shadow-xs"
+                  : "text-slate-600 hover:text-[#064E3B]"
+                  }`}
               >
                 New Arrivals
               </button>
@@ -398,15 +389,15 @@ export default function Home() {
           {whyChooseUs.map((pillar, idx) => (
             <div
               key={pillar.title}
-              className={`p-6 rounded-2xl bg-[#FFFFFF] border border-[#E8E2D5] shadow-xs hover:border-[#C9A227] hover:shadow-md transition-all duration-300 reveal-up reveal-delay-${idx + 1}`}
+              className={`p-6 rounded-2xl bg-white border border-slate-200 shadow-xs hover:border-[#064E3B] hover:shadow-md transition-all duration-300 reveal-up reveal-delay-${idx + 1}`}
             >
-              <div className="w-12 h-12 rounded-xl bg-[#FAF8F1] border border-[#E8E2D5] flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4">
                 {pillar.icon}
               </div>
               <h3 className="font-display text-base font-bold text-[#064E3B] mb-2">
                 {pillar.title}
               </h3>
-              <p className="text-xs text-[#5C635E] leading-relaxed">
+              <p className="text-xs text-slate-600 leading-relaxed">
                 {pillar.desc}
               </p>
             </div>

@@ -13,16 +13,16 @@ export default function Contact() {
   const contactSchema = {
     "@context": "https://schema.org",
     "@type": "ContactPage",
-    name: "Contact Nithi Clothings",
-    description: "Contact Nithi Clothings for order inquiries, wholesale assistance, and customer support.",
-    url: typeof window !== "undefined" ? window.location.href : "https://nithiclothings.com/contact",
+    name: "Contact Nithi Collections",
+    description: "Contact Nithi Collections for order inquiries, wholesale assistance, and customer support.",
+    url: typeof window !== "undefined" ? window.location.href : "https://nithicollections.com/contact",
   };
 
   return (
     <div className="font-body min-h-screen bg-[#FAF8F1]">
       <SEO
         title="Contact Us - Customer Support & Boutique Concierge"
-        description="Get in touch with Nithi Clothings for order assistance, size inquiries, and pure cotton nighties inquiries. Fast customer support on WhatsApp and email."
+        description="Get in touch with Nithi Collections for order assistance, size inquiries, and pure cotton nighties inquiries. Fast customer support on WhatsApp and email."
         canonical="/contact"
         structuredData={contactSchema}
       />
@@ -37,30 +37,71 @@ export default function Contact() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Information */}
-          <div className="space-y-8 bg-white p-8 rounded-sm border border-[#E8E2D5] shadow-sm">
+          <div className="space-y-8 bg-white p-8 rounded-3xl border border-[#E8E2D5] shadow-xs">
             <div>
-              <h3 className="font-display text-xl font-bold text-[#1A1008] mb-2 text-[#064E3B]">Boutique Location</h3>
-              <p className="text-sm text-[#5C635E]">
-                Nithi Collection Flagship Boutique<br />
-                Heritage Handloom Enclave<br />
-                Madurai - 625001, Tamil Nadu, India
+              <h3 className="font-display text-xl font-bold text-[#064E3B] mb-2">Boutique & Atelier Address</h3>
+              <p className="font-bold text-[#1A1008] text-sm">Nithi Collections</p>
+              <p className="text-sm text-[#5C635E] leading-relaxed mt-1">
+                385/2, Near South Indian Bank,<br />
+                SAB Main Road, Athani,<br />
+                Anthiyur – 638502,<br />
+                Tamil Nadu, India.
               </p>
+              <a
+                href="https://www.google.com/maps/search/?api=1&query=385%2F2+Near+South+Indian+Bank+SAB+Main+Road+Athani+Anthiyur+638502+Tamil+Nadu+India"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 mt-3 px-4 py-2 bg-[#FAF8F1] border border-[#C9A227]/40 rounded-xl text-xs font-bold text-[#064E3B] hover:bg-[#F3EFE3] transition"
+              >
+                <span>📍 Open in Google Maps</span>
+                <span>↗</span>
+              </a>
             </div>
+
             <div>
-              <h3 className="font-display text-xl font-bold text-[#1A1008] mb-2 text-[#064E3B]">Direct Inquiries</h3>
-              <p className="text-sm text-[#5C635E]">
-                Email: care@nithicollection.com<br />
-                Phone: +91 98765 43210 / +91 98401 23456
-              </p>
-              <p className="text-xs text-[#5C635E] mt-1">Available Mon - Sat: 9:30 AM to 8:30 PM IST</p>
+              <h3 className="font-display text-xl font-bold text-[#064E3B] mb-2">Direct Contact</h3>
+              <div className="text-sm text-[#5C635E] space-y-2">
+                <p className="flex items-center gap-2">
+                  <span className="font-semibold text-stone-700">Phone:</span>
+                  <a href="tel:8122436850" className="font-bold text-[#064E3B] hover:underline">
+                    8122436850
+                  </a>
+                  <span>/</span>
+                  <a href="tel:9345136762" className="font-bold text-[#064E3B] hover:underline">
+                    9345136762
+                  </a>
+                </p>
+                <p>
+                  <a
+                    href="https://wa.me/918122436850"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 text-white rounded-xl text-xs font-bold hover:bg-emerald-800 transition shadow-xs mt-1"
+                  >
+                    <span>💬 Chat on WhatsApp (+91 8122436850)</span>
+                  </a>
+                </p>
+                <p className="text-xs text-[#5C635E] pt-1">Working Hours: Mon – Sat: 9:30 AM to 8:30 PM IST</p>
+              </div>
             </div>
+
             <div>
-              <h3 className="font-display text-xl font-bold text-[#1A1008] mb-2 text-[#064E3B]">Social Media</h3>
-              <div className="flex gap-4 mt-3">
-                {["Instagram", "Facebook", "Pinterest", "WhatsApp"].map((platform) => (
-                  <span key={platform} className="text-sm font-semibold text-[#C9A227] hover:text-[#064E3B] cursor-pointer transition-colors">
-                    {platform}
-                  </span>
+              <h3 className="font-display text-xl font-bold text-[#064E3B] mb-2">Official Social Media</h3>
+              <div className="flex flex-wrap gap-3 mt-3">
+                {[
+                  { name: "Instagram", href: "https://www.instagram.com/nithicollections" },
+                  { name: "Facebook", href: "https://www.facebook.com/nithicollections" },
+                  { name: "YouTube", href: "https://www.youtube.com/@nithicollections" },
+                ].map((s) => (
+                  <a
+                    key={s.name}
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3.5 py-1.5 rounded-xl border border-[#C9A227]/40 bg-[#FAF8F1] text-xs font-bold text-[#064E3B] hover:bg-[#C9A227]/20 transition"
+                  >
+                    {s.name} ↗
+                  </a>
                 ))}
               </div>
             </div>

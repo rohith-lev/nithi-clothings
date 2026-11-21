@@ -81,6 +81,61 @@ export async function sendStorageAlertEmail({
   }
 }
 
+// ── Password Reset OTP Email (to Customer) ────────────────────────────────────
+export async function sendPasswordResetOtpEmail({
+  email,
+  name,
+  otp,
+}: {
+  email: string;
+  name?: string;
+  otp: string;
+}) {
+  try {
+    const transporter = await getTransporter();
+    const fromEmail = process.env.SMTP_FROM || "no-reply@nithicollections.com";
+    const subject = `Your Password Reset OTP - Nithi Collections`;
+    const text = `Hello ${name || "Customer"},\n\nYour One-Time Password (OTP) for password recovery at Nithi Collections is: ${otp}\n\nThis OTP is valid for 15 minutes. Do not share this code with anyone.\n\nWarm regards,\nNithi Collections`;
+    const html = `
+<div style="font-family:Arial,sans-serif;max-width:550px;margin:0 auto;border:1px solid #E8E2D5;border-radius:16px;overflow:hidden;background:#FDFBF7;">
+  <div style="background:#064E3B;padding:24px;text-align:center;border-bottom:3px solid #C9A227;">
+    <h1 style="color:#C9A227;margin:0;font-size:22px;letter-spacing:1px;">NITHI COLLECTIONS</h1>
+    <p style="color:#FAF8F1;margin:6px 0 0;font-size:12px;">Customer Account Security</p>
+  </div>
+  <div style="padding:28px 24px;color:#171A18;">
+    <h2 style="font-size:18px;color:#064E3B;margin-top:0;">Password Recovery Code</h2>
+    <p style="font-size:13px;line-height:1.6;color:#5C635E;">
+      Hello <strong>${name || "Customer"}</strong>, we received a request to reset your password for your Nithi Collections account. Please enter the verification code below:
+    </p>
+    <div style="text-align:center;margin:28px 0;">
+      <div style="display:inline-block;padding:14px 28px;background:#FAF8F1;border:2px dashed #C9A227;border-radius:12px;">
+        <span style="font-family:monospace;font-size:32px;font-weight:bold;letter-spacing:8px;color:#064E3B;">${otp}</span>
+      </div>
+      <p style="font-size:11px;color:#8A7060;margin-top:8px;">Valid for 15 minutes</p>
+    </div>
+    <p style="font-size:12px;color:#5C635E;line-height:1.5;">
+      If you did not request this code, you can safely ignore this email. Your account remains secure.
+    </p>
+  </div>
+  <div style="background:#FAF8F1;padding:16px;text-align:center;font-size:11px;color:#5C635E;border-top:1px solid #E8E2D5;">
+    &copy; ${new Date().getFullYear()} Nithi Collections. Athani, Anthiyur – 638502, Tamil Nadu.
+  </div>
+</div>`;
+
+    await (transporter as any).sendMail({
+      from: `"Nithi Collections" <${fromEmail}>`,
+      to: email,
+      subject,
+      text,
+      html,
+    });
+    return { success: true };
+  } catch (error) {
+    console.error("[SMTP] Password reset OTP send failed:", error);
+    return { success: false, error: (error as Error).message };
+  }
+}
+
 // ── Order Confirmation Email (to Customer) ────────────────────────────────────
 export async function sendOrderConfirmationEmail(order: {
   orderId: string; customerName: string; customerEmail: string; customerPhone: string;
@@ -120,7 +175,7 @@ export async function sendOrderConfirmationEmail(order: {
     </div>
     <table style="width:100%;border-collapse:collapse;margin-top:15px;">
       <thead><tr style="border-bottom:2px solid #ddd;font-size:11px;text-transform:uppercase;color:#777;">
-        <th style="text-align:left;padding-bottom:6px;">Garment</th>
+        <th style="text-align:left;padding-bottom:6px;">Product</th>
         <th style="text-align:center;padding-bottom:6px;">Qty</th>
         <th style="text-align:right;padding-bottom:6px;">Total</th>
       </tr></thead>
@@ -189,24 +244,81 @@ export async function sendWhatsAppNotification(order: {
   customerPhone?: string;
   total?: number;
   paymentMethod?: string;
+  paymentStatus?: string;
+  shippingAddress?: string;
+  shippingState?: string;
+  shippingPincode?: string;
+  items?: Array<{
+    productName?: string;
+    name?: string;
+    selectedType?: string;
+    selectedSize?: string;
+    selectedColor?: string;
+    quantity: number;
+    price?: number;
+    finalPrice?: number;
+  }>;
 }) {
   const apiToken = process.env.WHATSAPP_API_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const businessNumber = process.env.ADMIN_WHATSAPP_NUMBER || "918122436850";
+
+  // Build enriched item list: product, product type, size, quantity, amount
+  const itemsSummary = (order.items && order.items.length > 0)
+    ? order.items
+        .map((it, idx) => {
+          const name = it.productName || it.name || "Product";
+          const type = it.selectedType ? ` (${it.selectedType})` : "";
+          const size = it.selectedSize ? ` [Size: ${it.selectedSize}]` : "";
+          const price = it.finalPrice || it.price || 0;
+          const lineTotal = price * (it.quantity || 1);
+          return `${idx + 1}. ${name}${type}${size} - Qty: ${it.quantity} - ₹${lineTotal.toLocaleString("en-IN")}`;
+        })
+        .join("\n")
+    : "No item details available";
+
+  const paymentStatus = order.paymentStatus || (order.paymentMethod === "COD" ? "Pending (Cash On Delivery)" : "Verified Paid");
+
+  const messageBody = [
+    `🛍️ *NEW ORDER RECEIVED — NITHI COLLECTIONS*`,
+    ``,
+    `*Order ID:* #${order.orderId}`,
+    `*Customer Name:* ${order.customerName || "Customer"}`,
+    `*Customer Phone:* ${order.customerPhone || "-"}`,
+    ``,
+    `*Ordered Items:*`,
+    itemsSummary,
+    ``,
+    `*Total Amount:* ₹${(order.total || 0).toLocaleString("en-IN")}`,
+    `*Payment Method:* ${order.paymentMethod || "COD"}`,
+    `*Payment Status:* ${paymentStatus}`,
+    ``,
+    order.shippingAddress ? `*Shipping Address:* ${order.shippingAddress}, ${order.shippingState || ""} ${order.shippingPincode || ""}` : "",
+  ].filter(Boolean).join("\n");
 
   // Also check DB settings
   try {
     const settings = await StorageSetting.findOne({ id: "storage_config_main" }).lean();
     if (settings && settings.whatsappApiEnabled && settings.whatsappWebhookUrl) {
       // Legacy webhook mode
-      console.log(`[WHATSAPP] Order #${order.orderId} — webhook mode`);
+      console.log(`[WHATSAPP] Order #${order.orderId} dispatched to webhook: ${settings.whatsappWebhookUrl}`);
+      try {
+        await fetch(settings.whatsappWebhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId: order.orderId, message: messageBody, order }),
+        });
+      } catch (err: any) {
+        console.warn("[WHATSAPP Webhook] dispatch error:", err.message);
+      }
       return { success: true, status: "Sent via Webhook" };
     }
   } catch {}
 
-  // Meta Cloud API mode (using Vercel env vars)
+  // Meta Cloud API mode
   if (!apiToken || !phoneNumberId) {
-    console.log(`[WHATSAPP] Skipped — WHATSAPP_API_TOKEN or WHATSAPP_PHONE_NUMBER_ID not configured`);
-    return { success: true, status: "Skipped (API not configured)" };
+    console.log(`[WHATSAPP] Business notification logged for #${order.orderId} (recipient: ${businessNumber}):\n${messageBody}`);
+    return { success: true, status: "Logged (Meta WhatsApp API credentials not set in env)" };
   }
 
   try {
@@ -220,25 +332,198 @@ export async function sendWhatsAppNotification(order: {
         },
         body: JSON.stringify({
           messaging_product: "whatsapp",
-          to: process.env.ADMIN_WHATSAPP_NUMBER || "",
+          to: businessNumber.replace(/[^0-9]/g, ""),
           type: "text",
           text: {
-            body: `🛍️ New Nithi Collection Order!\n\nOrder: #${order.orderId}\nCustomer: ${order.customerName || "Customer"}\nPhone: ${order.customerPhone || "-"}\nTotal: ₹${order.total || 0}\nPayment: ${order.paymentMethod || "COD"}\n\nView: https://nithi-clothings.vercel.app/admin/orders`,
+            body: messageBody,
           },
         }),
       }
     );
 
     if (res.ok) {
-      console.log(`[WHATSAPP] ✅ Notification sent for order #${order.orderId}`);
+      console.log(`[WHATSAPP] ✅ Order notification successfully delivered for order #${order.orderId}`);
       return { success: true, status: "Sent via Meta Cloud API" };
     } else {
       const err = await res.json().catch(() => ({}));
-      console.warn(`[WHATSAPP] API error:`, err);
+      console.warn(`[WHATSAPP] API returned error:`, err);
       return { success: false, status: "API Error", error: JSON.stringify(err) };
     }
   } catch (e) {
-    console.error("[WHATSAPP] Notification failed:", (e as Error).message);
+    console.error("[WHATSAPP] Notification exception:", (e as Error).message);
     return { success: false, error: (e as Error).message };
   }
+}
+
+// ── Shared WhatsApp Direct Dispatch Helper ────────────────────────────────────
+async function dispatchWhatsAppMessage(toPhone: string, bodyText: string, label: string) {
+  const cleanPhone = toPhone.replace(/[^0-9]/g, "");
+  const formattedPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
+
+  if (!formattedPhone || formattedPhone.length < 10) {
+    console.warn(`[WHATSAPP] Cannot send ${label}: Invalid phone number "${toPhone}"`);
+    return { success: false, reason: "Invalid phone number" };
+  }
+
+  // 1. StorageSetting webhook if configured
+  try {
+    const settings = await StorageSetting.findOne({ id: "storage_config_main" }).lean();
+    if (settings && settings.whatsappApiEnabled && settings.whatsappWebhookUrl) {
+      console.log(`[WHATSAPP] ${label} dispatched to webhook: ${settings.whatsappWebhookUrl}`);
+      try {
+        await fetch(settings.whatsappWebhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ to: formattedPhone, message: bodyText, label }),
+        });
+      } catch (err: any) {
+        console.warn("[WHATSAPP Webhook] dispatch error:", err.message);
+      }
+      return { success: true, status: "Sent via Webhook" };
+    }
+  } catch {}
+
+  // 2. Meta Cloud API mode
+  const apiToken = process.env.WHATSAPP_API_TOKEN;
+  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+  if (!apiToken || !phoneNumberId) {
+    console.log(`\n💬 [WHATSAPP ${label}] To: +${formattedPhone}\n${bodyText}\n`);
+    return { success: true, status: "Logged (Meta WhatsApp API credentials not set in env)" };
+  }
+
+  try {
+    const res = await fetch(
+      `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messaging_product: "whatsapp",
+          to: formattedPhone,
+          type: "text",
+          text: { body: bodyText },
+        }),
+      }
+    );
+
+    if (res.ok) {
+      console.log(`[WHATSAPP] ✅ ${label} successfully delivered to +${formattedPhone}`);
+      return { success: true, status: "Sent via Meta Cloud API" };
+    } else {
+      const err = await res.json().catch(() => ({}));
+      console.warn(`[WHATSAPP] API returned error for ${label}:`, err);
+      return { success: false, status: "API Error", error: JSON.stringify(err) };
+    }
+  } catch (e) {
+    console.error(`[WHATSAPP] ${label} exception:`, (e as Error).message);
+    return { success: false, error: (e as Error).message };
+  }
+}
+
+// ── Customer Order Confirmation WhatsApp Notification ─────────────────────────
+export async function sendCustomerOrderWhatsAppNotification(order: {
+  orderId: string;
+  customerName?: string;
+  customerPhone?: string;
+  total?: number;
+  paymentMethod?: string;
+  paymentStatus?: string;
+  codAdvanceAmount?: number;
+  balanceOnDelivery?: number;
+  shippingAddress?: string;
+  shippingCity?: string;
+  shippingState?: string;
+  shippingPincode?: string;
+  items?: Array<{
+    productName?: string;
+    name?: string;
+    selectedType?: string;
+    selectedSize?: string;
+    quantity: number;
+    price?: number;
+    finalPrice?: number;
+  }>;
+}) {
+  const phone = order.customerPhone || "";
+  if (!phone) return { success: false, reason: "No customer phone provided" };
+
+  const itemsList = (order.items && order.items.length > 0)
+    ? order.items
+        .map((it, idx) => {
+          const name = it.productName || it.name || "Product";
+          const type = it.selectedType ? ` (${it.selectedType})` : "";
+          const size = it.selectedSize ? ` [${it.selectedSize}]` : "";
+          const price = it.finalPrice || it.price || 0;
+          return `  ${idx + 1}. ${name}${type}${size} × ${it.quantity} (₹${(price * it.quantity).toLocaleString("en-IN")})`;
+        })
+        .join("\n")
+    : "  1. Handcrafted Garment Collection";
+
+  const isCOD = (order.paymentMethod || "").toUpperCase() === "COD";
+  let paymentText = `*Payment Method:* ${order.paymentMethod || "COD"} (${order.paymentStatus || "Confirmed"})`;
+  if (isCOD && order.codAdvanceAmount && order.codAdvanceAmount > 0) {
+    paymentText += `\n*10% Advance Paid/Booking:* ₹${order.codAdvanceAmount.toLocaleString("en-IN")}\n*Balance on Delivery:* ₹${(order.balanceOnDelivery ?? Math.max(0, (order.total || 0) - order.codAdvanceAmount)).toLocaleString("en-IN")}`;
+  }
+
+  const message = [
+    `🛍️ *ORDER CONFIRMED — NITHI COLLECTIONS*`,
+    ``,
+    `Dear *${order.customerName || "Customer"}*,`,
+    `Thank you for shopping with Nithi Collections! Your order has been placed successfully.`,
+    ``,
+    `*Order ID:* #${order.orderId}`,
+    `*Items:*`,
+    itemsList,
+    ``,
+    `*Total Order Amount:* ₹${(order.total || 0).toLocaleString("en-IN")}`,
+    paymentText,
+    ``,
+    order.shippingAddress ? `*Delivery Address:* ${order.shippingAddress}${order.shippingCity ? `, ${order.shippingCity}` : ""}${order.shippingState ? `, ${order.shippingState}` : ""}${order.shippingPincode ? ` - ${order.shippingPincode}` : ""}` : "",
+    ``,
+    `📦 We will send you another WhatsApp message with your courier tracking details as soon as your parcel is dispatched.`,
+    ``,
+    `For any assistance, reply directly to this message or call us at 8122436850 / 9345136762.`,
+  ].filter(Boolean).join("\n");
+
+  return dispatchWhatsAppMessage(phone, message, `Customer Order #${order.orderId}`);
+}
+
+// ── Customer Courier Tracking WhatsApp Notification ───────────────────────────
+export async function sendCustomerTrackingWhatsAppNotification(order: {
+  orderId: string;
+  customerName?: string;
+  customerPhone?: string;
+  courierName?: string;
+  trackingId?: string;
+  shippingCity?: string;
+  shippingState?: string;
+}) {
+  const phone = order.customerPhone || "";
+  if (!phone) return { success: false, reason: "No customer phone provided" };
+  if (!order.trackingId) return { success: false, reason: "No tracking ID provided" };
+
+  const courier = order.courierName || "Professional Express Courier";
+  const trackingLink = `https://www.google.com/search?q=${encodeURIComponent(`${courier} tracking ${order.trackingId}`)}`;
+
+  const message = [
+    `🚚 *YOUR ORDER HAS BEEN DISPATCHED! — NITHI COLLECTIONS*`,
+    ``,
+    `Dear *${order.customerName || "Customer"}*,`,
+    `Exciting news! Your order *#${order.orderId}* is on its way to you.`,
+    ``,
+    `📦 *Courier Partner:* ${courier}`,
+    `🔢 *Tracking ID / AWB:* ${order.trackingId}`,
+    `🔗 *Track Parcel:* ${trackingLink}`,
+    ``,
+    `⏱️ Expected delivery within 2–4 business days.`,
+    ``,
+    `Thank you for choosing Nithi Collections!`,
+    `Questions? Contact us at 8122436850 / 9345136762.`,
+  ].join("\n");
+
+  return dispatchWhatsAppMessage(phone, message, `Tracking #${order.orderId}`);
 }

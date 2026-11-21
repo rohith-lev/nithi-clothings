@@ -71,7 +71,7 @@ export default function BrandLogo({
       >
         <img
           src={typeof logoImg === "string" ? logoImg : (logoImg as { src?: string })?.src || ""}
-          alt="Nithi Collection Logo"
+          alt="Nithi Collections Logo"
           className="w-full h-full object-contain object-center"
           loading="eager"
         />
@@ -83,7 +83,7 @@ export default function BrandLogo({
           <span
             className={`font-display font-bold uppercase whitespace-nowrap text-[13px] xs:text-sm sm:text-base lg:text-xl tracking-[0.08em] xs:tracking-[0.12em] sm:tracking-[0.16em] lg:tracking-[0.18em] ${primaryTextColor} transition-colors group-hover:text-[#C9A227]`}
           >
-            Nithi Collection
+            Nithi Collections
           </span>
           {showTagline && (
             <span

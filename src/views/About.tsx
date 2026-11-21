@@ -6,14 +6,14 @@ export default function About() {
     <div className="font-body min-h-screen bg-[#FAF8F1]">
       <SEO
         title="About Us - Authentic Heritage & Pure Cotton Nighties"
-        description="Learn about Nithi Clothings - handcrafted pure cotton nighties, maternity feeding wear, and authentic ethnic clothing made with generational textile craftsmanship."
+        description="Learn about Nithi Collections - handcrafted pure cotton nighties, maternity feeding wear, and authentic ethnic clothing made with generational textile craftsmanship."
         canonical="/about"
       />
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h1 className="font-display text-4xl sm:text-5xl font-bold text-[#064E3B] mb-6">About Nithi Collection</h1>
+          <h1 className="font-display text-4xl sm:text-5xl font-bold text-[#064E3B] mb-6">About Nithi Collections</h1>
           <p className="text-lg text-[#5C635E] max-w-2xl mx-auto leading-relaxed">
-            Nithi Collection is an ode to authentic Indian textile heritage and contemporary couture.
+            Nithi Collections is an ode to authentic Indian textile heritage and contemporary couture.
             We specialize in handcrafted sarees, exquisite ethnic wear, and luxury daily ensembles woven with pure craftsmanship.
           </p>
         </div>

@@ -80,8 +80,8 @@ export default function Cart() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 lg:px-8 py-8 font-body bg-[#FAF8F1]">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6 font-body bg-[#FDFBF7]">
+      <div className="flex items-center justify-between mb-4 sm:mb-5">
         <h1 className="font-display text-2xl lg:text-3xl font-bold text-[#064E3B]">
           Shopping Bag ({cartCount} {cartCount === 1 ? "Item" : "Items"})
         </h1>
@@ -105,7 +105,7 @@ export default function Cart() {
       </div>
 
       {/* Free Shipping Dynamic Bar */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-5">
         <FreeShippingProgress
           cartTotal={cartTotal}
           threshold={shipping.threshold}
@@ -113,9 +113,9 @@ export default function Cart() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
         {/* Cart Items List */}
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-3">
           {state.items.map((item, idx) => {
             const itemKey = item.key || getCartItemKey(item.product.id, item.selectedColor, item.selectedSize);
             const itemImage =
@@ -134,10 +134,10 @@ export default function Cart() {
             return (
               <div
                 key={`${itemKey}__${idx}`}
-                className="bg-[#FFFFFF] border border-[#E8E2D5] rounded-2xl p-4 sm:p-5 flex gap-4 sm:gap-5 shadow-xs transition-all hover:border-[#C9A227]/60"
+                className="bg-[#FFFFFF] border border-[#E8E2D5] rounded-2xl p-3 sm:p-4 flex gap-3 sm:gap-4 shadow-xs transition-all hover:border-[#C9A227]/60"
               >
                 <Link to={`/product/${item.product.id}`} className="shrink-0">
-                  <div className="w-24 h-32 bg-[#F3EFE3] rounded-xl overflow-hidden shadow-2xs">
+                  <div className="w-20 h-28 sm:w-24 sm:h-32 bg-[#F3EFE3] rounded-xl overflow-hidden shadow-2xs">
                     <img
                       src={itemImage}
                       alt={item.product.name}
@@ -160,7 +160,7 @@ export default function Cart() {
                       <p className="text-[10px] font-mono text-[#5C635E] mt-0.5">
                         {item.product.sku || item.product.code}
                       </p>
-                      
+
                       {/* Selected Size Tag */}
                       <div className="flex flex-wrap items-center gap-2 mt-2">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#FAF8F1] border border-[#E8E2D5] text-xs font-semibold text-[#171A18]">
@@ -192,9 +192,9 @@ export default function Cart() {
                         onClick={() =>
                           item.quantity > 1
                             ? dispatch({
-                                type: "UPDATE_QUANTITY",
-                                payload: { key: itemKey, quantity: item.quantity - 1 },
-                              })
+                              type: "UPDATE_QUANTITY",
+                              payload: { key: itemKey, quantity: item.quantity - 1 },
+                            })
                             : dispatch({ type: "REMOVE_FROM_CART", payload: itemKey })
                         }
                         className="w-7 h-7 flex items-center justify-center text-xs font-bold text-[#171A18] hover:bg-[#F3EFE3]"
@@ -322,12 +322,12 @@ export default function Cart() {
           <button
             type="button"
             onClick={() => navigate("/checkout")}
-            className="w-full rounded-xl bg-[#064E3B] py-3.5 text-xs font-bold uppercase tracking-[0.2em] text-[#FAF8F1] shadow-md hover:bg-[#0B3D2E] transition-all"
+            className="w-full rounded-xl bg-[#064E3B] hover:bg-[#0B3D2E] py-3.5 text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all cursor-pointer"
           >
             Proceed to Checkout →
           </button>
 
-          <p className="text-center text-[10px] text-[#5C635E]">
+          <p className="text-center text-[10px] text-slate-500">
             🔒 256-Bit Encrypted Secure Checkout • Cash on Delivery Available
           </p>
         </div>

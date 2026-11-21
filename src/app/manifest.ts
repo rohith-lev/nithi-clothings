@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Nithi Clothings | Pure Cotton Nighties & Ethnic Wear",
-    short_name: "Nithi Clothings",
+    name: "Nithi Collections | Pure Cotton Nighties & Ethnic Wear",
+    short_name: "Nithi Collections",
     description:
       "Explore pure cotton nighties, feeding nighties, bridal nighty sets, and everyday ethnic wear handcrafted with breathable fabrics.",
     start_url: "/",

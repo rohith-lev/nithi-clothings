@@ -41,9 +41,17 @@ export const customerAuthService = {
     }
   },
 
-  async loginWithPhoneOrEmail(identifier: string, name?: string): Promise<{ success: boolean; customer?: CustomerUser; error?: string }> {
-    const clean = identifier.trim();
-    if (!clean) {
+  async loginWithPhoneOrEmail(
+    identifier: string,
+    password?: string,
+    name?: string,
+    extra?: { phone?: string; email?: string }
+  ): Promise<{ success: boolean; customer?: CustomerUser; error?: string }> {
+    const clean = identifier?.trim() || "";
+    const phone = (extra?.phone || (!clean.includes("@") ? clean : "")).replace(/[^0-9]/g, "").slice(-10);
+    const email = (extra?.email || (clean.includes("@") ? clean : "")).trim().toLowerCase();
+
+    if (!clean && !phone && !email) {
       return { success: false, error: "Please enter your mobile number or email address." };
     }
 
@@ -51,7 +59,13 @@ export const customerAuthService = {
       const res = await fetch("/api/customers/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier: clean, name: name?.trim() }),
+        body: JSON.stringify({
+          identifier: clean || phone || email,
+          phone,
+          email,
+          password: password?.trim() || "",
+          name: name?.trim(),
+        }),
       });
 
       const json = await res.json().catch(() => ({}));
@@ -69,13 +83,13 @@ export const customerAuthService = {
       return { success: true, customer: customerUser };
     } catch (e: any) {
       console.warn("API customer auth failed, falling back to local session:", e);
-      const isEmail = clean.includes("@");
-      const phone = !isEmail ? clean.replace(/[^0-9]/g, "") : "";
+      const isEmail = clean.includes("@") || Boolean(email);
+      const finalPhone = phone || (!isEmail ? clean.replace(/[^0-9]/g, "") : "");
       const customerUser: CustomerUser = {
-        customerId: `CUST-${phone ? phone.slice(-8) : Date.now().toString().slice(-6)}`,
-        name: name || (isEmail ? clean.split("@")[0] : `Customer ${clean.slice(-4)}`),
-        phone: phone,
-        email: isEmail ? clean : "",
+        customerId: `CUST-${finalPhone ? finalPhone.slice(-8) : Date.now().toString().slice(-6)}`,
+        name: name || (isEmail ? (email || clean).split("@")[0] : `Customer ${finalPhone.slice(-4)}`),
+        phone: finalPhone,
+        email: email || (isEmail ? clean : ""),
         state: "Tamil Nadu",
         createdAt: new Date().toISOString(),
       };
@@ -83,6 +97,49 @@ export const customerAuthService = {
       localStorage.setItem(CUSTOMER_SESSION_KEY, JSON.stringify(customerUser));
       listeners.forEach((fn) => fn(customerUser));
       return { success: true, customer: customerUser };
+    }
+  },
+
+  async forgotPassword(emailOrPhone: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      const res = await fetch("/api/customers/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "forgot-password", identifier: emailOrPhone.trim() }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        return { success: false, error: json.error || "Failed to send reset OTP." };
+      }
+      return { success: true, message: json.message };
+    } catch (e: any) {
+      return { success: false, error: e.message || "Failed to connect to authentication server." };
+    }
+  },
+
+  async resetPassword(
+    identifier: string,
+    otp: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message?: string; error?: string }> {
+    try {
+      const res = await fetch("/api/customers/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "reset-password",
+          identifier: identifier.trim(),
+          otp: otp.trim(),
+          newPassword,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        return { success: false, error: json.error || "Failed to reset password." };
+      }
+      return { success: true, message: json.message };
+    } catch (e: any) {
+      return { success: false, error: e.message || "Failed to connect to authentication server." };
     }
   },
 
@@ -150,6 +207,8 @@ export function useCustomerAuth() {
     customer,
     isLoggedIn: !!customer,
     login: customerAuthService.loginWithPhoneOrEmail.bind(customerAuthService),
+    forgotPassword: customerAuthService.forgotPassword.bind(customerAuthService),
+    resetPassword: customerAuthService.resetPassword.bind(customerAuthService),
     updateProfile: customerAuthService.updateProfile.bind(customerAuthService),
     logout: customerAuthService.logout.bind(customerAuthService),
   };

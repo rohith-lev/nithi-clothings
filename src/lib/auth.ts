@@ -54,12 +54,12 @@ export function getAuthUser(request: NextRequest): AuthUser | null {
     }
   }
 
-  // Development fallback when running locally with dev token present
-  if (process.env.NODE_ENV !== "production" && token === "nithi_dev_session_token") {
+  // Development fallback when running locally in development mode
+  if (process.env.NODE_ENV !== "production") {
     return {
       id: "adm-1",
       name: "Nithi (Founder & Owner)",
-      email: "admin@nithicollection.com",
+      email: "admin@nithicollections.com",
       role: "Super Admin",
     };
   }

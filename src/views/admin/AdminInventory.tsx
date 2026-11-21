@@ -123,7 +123,7 @@ export default function AdminInventory() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search inventory by garment name, SKU, or category..."
+            placeholder="Search inventory by product name, SKU, or category..."
             className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]/50"
           />
           <div className="absolute left-3.5 top-3 text-stone-400">
@@ -149,7 +149,7 @@ export default function AdminInventory() {
           <table className="w-full text-left text-xs">
             <thead className="bg-stone-50/80 border-b border-stone-200 text-stone-500 uppercase tracking-wider text-[10px]">
               <tr>
-                <th className="p-4">Garment Item</th>
+                <th className="p-4">Product Item</th>
                 <th className="p-4">SKU Code</th>
                 <th className="p-4">Warehouse Stock</th>
                 <th className="p-4">Reserved in Carts</th>
@@ -162,7 +162,7 @@ export default function AdminInventory() {
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-16 text-center text-stone-400">
-                    No garments found matching inventory search.
+                    No products found matching inventory search.
                   </td>
                 </tr>
               ) : (
@@ -268,7 +268,7 @@ export default function AdminInventory() {
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <div>
                 <h3 className="font-display font-bold text-lg text-stone-900">
-                  Update Garment Inventory
+                  Update Product Inventory
                 </h3>
                 <p className="text-stone-500 text-xs mt-0.5">
                   {restockProduct.name} ({restockProduct.sku})

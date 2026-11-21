@@ -10,12 +10,12 @@ interface SEOProps {
   structuredData?: object | object[];
 }
 
-const DEFAULT_TITLE = "Nithi Clothings | Pure Cotton Nighties, Feeding Nighties & Ethnic Wear";
+const DEFAULT_TITLE = "Nithi Collections | Pure Cotton Nighties, Feeding Nighties & Ethnic Wear";
 const DEFAULT_DESCRIPTION =
-  "Shop pure breathable cotton nighties, zip feeding nighties, maternity nightwear, collar & frock models at Nithi Clothings. Handcrafted for supreme comfort with fast all-India delivery.";
+  "Shop pure breathable cotton nighties, zip feeding nighties, maternity nightwear, collar & frock models at Nithi Collections. Handcrafted for supreme comfort with fast all-India delivery.";
 const DEFAULT_KEYWORDS =
-  "pure cotton nighties, feeding nighties, zip nighty, collar nighty, titanic model nighty, cotton night dress, feeding kurtis, south indian cotton nighty, maternity nightwear, buy nighties online, Nithi Clothings";
-const SITE_URL = typeof window !== "undefined" ? window.location.origin : "https://nithiclothings.com";
+  "pure cotton nighties, feeding nighties, zip nighty, collar nighty, titanic model nighty, cotton night dress, feeding kurtis, south indian cotton nighty, maternity nightwear, buy nighties online, Nithi Collections";
+const SITE_URL = typeof window !== "undefined" ? window.location.origin : "https://nithicollections.com";
 const DEFAULT_OG_IMAGE = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&h=630&fit=crop&q=85";
 
 export default function SEO({
@@ -27,7 +27,7 @@ export default function SEO({
   ogType = "website",
   structuredData,
 }: SEOProps) {
-  const fullTitle = title ? `${title} | Nithi Clothings` : DEFAULT_TITLE;
+  const fullTitle = title ? `${title} | Nithi Collections` : DEFAULT_TITLE;
   const currentUrl = canonical
     ? `${SITE_URL}${canonical.startsWith("/") ? canonical : `/${canonical}`}`
     : typeof window !== "undefined"
@@ -52,7 +52,7 @@ export default function SEO({
     // 2. Standard Meta
     setMetaTag("name", "description", description);
     setMetaTag("name", "keywords", keywords);
-    setMetaTag("name", "author", "Nithi Clothings");
+    setMetaTag("name", "author", "Nithi Collections");
     setMetaTag("name", "robots", "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1");
 
     // 3. OpenGraph
@@ -61,7 +61,7 @@ export default function SEO({
     setMetaTag("property", "og:url", currentUrl);
     setMetaTag("property", "og:type", ogType);
     setMetaTag("property", "og:image", ogImage);
-    setMetaTag("property", "og:site_name", "Nithi Clothings");
+    setMetaTag("property", "og:site_name", "Nithi Collections");
     setMetaTag("property", "og:locale", "en_IN");
 
     // 4. Twitter Card

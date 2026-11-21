@@ -68,14 +68,48 @@ export function updateClientCategories(newCategories: Category[]) {
   categoryListeners.forEach((listener) => listener([...cachedCategories]));
 }
 
+let _cleanFetch: typeof fetch | null = null;
+function getCleanFetch(): typeof fetch {
+  if (typeof window === "undefined") return fetch;
+  if (_cleanFetch) return _cleanFetch;
+
+  try {
+    // Extract clean un-hijacked native fetch from a temporary iframe
+    // to bypass browser extensions (such as Instant Data Scraper) that corrupt window.fetch
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    document.documentElement.appendChild(iframe);
+    const nativeFetch = iframe.contentWindow?.fetch;
+    document.documentElement.removeChild(iframe);
+    if (typeof nativeFetch === "function") {
+      _cleanFetch = nativeFetch.bind(window);
+      return _cleanFetch;
+    }
+  } catch {
+    // Fallback if iframe access is restricted
+  }
+
+  _cleanFetch = window.fetch ? window.fetch.bind(window) : fetch;
+  return _cleanFetch;
+}
+
 async function safeJsonFetch<T = any>(url: string): Promise<T | null> {
   try {
-    const res = await fetch(url);
-    const contentType = res.headers.get("content-type") || "";
+    const fetchFn = getCleanFetch();
+    const res = await fetchFn(url, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    }).catch(() => null);
+
+    if (!res || !res.ok) {
+      return null;
+    }
+    const contentType = res.headers?.get("content-type") || "";
     if (!contentType.includes("application/json")) {
       return null;
     }
-    const text = await res.text();
+    const text = await res.text().catch(() => null);
+    if (!text) return null;
     return JSON.parse(text) as T;
   } catch {
     return null;
@@ -87,26 +121,36 @@ export function useStoreCategories() {
     return cachedCategories.filter((c) => !isPriyaItem(c));
   });
 
-  const fetchCategories = useCallback(() => {
-    safeJsonFetch<{ success?: boolean; data?: Category[] }>("/api/categories?activeOnly=true")
-      .then((data) => {
-        if (data && data.success && Array.isArray(data.data)) {
-          // Deduplicate by slug or id and ensure only active categories
-          const seen = new Set<string>();
-          const uniqueCats: Category[] = [];
-          for (const cat of data.data) {
-            if (!cat || cat.isActive === false || isPriyaItem(cat)) continue;
-            const key = (cat.slug || cat.id || cat.name || "").toLowerCase().trim();
-            if (key && !seen.has(key)) {
-              seen.add(key);
-              uniqueCats.push(cat);
-            }
+  const fetchCategories = useCallback(async () => {
+    try {
+      const data = await safeJsonFetch<{ success?: boolean; data?: Category[] }>("/api/categories?activeOnly=true");
+      if (data && data.success && Array.isArray(data.data)) {
+        // Deduplicate by slug or id and ensure only active categories
+        const seen = new Set<string>();
+        const uniqueCats: Category[] = [];
+        for (const cat of data.data) {
+          if (!cat || cat.isActive === false || isPriyaItem(cat)) continue;
+          const key = (cat.slug || cat.id || cat.name || "").toLowerCase().trim();
+          if (key && !seen.has(key)) {
+            seen.add(key);
+            uniqueCats.push(cat);
           }
-          cachedCategories = uniqueCats;
-          categoryListeners.forEach((listener) => listener([...uniqueCats]));
         }
-      })
-      .catch((err) => console.warn("Categories fetch error:", err));
+        // Admin-defined display order takes precedence: priority asc, then name
+        uniqueCats.sort(
+          (a, b) => {
+            const pA = Number(a.priority ?? 0) || 0;
+            const pB = Number(b.priority ?? 0) || 0;
+            if (pA !== pB) return pA - pB;
+            return String(a.name || "").localeCompare(String(b.name || ""));
+          }
+        );
+        cachedCategories = uniqueCats;
+        categoryListeners.forEach((listener) => listener([...uniqueCats]));
+      }
+    } catch {
+      // Silently ignore transient network or extension glitches
+    }
   }, []);
 
   useEffect(() => {
@@ -130,8 +174,12 @@ export function useStoreCategories() {
     window.addEventListener("nithi_categories_updated", handleCategoryEvent);
     window.addEventListener("storage", fetchCategories);
 
-    // Periodic sync interval (every 8 seconds)
-    const interval = setInterval(fetchCategories, 8000);
+    // Periodic sync interval (every 30 seconds when tab is active)
+    const interval = setInterval(() => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        fetchCategories();
+      }
+    }, 30000);
 
     return () => {
       categoryListeners.delete(handleUpdate);
@@ -150,19 +198,18 @@ export function useStoreProducts() {
     return cachedProducts.filter((p) => !isPriyaItem(p));
   });
 
-  const fetchProducts = useCallback(() => {
-    safeJsonFetch<{ success?: boolean; data?: Product[] }>("/api/products?activeOnly=true")
-      .then((data) => {
-        if (data && data.success && Array.isArray(data.data)) {
-          const clean = data.data.filter((p: Product) => p && !isPriyaItem(p));
-          cachedProducts = clean;
-          setProducts(clean);
-          productListeners.forEach((listener) => listener([...clean]));
-        }
-      })
-      .catch((err) => {
-        console.warn("Backend API error:", err);
-      });
+  const fetchProducts = useCallback(async () => {
+    try {
+      const data = await safeJsonFetch<{ success?: boolean; data?: Product[] }>("/api/products?activeOnly=true");
+      if (data && data.success && Array.isArray(data.data)) {
+        const clean = data.data.filter((p: Product) => p && !isPriyaItem(p));
+        cachedProducts = clean;
+        setProducts(clean);
+        productListeners.forEach((listener) => listener([...clean]));
+      }
+    } catch {
+      // Silently ignore transient network or extension glitches
+    }
   }, []);
 
   useEffect(() => {
@@ -184,7 +231,12 @@ export function useStoreProducts() {
     window.addEventListener("nithi_products_updated", handleProductUpdate);
     window.addEventListener("storage", fetchProducts);
 
-    const interval = setInterval(fetchProducts, 8000);
+    // Periodic sync interval (every 30 seconds when tab is active)
+    const interval = setInterval(() => {
+      if (typeof document !== "undefined" && document.visibilityState === "visible") {
+        fetchProducts();
+      }
+    }, 30000);
 
     return () => {
       productListeners.delete(handleProductListener);
@@ -217,7 +269,7 @@ export function useStoreProduct(id?: string) {
   const [product, setProduct] = useState<Product | undefined>(() => findLocal(id));
   const [loading, setLoading] = useState<boolean>(!findLocal(id));
 
-  const fetchProduct = useCallback(() => {
+  const fetchProduct = useCallback(async () => {
     if (!id || id.toLowerCase().includes("priya")) {
       setProduct(undefined);
       setLoading(false);
@@ -227,37 +279,32 @@ export function useStoreProduct(id?: string) {
     if (local) {
       setProduct(local);
     }
-    safeJsonFetch<{ success?: boolean; data?: Product }>(`/api/products/${encodeURIComponent(id)}`)
-      .then((data) => {
-        if (data && data.success && data.data && !isPriyaItem(data.data)) {
-          setProduct(data.data);
-        } else if (!local) {
-          safeJsonFetch<{ success?: boolean; data?: any[] }>("/api/products?activeOnly=true")
-            .then((allData) => {
-              if (allData && allData.success && Array.isArray(allData.data)) {
-                const clean = id.toLowerCase().trim();
-                const matched = allData.data.find(
-                  (p: any) =>
-                    !isPriyaItem(p) &&
-                    ((p.id && p.id.toLowerCase() === clean) ||
-                      (p.code && p.code.toLowerCase() === clean) ||
-                      (p.sku && p.sku.toLowerCase() === clean) ||
-                      (p._id && String(p._id).toLowerCase() === clean) ||
-                      (p.name && p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === clean))
-                );
-                if (matched) setProduct(matched);
-                else setProduct(undefined);
-              }
-            })
-            .catch(() => {});
+    try {
+      const data = await safeJsonFetch<{ success?: boolean; data?: Product }>(`/api/products/${encodeURIComponent(id)}`);
+      if (data && data.success && data.data && !isPriyaItem(data.data)) {
+        setProduct(data.data);
+      } else if (!local) {
+        const allData = await safeJsonFetch<{ success?: boolean; data?: any[] }>("/api/products?activeOnly=true");
+        if (allData && allData.success && Array.isArray(allData.data)) {
+          const clean = id.toLowerCase().trim();
+          const matched = allData.data.find(
+            (p: any) =>
+              !isPriyaItem(p) &&
+              ((p.id && p.id.toLowerCase() === clean) ||
+                (p.code && p.code.toLowerCase() === clean) ||
+                (p.sku && p.sku.toLowerCase() === clean) ||
+                (p._id && String(p._id).toLowerCase() === clean) ||
+                (p.name && p.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === clean))
+          );
+          if (matched) setProduct(matched);
+          else setProduct(undefined);
         }
-      })
-      .catch((err) => {
-        console.warn("Backend API error:", err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      }
+    } catch {
+      // Ignore
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
   useEffect(() => {

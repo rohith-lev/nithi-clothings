@@ -66,6 +66,11 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
   const sizeStock = activeSizeOpt ? Number(activeSizeOpt.stock) : Number(product.stock || 0);
   const isOutOfStock = (product && product.status === "OUT OF STOCK") || (sizeStock <= 0 && (product.stock || 0) <= 0);
 
+  const is350Offer =
+    effectivePrice === 350 ||
+    product?.price === 350 ||
+    Boolean(product?.name && product.name.includes("350"));
+
   const handleAddToCart = () => {
     if (isOutOfStock) return;
     const finalSize = selectedSize || (product.sizes && product.sizes[0]) || (product.sizeOptions && product.sizeOptions[0]?.size) || "Free Size";
@@ -152,24 +157,14 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                 }}
                 className="h-full w-full object-cover transition-all duration-300"
               />
-              {/* Badges */}
-              <div className="absolute left-3 top-3 flex flex-col gap-1.5">
-                {(product.newArrival || product.isNew) && (
-                  <span className="rounded-full bg-[#064E3B] px-3 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#FAF8F1] shadow-xs">
-                    New
-                  </span>
-                )}
-                {product.isBestSeller && (
-                  <span className="rounded-full bg-[#C9A227] px-3 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#171A18] shadow-xs">
-                    Bestseller
-                  </span>
-                )}
-                {dynamicDiscount > 0 && (
-                  <span className="rounded-full bg-white/95 px-2.5 py-0.5 text-[9px] font-bold text-[#064E3B] border border-[#E8E2D5] shadow-xs">
+              {/* Badges - Offer Badge Only */}
+              {dynamicDiscount > 0 && (
+                <div className="absolute left-3 top-3">
+                  <span className="rounded-full bg-[#064E3B] px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-[#FAF8F1] shadow-xs border border-[#C9A227]/40">
                     {dynamicDiscount}% OFF
                   </span>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Thumbnails */}
@@ -338,28 +333,43 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
 
             {/* Action Buttons */}
             <div className="space-y-2 pt-2">
-              <div className="flex gap-2.5">
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  disabled={isOutOfStock}
-                  className={`flex-1 rounded-xl py-3.5 text-xs font-bold uppercase tracking-[0.16em] transition-all shadow-md ${
-                    addedAnimation
-                      ? "bg-[#C9A227] text-[#171A18]"
-                      : "bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] disabled:opacity-50"
-                  }`}
-                >
-                  {addedAnimation ? "✓ Added to Bag!" : isOutOfStock ? "Out of Stock" : "Add to Bag"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleBuyNow}
-                  disabled={isOutOfStock}
-                  className="flex-1 rounded-xl bg-[#C9A227] py-3.5 text-xs font-bold uppercase tracking-[0.16em] text-[#171A18] hover:bg-[#E2C467] transition-colors shadow-md disabled:opacity-50"
-                >
-                  Buy Now
-                </button>
-              </div>
+              {is350Offer ? (
+                <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-center space-y-1.5">
+                  <span className="text-xs font-bold text-amber-800 uppercase tracking-wider block">
+                    ✦ Special ₹350 Promotional Offer
+                  </span>
+                  <Link
+                    to={`/product/${product.id}`}
+                    onClick={onClose}
+                    className="inline-block px-5 py-2 rounded-lg bg-[#064E3B] text-white text-xs font-bold hover:bg-[#0B3D2E] transition-colors"
+                  >
+                    View Product Details →
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex gap-2.5">
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    disabled={isOutOfStock}
+                    className={`flex-1 rounded-xl py-3.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md ${
+                      addedAnimation
+                        ? "bg-[#C9A227] text-[#171A18]"
+                        : "bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] disabled:opacity-50 cursor-pointer"
+                    }`}
+                  >
+                    {addedAnimation ? "✓ Added to Bag!" : isOutOfStock ? "Out of Stock" : "Add to Bag"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBuyNow}
+                    disabled={isOutOfStock}
+                    className="flex-1 rounded-xl bg-[#064E3B] py-3.5 text-xs font-bold uppercase tracking-wider text-white hover:bg-[#0B3D2E] transition-colors shadow-md disabled:opacity-50 cursor-pointer"
+                  >
+                    Buy Now
+                  </button>
+                </div>
+              )}
 
               <div className="text-center pt-1">
                 <Link

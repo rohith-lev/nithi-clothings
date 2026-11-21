@@ -59,7 +59,9 @@ const STANDARD_SIZES = [
   "M",
   "L",
   "XL",
+  "2XL",
   "XXL",
+  "3XL",
   "XXXL",
 ];
 
@@ -98,6 +100,12 @@ export default function AdminProductEdit() {
   const [urlInput, setUrlInput] = useState("");
   const [customSizeInput, setCustomSizeInput] = useState("");
 
+  // Product Type Management (e.g. Zip Nighty / Zipless Nighty / Elite Nighty)
+  const [newTypeName, setNewTypeName] = useState("");
+  const [newTypePrice, setNewTypePrice] = useState<number | "">("");
+  const [newTypeStock, setNewTypeStock] = useState<number | "">("");
+  const [newTypeImage, setNewTypeImage] = useState("");
+
   // Categories & Subcategories
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [isCustomSubcategory, setIsCustomSubcategory] = useState(false);
@@ -130,16 +138,14 @@ export default function AdminProductEdit() {
     sizeOptions: [],
     colors: [],
     fabric: "100% Pure Cotton",
-    material: "Pure Combed Cotton 60s Count",
+    material: "Pure Cotton",
     length: "55 Inches",
-    pattern: "Jaipuri Floral Print",
     sleeveType: "Half Sleeve",
-    neckType: "Round Neck with Front Zip",
-    description: "Handcrafted pure cotton nighty tailored with ultra-breathable combed cotton. Features soft skin-friendly texture, reinforced seams, and durable front zipper for everyday comfort.",
-    shortDescription: "Ultra-comfortable breathable 100% cotton nighty with front zip opening.",
+    description: "",
+    shortDescription: "",
     care: "Machine wash cold with mild detergent. Do not bleach. Line dry in shade.",
     sizeChart: "Standard Indian Fit (Length: 55 inches, Chest: 42-46 inches)",
-    specialFeatures: "Concealed front zipper, Side pocket included, Pre-shrunk pure cotton",
+    specialFeatures: "",
     inStock: true,
     stock: 50,
     status: "ACTIVE",
@@ -501,6 +507,58 @@ export default function AdminProductEdit() {
     }));
   };
 
+  // ── Product Type Handlers ─────────────────────────────────
+  const handleAddProductType = () => {
+    const trimmed = newTypeName.trim();
+    if (!trimmed) return;
+    const current = formData.productTypes || [];
+    if (current.some((t) => t.name.toLowerCase() === trimmed.toLowerCase())) {
+      setToastMessage({ type: "error", text: `Product type "${trimmed}" already exists.` });
+      return;
+    }
+    setIsDirty(true);
+    const fallbackPrice = Number(newTypePrice) || formData.price || 0;
+    const fallbackMrp = formData.mrp || fallbackPrice;
+    const newType = {
+      id: `pt-${trimmed.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      name: trimmed,
+      price: fallbackPrice,
+      mrp: fallbackMrp,
+      stock: Number(newTypeStock) || 0,
+      image: newTypeImage.trim(),
+      active: true,
+    };
+    setFormData((prev) => ({ ...prev, productTypes: [...(prev.productTypes || []), newType] }));
+    setNewTypeName("");
+    setNewTypePrice("");
+    setNewTypeStock("");
+    setNewTypeImage("");
+    setToastMessage({ type: "success", text: `Product type "${trimmed}" added.` });
+  };
+
+  const handleUpdateProductType = (idx: number, field: "name" | "price" | "mrp" | "stock" | "image" | "active", value: any) => {
+    setIsDirty(true);
+    const current = [...(formData.productTypes || [])];
+    if (!current[idx]) return;
+    current[idx] = { ...current[idx], [field]: value };
+    // Recalculate product-level totals
+    const typeStockSum = current.filter((t) => t.active !== false).reduce((s, t) => s + (Number(t.stock) || 0), 0);
+    const minTypePrice = Math.min(...current.filter((t) => t.active !== false).map((t) => Number(t.price) || Infinity));
+    setFormData((prev) => ({
+      ...prev,
+      productTypes: current,
+      stock: typeStockSum > 0 ? typeStockSum : prev.stock,
+      price: minTypePrice !== Infinity && minTypePrice > 0 ? minTypePrice : prev.price,
+    }));
+  };
+
+  const handleRemoveProductType = (idx: number) => {
+    setIsDirty(true);
+    const current = (formData.productTypes || []).filter((_, i) => i !== idx);
+    const typeStockSum = current.filter((t) => t.active !== false).reduce((s, t) => s + (Number(t.stock) || 0), 0);
+    setFormData((prev) => ({ ...prev, productTypes: current, stock: typeStockSum > 0 ? typeStockSum : prev.stock }));
+  };
+
   // Image Management
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
@@ -656,11 +714,7 @@ export default function AdminProductEdit() {
     if (!formData.price || formData.price <= 0) errors.price = "Valid selling price is required.";
     if (!formData.mrp || formData.mrp <= 0) errors.mrp = "Valid MRP is required.";
 
-    const totalImgs = formData.images.length + localPreviews.length;
-    if (totalImgs < 2) {
-      errors.images = "Minimum 2 images required (Front view & Fabric detail).";
-    }
-
+    // No minimum image count required — single image or uploading later is permitted
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -873,7 +927,7 @@ export default function AdminProductEdit() {
             <div className="h-full w-full rounded-xl bg-white" />
           </div>
           <p className="text-xs font-bold uppercase tracking-widest text-stone-500">
-            Loading Garment Studio...
+            Loading Product Studio...
           </p>
         </div>
       </div>
@@ -904,7 +958,7 @@ export default function AdminProductEdit() {
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-base font-bold text-stone-900 truncate">
-                  {formData.name || "New Garment / Dress"}
+                  {formData.name || "New Product"}
                 </h1>
                 <span className="px-2 py-0.5 rounded-md bg-stone-100 font-mono text-[11px] font-semibold text-stone-600 border border-stone-200">
                   {formData.sku || "NO-SKU"}
@@ -1135,7 +1189,7 @@ export default function AdminProductEdit() {
                 <span>📋</span> Basic Product Information
               </h2>
               <p className="text-xs text-stone-500 mt-1">
-                Configure primary garment title, category structure, SKU code, and publishing status.
+                Configure primary product title, category structure, SKU code, and publishing status.
               </p>
             </div>
 
@@ -1424,21 +1478,21 @@ export default function AdminProductEdit() {
               <div className="flex items-center gap-3">
                 <div
                   className={`w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 ${
-                    allImagesList.length < 2 ? "bg-amber-200 text-amber-900" : "bg-emerald-200 text-emerald-900"
+                    allImagesList.length === 0 ? "bg-amber-100 text-amber-900" : "bg-emerald-200 text-emerald-900"
                   }`}
                 >
-                  {allImagesList.length < 2 ? "⚠️" : "✅"}
+                  {allImagesList.length === 0 ? "📷" : "✅"}
                 </div>
                 <div>
                   <h4 className="text-xs font-bold uppercase tracking-wider">
-                    {allImagesList.length < 2
-                      ? "Minimum 2 Images Required"
-                      : "Image Requirement Satisfied"}
+                    {allImagesList.length === 0
+                      ? "Product Photos (Optional)"
+                      : "Product Photos Attached"}
                   </h4>
                   <p className="text-xs mt-0.5 opacity-90">
-                    {allImagesList.length < 2
-                      ? "Every product requires at least 2 photos (Front View & Fabric/Detail close-up)."
-                      : `Great! ${allImagesList.length} images attached.`}
+                    {allImagesList.length === 0
+                      ? "You can upload 1 or more photos, or save and add them later."
+                      : `Great! ${allImagesList.length} image(s) attached.`}
                   </p>
                 </div>
               </div>
@@ -1497,7 +1551,7 @@ export default function AdminProductEdit() {
               </h3>
               {allImagesList.length === 0 ? (
                 <p className="text-xs text-stone-400 italic py-4">
-                  No images uploaded yet. Please upload at least 2 photos.
+                  No images uploaded yet. You can upload photos now or add them later.
                 </p>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -1633,7 +1687,7 @@ export default function AdminProductEdit() {
                     className="w-full rounded-xl border border-stone-200 pl-8 pr-4 py-3 text-sm sm:text-base font-bold text-stone-900 focus:border-[#064E3B] focus:outline-none"
                   />
                 </div>
-                <p className="text-[11px] text-stone-400 mt-1">Tag price printed on garment</p>
+                <p className="text-[11px] text-stone-400 mt-1">Tag price printed on product</p>
               </div>
 
               {/* Selling Price */}
@@ -1838,45 +1892,57 @@ export default function AdminProductEdit() {
           <div className="rounded-3xl border border-stone-200 bg-white p-6 sm:p-8 shadow-xs">
             <div className="border-b border-stone-100 pb-4 mb-6">
               <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                <span>📝</span> Product Content & Garment Specifications
+                <span>📝</span> Product Content & Specifications
               </h2>
               <p className="text-xs text-stone-500 mt-1">
-                Edit full product story, fabric material, length, neckline, sleeve, and wash care details.
+                Edit full product story and the four key product specifications (Fabric, Product Length, Sleeve Type, Wash Care).
               </p>
             </div>
 
-            {/* Description Textarea */}
+            {/* Full Description — freely editable, can be fully cleared */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
-                Full Product Description
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
+                  Full Product Description
+                </label>
+                {(formData.description || "").length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsDirty(true);
+                      handleInputChange("description", "");
+                    }}
+                    className="text-[11px] font-semibold text-rose-600 hover:underline"
+                  >
+                    Clear Description
+                  </button>
+                )}
+              </div>
               <textarea
                 rows={5}
-                value={formData.description}
+                value={formData.description || ""}
                 onChange={(e) => handleInputChange("description", e.target.value)}
-                placeholder="Write garment details, styling tips, and fabric highlights..."
+                placeholder="Write product details, styling tips, and fabric highlights... (Leave empty to hide the description on the product page)"
                 className="w-full rounded-2xl border border-stone-200 p-4 text-xs sm:text-sm font-sans focus:border-[#064E3B] focus:outline-none"
               />
+              <p className="text-[11px] text-stone-400">The exact text you save is exactly what customers see. Cleared descriptions never reappear.</p>
             </div>
 
-            {/* Short Description */}
-            <div className="mt-4">
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700">
-                Short Tagline / Excerpt
-              </label>
-              <input
-                type="text"
-                value={formData.shortDescription || ""}
-                onChange={(e) => handleInputChange("shortDescription", e.target.value)}
-                placeholder="Brief 1-sentence product summary"
-                className="mt-1.5 w-full rounded-xl border border-stone-200 px-4 py-2.5 text-xs sm:text-sm focus:border-[#064E3B] focus:outline-none"
-              />
-            </div>
-
-            {/* Specifications Grid */}
+            {/* Specifications Grid (6 fields per requirement) */}
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
-                <label className="block text-[11px] font-bold uppercase text-stone-700">Fabric Composition</label>
+                <label className="block text-[11px] font-bold uppercase text-stone-700">Short Headline</label>
+                <input
+                  type="text"
+                  value={formData.shortDescription || ""}
+                  onChange={(e) => handleInputChange("shortDescription", e.target.value)}
+                  placeholder="e.g. Ultra-comfortable breathable cotton nighty"
+                  className="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase text-stone-700">Fabric</label>
                 <input
                   type="text"
                   value={formData.fabric}
@@ -1886,21 +1952,11 @@ export default function AdminProductEdit() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase text-stone-700">Garment Length</label>
+                <label className="block text-[11px] font-bold uppercase text-stone-700">Product Length</label>
                 <input
                   type="text"
-                  value={formData.length || "55 Inches"}
+                  value={formData.length || ""}
                   onChange={(e) => handleInputChange("length", e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-stone-700">Pattern</label>
-                <input
-                  type="text"
-                  value={formData.pattern || "Floral Print"}
-                  onChange={(e) => handleInputChange("pattern", e.target.value)}
                   className="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs"
                 />
               </div>
@@ -1909,18 +1965,8 @@ export default function AdminProductEdit() {
                 <label className="block text-[11px] font-bold uppercase text-stone-700">Sleeve Type</label>
                 <input
                   type="text"
-                  value={formData.sleeveType || "Half Sleeve"}
+                  value={formData.sleeveType || ""}
                   onChange={(e) => handleInputChange("sleeveType", e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-stone-700">Neck Style / Opening</label>
-                <input
-                  type="text"
-                  value={formData.neckType || "Round Neck with Front Zip"}
-                  onChange={(e) => handleInputChange("neckType", e.target.value)}
                   className="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs"
                 />
               </div>
@@ -1929,7 +1975,7 @@ export default function AdminProductEdit() {
                 <label className="block text-[11px] font-bold uppercase text-stone-700">Wash Care</label>
                 <input
                   type="text"
-                  value={formData.care || "Machine wash cold"}
+                  value={formData.care || ""}
                   onChange={(e) => handleInputChange("care", e.target.value)}
                   className="mt-1 w-full rounded-xl border border-stone-200 px-3.5 py-2 text-xs"
                 />
@@ -1977,6 +2023,157 @@ export default function AdminProductEdit() {
               <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 self-start">
                 {(formData.sizeOptions || []).length} Sizes Active
               </span>
+            </div>
+
+            {/* ── PRODUCT TYPES MANAGEMENT (e.g. Zip / Zipless / Elite Nighty) ── */}
+            <div className="rounded-2xl border border-stone-200 p-5 space-y-4 bg-white">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h4 className="text-sm font-bold text-stone-900 flex items-center gap-2">
+                    <span>🏷️</span> Product Types (Variants by Style)
+                  </h4>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Customers choose one type on the product page (e.g. Zip Nighty, Zipless Nighty, Elite Nighty). Each type can have its own price & stock — no duplicate products needed.
+                  </p>
+                </div>
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#FAF8F1] text-[#064E3B] border border-[#C9A227]/40 self-start">
+                  {(formData.productTypes || []).length} Type(s)
+                </span>
+              </div>
+
+              {/* Add Type Form */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end">
+                <div className="col-span-2 sm:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase text-stone-500 mb-1">Type Name</label>
+                  <input
+                    type="text"
+                    value={newTypeName}
+                    onChange={(e) => setNewTypeName(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddProductType(); } }}
+                    placeholder="e.g. Zip Nighty"
+                    className="w-full rounded-xl border border-stone-200 px-3 py-2 text-xs focus:border-[#064E3B] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-stone-500 mb-1">Price (₹)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newTypePrice}
+                    onChange={(e) => setNewTypePrice(e.target.value === "" ? "" : Number(e.target.value))}
+                    placeholder={String(formData.price || 0)}
+                    className="w-full rounded-xl border border-stone-200 px-3 py-2 text-xs focus:border-[#064E3B] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase text-stone-500 mb-1">Stock</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newTypeStock}
+                    onChange={(e) => setNewTypeStock(e.target.value === "" ? "" : Number(e.target.value))}
+                    placeholder="0"
+                    className="w-full rounded-xl border border-stone-200 px-3 py-2 text-xs focus:border-[#064E3B] focus:outline-none"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddProductType}
+                  disabled={!newTypeName.trim()}
+                  className="px-3 py-2 rounded-xl bg-[#064E3B] text-white text-xs font-bold hover:bg-[#0B3D2E] transition disabled:opacity-40"
+                >
+                  + Add Type
+                </button>
+              </div>
+
+              {/* Type List */}
+              {(formData.productTypes || []).length === 0 ? (
+                <p className="text-xs text-stone-400 italic py-3 border border-dashed border-stone-200 rounded-xl text-center">
+                  No product types yet. Add styles like "Zip Nighty", "Zipless Nighty", "Elite Nighty" above.
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border border-stone-200 rounded-2xl overflow-hidden">
+                    <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 font-bold uppercase text-[10px]">
+                      <tr>
+                        <th className="p-3">Type Name</th>
+                        <th className="p-3">MRP (₹)</th>
+                        <th className="p-3">Price (₹)</th>
+                        <th className="p-3">Stock</th>
+                        <th className="p-3">Image URL (optional)</th>
+                        <th className="p-3 text-center">Active</th>
+                        <th className="p-3 text-right">Remove</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-stone-100">
+                      {(formData.productTypes || []).map((pt, idx) => (
+                        <tr key={pt.id || idx} className="hover:bg-stone-50/50">
+                          <td className="p-2">
+                            <input
+                              type="text"
+                              value={pt.name}
+                              onChange={(e) => handleUpdateProductType(idx, "name", e.target.value)}
+                              className="w-full min-w-[110px] rounded-lg border border-stone-200 px-2 py-1.5 text-xs font-bold"
+                            />
+                          </td>
+                          <td className="p-2">
+                            <input
+                              type="number"
+                              value={pt.mrp || formData.mrp}
+                              onChange={(e) => handleUpdateProductType(idx, "mrp", Number(e.target.value))}
+                              className="w-20 rounded-lg border border-stone-200 px-2 py-1.5 text-xs"
+                            />
+                          </td>
+                          <td className="p-2">
+                            <input
+                              type="number"
+                              value={pt.price}
+                              onChange={(e) => handleUpdateProductType(idx, "price", Number(e.target.value))}
+                              className="w-20 rounded-lg border border-stone-200 px-2 py-1.5 text-xs font-bold text-[#064E3B]"
+                            />
+                          </td>
+                          <td className="p-2">
+                            <input
+                              type="number"
+                              min="0"
+                              value={pt.stock || 0}
+                              onChange={(e) => handleUpdateProductType(idx, "stock", Number(e.target.value))}
+                              className="w-20 rounded-lg border border-stone-200 px-2 py-1.5 text-xs font-bold text-emerald-800"
+                            />
+                          </td>
+                          <td className="p-2">
+                            <input
+                              type="text"
+                              value={pt.image || ""}
+                              onChange={(e) => handleUpdateProductType(idx, "image", e.target.value)}
+                              placeholder="https://..."
+                              className="w-full min-w-[140px] rounded-lg border border-stone-200 px-2 py-1.5 text-[11px] font-mono"
+                            />
+                          </td>
+                          <td className="p-2 text-center">
+                            <input
+                              type="checkbox"
+                              checked={pt.active !== false}
+                              onChange={(e) => handleUpdateProductType(idx, "active", e.target.checked)}
+                              className="accent-[#064E3B] w-4 h-4"
+                            />
+                          </td>
+                          <td className="p-2 text-right">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveProductType(idx)}
+                              className="text-stone-400 hover:text-rose-600 font-bold p-1"
+                              title={`Remove type ${pt.name}`}
+                            >
+                              ✕
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
 
             {/* Quick Size Presets & Clear All (Requirement) */}
@@ -2232,7 +2429,7 @@ export default function AdminProductEdit() {
                 {saving ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>Publishing Garment...</span>
+                    <span>Publishing Product...</span>
                   </>
                 ) : (
                   <>

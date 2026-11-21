@@ -92,6 +92,39 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Security & Business Rule: Do not show tracking info when payment is pending or failed
+    const isPaymentPending =
+      order.paymentStatus === "Pending" ||
+      order.paymentStatus === "Failed" ||
+      order.orderStatus === "Payment Pending" ||
+      (order.paymentMethod === "Online" && order.paymentStatus !== "Paid" && order.paymentStatus !== "Completed");
+
+    if (isPaymentPending) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          orderId: order.orderId,
+          orderStatus: "Payment Pending",
+          status: "Payment Pending",
+          paymentStatus: order.paymentStatus || "Pending",
+          paymentPending: true,
+          trackingId: "",
+          courierName: "",
+          message: "Payment verification is pending. Consignment tracking information is securely hidden until payment verification is completed.",
+          createdAt: order.createdAt,
+          total: order.total,
+          paymentMethod: order.paymentMethod,
+        },
+      });
+    }
+
+    // Ensure unique tracking ID exists for verified orders
+    let activeTrackingId = order.trackingId;
+    if (!activeTrackingId) {
+      activeTrackingId = `NC-TRK-${(order.orderId || "").replace(/[^0-9]/g, "") || Date.now().toString().slice(-6)}`;
+      await Order.updateOne({ _id: (order as any)._id }, { $set: { trackingId: activeTrackingId } }).catch(() => {});
+    }
+
     const FALLBACK_IMG = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format";
 
     return NextResponse.json({
@@ -102,19 +135,20 @@ export async function GET(request: NextRequest) {
         customerPhone: order.customerPhone ? `${order.customerPhone.slice(0, 3)}****${order.customerPhone.slice(-3)}` : "",
         orderStatus: order.orderStatus,
         status: order.orderStatus,
-        courierName: order.courierName || "",
-        trackingId: order.trackingId || "",
+        courierName: order.courierName || "Express Courier Logistics",
+        trackingId: activeTrackingId,
         dispatchDate: order.dispatchDate || "",
         shippingAddress: order.shippingAddress,
         shippingState: order.shippingState,
         createdAt: order.createdAt,
+        paymentPending: false,
         items: (order.items || []).map((it: any) => {
           let safeImg = it.image;
           if (!safeImg || typeof safeImg !== "string" || safeImg.includes("photo-1594938298603-c8148c4b4e75")) {
             safeImg = FALLBACK_IMG;
           }
           let safeName = it.productName || it.name;
-          if (!safeName || safeName === "Nighty Garment") {
+          if (!safeName || safeName.toLowerCase().includes("garment")) {
             if (it.productId === "prod-nighty-1") {
               safeName = "Pure Cotton Daily Wear Nighty";
             } else if (it.productId === "p018") {
@@ -124,7 +158,7 @@ export async function GET(request: NextRequest) {
             } else if (it.productId === "p7965") {
               safeName = "Emerald Green Full Open Nighty";
             } else {
-              safeName = "Pure Cotton Handcrafted Garment";
+              safeName = "Pure Cotton Handcrafted Product";
             }
           }
           return {

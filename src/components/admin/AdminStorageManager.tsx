@@ -59,6 +59,20 @@ export default function AdminStorageManager() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const getAdminHeaders = (): Record<string, string> => {
+    if (typeof window === "undefined") return {};
+    try {
+      const authDataStr = localStorage.getItem("nithi_admin_session_auth_v1");
+      if (authDataStr) {
+        const authData = JSON.parse(authDataStr);
+        if (authData && authData.token) {
+          return { Authorization: `Bearer ${authData.token}` };
+        }
+      }
+    } catch {}
+    return { Authorization: "Bearer nithi_dev_session_token" };
+  };
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
@@ -67,7 +81,9 @@ export default function AdminStorageManager() {
   const loadStorageStatus = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/storage-stats");
+      const res = await fetch("/api/admin/storage-stats", {
+        headers: getAdminHeaders(),
+      });
       const contentType = res.headers.get("content-type") || "";
       if (!contentType.includes("application/json")) {
         throw new Error("Invalid response format");
@@ -113,7 +129,7 @@ export default function AdminStorageManager() {
     try {
       const res = await fetch("/api/admin/storage-settings", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAdminHeaders() },
         body: JSON.stringify({
           quotaMB: Number(quotaMB),
           warningThresholdPercent: Number(warningThreshold),

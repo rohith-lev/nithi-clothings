@@ -234,6 +234,22 @@ export async function POST(request: NextRequest) {
       productData.sizes = productData.sizeOptions.map((s: any) => s.size);
     }
 
+    // Normalize productTypes (e.g. Zip Nighty / Zipless Nighty / Elite Nighty)
+    if (Array.isArray(productData.productTypes)) {
+      productData.productTypes = productData.productTypes
+        .filter((pt: any) => pt && typeof pt.name === "string" && pt.name.trim().length > 0)
+        .map((pt: any) => ({
+          id: pt.id ? String(pt.id).replace(/[^a-zA-Z0-9_-]/g, "") : `pt-${String(pt.name).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+          name: String(pt.name).trim().slice(0, 80),
+          price: Math.max(0, Number(pt.price) || Number(productData.price) || 0),
+          mrp: Math.max(0, Number(pt.mrp) || Number(productData.mrp) || 0),
+          stock: Math.max(0, Number(pt.stock) || 0),
+          image: typeof pt.image === "string" ? pt.image.slice(0, 500) : "",
+          active: pt.active !== false,
+        }));
+      if (productData.productTypes.length === 0) delete productData.productTypes;
+    }
+
     const savedProduct = await Product.findOneAndUpdate(
       { id: productData.id },
       { $set: productData },
@@ -376,9 +392,13 @@ export async function DELETE(request: NextRequest) {
     const body = await request.json().catch(() => ({}));
     const { searchParams } = new URL(request.url);
     const ids = body.ids || (searchParams.get("ids") ? searchParams.get("ids")!.split(",") : null);
+    const purgeAll = searchParams.get("all") === "true" || body.all === true;
 
     let deleteFilter: any = {};
-    if (Array.isArray(ids) && ids.length > 0) {
+    if (purgeAll) {
+      // Explicit purge-all: permanently deletes every product in the catalogue.
+      deleteFilter = {};
+    } else if (Array.isArray(ids) && ids.length > 0) {
       const cleanIds = ids.map((i: string) => String(i).trim()).filter(Boolean);
       if (cleanIds.length === 0) {
         return NextResponse.json(
@@ -394,9 +414,9 @@ export async function DELETE(request: NextRequest) {
         ],
       };
     } else {
-      // Safety guard: never allow deleting all products without explicit IDs
+      // Safety guard: never allow deleting all products without explicit confirmation
       return NextResponse.json(
-        { success: false, error: "Product IDs are required. Pass ids[] in request body." },
+        { success: false, error: "Product IDs are required. Pass ids[] in request body, or ?all=true for full purge." },
         { status: 400 }
       );
     }
@@ -410,10 +430,10 @@ export async function DELETE(request: NextRequest) {
         adminName: user?.name || "Super Admin",
         action: "DELETE",
         targetType: "PRODUCT",
-        targetId: ids ? ids.join(",") : "ALL",
-        targetName: ids ? `${result.deletedCount} products` : "All products",
-        oldValue: `Deleted ${result.deletedCount} products from database`,
-        reason: "Admin bulk delete operation",
+        targetId: purgeAll ? "ALL (PURGE)" : ids ? ids.join(",") : "ALL",
+        targetName: purgeAll ? "Full catalogue purge" : ids ? `${result.deletedCount} products` : "All products",
+        oldValue: `Permanently deleted ${result.deletedCount} products from database`,
+        reason: purgeAll ? "Admin Purge All operation" : "Admin bulk delete operation",
       }).save();
     } catch (e) {
       console.error("Audit log error:", e);

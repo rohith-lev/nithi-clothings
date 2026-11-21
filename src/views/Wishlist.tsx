@@ -80,6 +80,11 @@ export default function Wishlist() {
     setTimeout(() => setAddedToast(null), 3000);
   };
 
+  const handleBuyNow = (product: Product, e: React.MouseEvent) => {
+    handleMoveToCart(product, e);
+    window.location.href = "/checkout";
+  };
+
   const handleClearWishlist = () => {
     if (window.confirm("Are you sure you want to clear your entire wishlist?")) {
       for (const id of state.wishlist) {
@@ -172,6 +177,10 @@ export default function Wishlist() {
                 : rawPrice;
             const mrp = Number(product.mrp || rawPrice);
             const isOutOfStock = product.stock <= 0 || product.inStock === false;
+            const is350Offer =
+              effectivePrice === 350 ||
+              product.price === 350 ||
+              (product.name && product.name.includes("350"));
             const primaryImage =
               product.coverImage ||
               (product.images && product.images[0]) ||
@@ -189,7 +198,7 @@ export default function Wishlist() {
                       <img
                         src={primaryImage}
                         alt={product.name}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"
                       />
                     </Link>
@@ -223,7 +232,7 @@ export default function Wishlist() {
 
                   {/* Details */}
                   <div className="p-4 sm:p-5">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#C9A227] block mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#C9A227] block mb-1">
                       {product.category}
                     </span>
                     <Link to={`/product/${product.id}`}>
@@ -260,20 +269,43 @@ export default function Wishlist() {
                   </div>
                 </div>
 
-                {/* Bottom Actions */}
+                {/* Bottom Actions (Omitted for ₹350 offer) */}
                 <div className="p-4 sm:p-5 pt-0">
-                  <button
-                    type="button"
-                    onClick={(e) => handleMoveToCart(product, e)}
-                    disabled={isOutOfStock}
-                    className={`w-full rounded-xl py-3 text-xs font-bold uppercase tracking-[0.16em] transition-all shadow-sm ${
-                      isOutOfStock
-                        ? "bg-stone-200 text-stone-400 cursor-not-allowed"
-                        : "bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] active:scale-[0.98]"
-                    }`}
-                  >
-                    {isOutOfStock ? "Out of Stock" : "Move to Bag"}
-                  </button>
+                  {is350Offer ? (
+                    <Link
+                      to={`/product/${product.id}`}
+                      className="block w-full text-center rounded-xl py-2.5 text-xs font-semibold border border-[#064E3B] text-[#064E3B] hover:bg-emerald-50 transition-colors"
+                    >
+                      View Product
+                    </Link>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => handleMoveToCart(product, e)}
+                        disabled={isOutOfStock}
+                        className={`rounded-xl py-2.5 text-xs font-semibold transition-all border cursor-pointer ${
+                          isOutOfStock
+                            ? "bg-stone-100 text-stone-400 border-stone-200 cursor-not-allowed"
+                            : "border-[#064E3B] text-[#064E3B] hover:bg-emerald-50 active:scale-[0.98]"
+                        }`}
+                      >
+                        {isOutOfStock ? "Sold Out" : "Move to Bag"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => handleBuyNow(product, e)}
+                        disabled={isOutOfStock}
+                        className={`rounded-xl py-2.5 text-xs font-semibold transition-all shadow-xs cursor-pointer ${
+                          isOutOfStock
+                            ? "bg-stone-200 text-stone-400 cursor-not-allowed"
+                            : "bg-[#064E3B] text-white hover:bg-[#0B3D2E] active:scale-[0.98]"
+                        }`}
+                      >
+                        Buy Now
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             );

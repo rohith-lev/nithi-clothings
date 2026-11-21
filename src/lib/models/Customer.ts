@@ -17,6 +17,9 @@ const CustomerSchema = new Schema(
     registrationDate: { type: Date, default: Date.now },
     status: { type: String, enum: ["ACTIVE", "INACTIVE", "BLOCKED"], default: "ACTIVE" },
     notes: { type: String, default: "" },
+    passwordHash: { type: String, default: "" },
+    resetOtp: { type: String, default: "" },
+    resetOtpExpires: { type: Date },
   },
   { timestamps: true }
 );

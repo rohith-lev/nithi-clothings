@@ -13,11 +13,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Nithi Clothings | Pure Cotton Nighties, Feeding Nighties & Ethnic Loungewear",
-    template: "%s | Nithi Clothings",
+    default: "Nithi Collections | Pure Cotton Nighties, Feeding Nighties & Ethnic Loungewear",
+    template: "%s | Nithi Collections",
   },
   description:
-    "Buy premium 100% pure cotton nighties, zip feeding nighties, maternity wear, collar & frock models online at Nithi Clothings. Breathable all-day comfort with fast all-India delivery.",
+    "Buy premium 100% pure cotton nighties, zip feeding nighties, maternity wear, collar & frock models online at Nithi Collections. Breathable all-day comfort with fast all-India delivery.",
   keywords: [
     "pure cotton nighties",
     "cotton nighties online india",
@@ -30,12 +30,12 @@ export const metadata: Metadata = {
     "south indian cotton nighties",
     "breathable loungewear women",
     "feeding kurtis cotton",
-    "Nithi Clothings",
+    "Nithi Collections",
     "nithi collection",
   ],
-  authors: [{ name: "Nithi Clothings", url: siteUrl }],
-  creator: "Nithi Clothings",
-  publisher: "Nithi Clothings",
+  authors: [{ name: "Nithi Collections", url: siteUrl }],
+  creator: "Nithi Collections",
+  publisher: "Nithi Collections",
   formatDetection: {
     email: false,
     address: false,
@@ -45,17 +45,17 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Nithi Clothings | Pure Cotton Nighties & Feeding Wear",
+    title: "Nithi Collections | Pure Cotton Nighties & Feeding Wear",
     description:
       "Explore handcrafted pure cotton nighties, maternity zip nighties, and elegant loungewear designed for supreme softness and breathability.",
     url: siteUrl,
-    siteName: "Nithi Clothings",
+    siteName: "Nithi Collections",
     images: [
       {
         url: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&h=630&fit=crop&q=85",
         width: 1200,
         height: 630,
-        alt: "Nithi Clothings Pure Cotton Nighties Collection",
+        alt: "Nithi Collections Pure Cotton Nighties Collection",
       },
     ],
     locale: "en_IN",
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nithi Clothings | Pure Cotton Nighties & Ethnic Wear",
+    title: "Nithi Collections | Pure Cotton Nighties & Ethnic Wear",
     description:
       "Handcrafted 100% pure cotton nighties, feeding friendly designs, and loungewear. Fast shipping across India.",
     images: ["https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&h=630&fit=crop&q=85"],
@@ -96,7 +96,7 @@ const structuredData = {
     {
       "@type": "ClothingStore",
       "@id": `${siteUrl}/#store`,
-      name: "Nithi Clothings",
+      name: "Nithi Collections",
       url: siteUrl,
       logo: `${siteUrl}/favicon.ico`,
       image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=1200&h=630&fit=crop&q=85",
@@ -121,7 +121,7 @@ const structuredData = {
       "@type": "WebSite",
       "@id": `${siteUrl}/#website`,
       url: siteUrl,
-      name: "Nithi Clothings",
+      name: "Nithi Collections",
       description: "Online store for Pure Cotton Nighties, Feeding Nighties, and Loungewear",
       publisher: {
         "@id": `${siteUrl}/#store`,
@@ -141,7 +141,7 @@ const structuredData = {
       mainEntity: [
         {
           "@type": "Question",
-          name: "What fabric is used in Nithi Clothings nighties?",
+          name: "What fabric is used in Nithi Collections nighties?",
           acceptedAnswer: {
             "@type": "Answer",
             text: "All our nighties are crafted from 100% premium combed and pure cotton fabrics that are soft, breathable, and pre-shrunk for maximum everyday comfort.",

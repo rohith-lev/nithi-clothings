@@ -9,6 +9,7 @@ import OrderSuccess from "./views/OrderSuccess";
 
 import About from "./views/About";
 import Contact from "./views/Contact";
+import PolicyPage from "./views/PolicyPage";
 
 // Admin Architecture
 import AdminLogin from "./views/admin/AdminLogin";
@@ -54,6 +55,7 @@ export const router = createBrowserRouter([
     Component: Root,
     children: [
       { index: true, Component: Home },
+      { path: "home", Component: Home },
       { path: "shop", Component: Shop },
       { path: "category/:slug", Component: Shop },
       { path: "category/:slug/:sub", Component: Shop },
@@ -63,6 +65,10 @@ export const router = createBrowserRouter([
       { path: "order-success", Component: OrderSuccess },
       { path: "about", Component: About },
       { path: "contact", Component: Contact },
+      { path: "return-policy", Component: PolicyPage },
+      { path: "shipping-policy", Component: PolicyPage },
+      { path: "privacy-policy", Component: PolicyPage },
+      { path: "terms-and-conditions", Component: PolicyPage },
       { path: "account", Component: Account },
       { path: "signin", Component: Account },
       { path: "track", Component: Account },

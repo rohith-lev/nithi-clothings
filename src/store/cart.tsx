@@ -2,11 +2,12 @@ import React, { createContext, useContext, useReducer, useEffect, useState } fro
 import type { Product } from "../data/products";
 
 export interface CartItem {
-  key?: string; // Unique composite key `${product.id}__${selectedColor}__${selectedSize}`
+  key?: string; // Unique composite key `${product.id}__${selectedType}__${selectedSize}`
   product: Product;
   quantity: number;
   selectedColor: string;
   selectedSize: string;
+  selectedType?: string; // Product type (e.g. Zip Nighty / Zipless Nighty)
   unitPrice?: number;
   mrp?: number;
   colorImage?: string;
@@ -45,13 +46,13 @@ export function normalizeKey(key: string): string {
 
 export function getCartItemKey(
   productId: string,
-  color: string = "Standard",
+  type: string = "",
   size: string = "Free Size"
 ): string {
   const safeId = String(productId || "").trim();
-  const safeColor = String(color || "Standard").trim().toLowerCase();
+  const safeType = String(type || "").trim().toLowerCase();
   const safeSize = String(size || "Free Size").trim().toLowerCase();
-  return `${safeId}__${safeColor}__${safeSize}`;
+  return `${safeId}__${safeType}__${safeSize}`;
 }
 
 const STORAGE_KEY = "nithi_shopping_cart_v2";
@@ -71,12 +72,13 @@ function sanitizeCartState(raw: any): CartState {
 
   for (const it of rawItems) {
     if (!it || !it.product || !it.product.id) continue;
-    const color = it.selectedColor || (it.product.colors && it.product.colors[0]) || it.product.color || "Standard";
+    const type = it.selectedType || "";
+    const color = it.selectedColor || "Standard";
     const size = it.selectedSize || (it.product.sizes && it.product.sizes[0]) || "Free Size";
-    const itemKey = normalizeKey(it.key || getCartItemKey(it.product.id, color, size));
+    const itemKey = normalizeKey(it.key || getCartItemKey(it.product.id, type, size));
 
     const existing = consolidated.find(
-      (c) => normalizeKey(c.key || getCartItemKey(c.product.id, c.selectedColor, c.selectedSize)) === itemKey
+      (c) => normalizeKey(c.key || getCartItemKey(c.product.id, c.selectedType || "", c.selectedSize)) === itemKey
     );
 
     if (existing) {
@@ -85,6 +87,7 @@ function sanitizeCartState(raw: any): CartState {
       consolidated.push({
         ...it,
         key: itemKey,
+        selectedType: type,
         selectedColor: color,
         selectedSize: size,
         quantity: Math.max(1, Number(it.quantity) || 1),
@@ -107,14 +110,27 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       const p = action.payload;
       if (!p || !p.product || !p.product.id) return state;
 
-      const color = p.selectedColor || (p.product.colors && p.product.colors[0]) || p.product.color || "Standard";
+      const type = p.selectedType || "";
+      const color = p.selectedColor || "Standard";
       const size = p.selectedSize || (p.product.sizes && p.product.sizes[0]) || "Free Size";
-      const itemKey = normalizeKey(p.key || getCartItemKey(p.product.id, color, size));
+      const itemKey = normalizeKey(p.key || getCartItemKey(p.product.id, type, size));
 
       // Determine size-specific price
       let unitPrice = p.unitPrice;
       let mrp = p.mrp || p.product.mrp || p.product.price;
       let stock = p.stock;
+
+      // Type-specific price & stock take precedence over size-level values
+      if (type && p.product.productTypes && Array.isArray(p.product.productTypes) && p.product.productTypes.length > 0) {
+        const matchedType = p.product.productTypes.find(
+          (t) => t.name && t.name.toLowerCase() === type.toLowerCase()
+        );
+        if (matchedType) {
+          if (!unitPrice || unitPrice === p.product.price) unitPrice = Number(matchedType.price) || unitPrice;
+          if (!mrp) mrp = Number(matchedType.mrp) || mrp;
+          if (stock === undefined) stock = Number(matchedType.stock ?? 0);
+        }
+      }
 
       if (p.product.sizeOptions && Array.isArray(p.product.sizeOptions) && p.product.sizeOptions.length > 0) {
         const szOpt = p.product.sizeOptions.find(
@@ -162,7 +178,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400";
 
       const existingIndex = state.items.findIndex((i) => {
-        const k = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));
+        const k = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedType || "", i.selectedSize));
         return k === itemKey;
       });
 
@@ -189,7 +205,8 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         const newItem: CartItem = {
           ...p,
           key: itemKey,
-          selectedColor: color,
+          selectedType: type,
+          selectedColor: "Standard",
           selectedSize: size,
           unitPrice: Number(unitPrice) || p.product.price || 0,
           mrp: Number(mrp) || p.product.mrp || p.product.price || 0,
@@ -211,7 +228,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         const normalizedTarget = normalizeKey(targetStr);
 
         updatedItems = state.items.filter((i) => {
-          const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));
+          const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedType || "", i.selectedSize));
           // Check normalized key match, exact key match, or productId match
           if (itemK === normalizedTarget || i.key === targetStr) return false;
           if (i.product.id === targetStr) return false;
@@ -231,12 +248,12 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         } else if (payloadObj.productId) {
           const targetKey = getCartItemKey(
             payloadObj.productId,
-            payloadObj.selectedColor || "Standard",
+            (payloadObj as any).selectedType || "",
             payloadObj.selectedSize || "Free Size"
           );
           const normalizedTarget = normalizeKey(targetKey);
           updatedItems = state.items.filter((i) => {
-            const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));
+            const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedType || "", i.selectedSize));
             return itemK !== normalizedTarget && i.product.id !== payloadObj.productId;
           });
         } else {
@@ -257,14 +274,14 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       // If quantity is reduced to 0 or less, remove the item
       if (targetQty <= 0) {
         const filtered = state.items.filter((i) => {
-          const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));
+          const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedType || "", i.selectedSize));
           return itemK !== normalizedTarget && i.key !== rawTarget && i.product.id !== rawTarget;
         });
         return { ...state, items: filtered };
       }
 
       const updatedItems = state.items.map((i) => {
-        const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedColor, i.selectedSize));
+        const itemK = normalizeKey(i.key || getCartItemKey(i.product.id, i.selectedType || "", i.selectedSize));
         if (itemK === normalizedTarget || i.key === rawTarget || i.product.id === rawTarget) {
           const maxAllowed = i.stock !== undefined && i.stock > 0 ? i.stock : 99;
           const validQty = Math.max(1, Math.min(maxAllowed, targetQty));

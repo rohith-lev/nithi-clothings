@@ -33,6 +33,11 @@ export default function AdminCategories() {
   const [formSubcategories, setFormSubcategories] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  // Drag & Drop Category Reordering
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [orderDirty, setOrderDirty] = useState(false);
+  const [savingOrder, setSavingOrder] = useState(false);
+
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
   const [deletingAll, setDeletingAll] = useState(false);
 
@@ -43,7 +48,7 @@ export default function AdminCategories() {
       adminApi.getCategories(),
       adminApi.getProducts(),
     ]);
-    // Sort by priority
+    // Sort by priority (admin-defined display order: 1st, 2nd, 3rd…)
     const sorted = [...cats].sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
     setCategoriesList(sorted);
     setProducts(prods);
@@ -84,7 +89,7 @@ export default function AdminCategories() {
     }
   };
 
-  // Helper to calculate total active garments in a category
+  // Helper to calculate total active products in a category
   const getCategoryProductCount = (catId: string, catName: string, catSlug: string) => {
     const idLower = catId.toLowerCase();
     const nameLower = catName.toLowerCase();
@@ -277,6 +282,65 @@ export default function AdminCategories() {
     await refreshData();
   };
 
+  // ── Drag & Drop & Button Reorder Handlers ─────────────────────────────
+  const handleDragStart = (index: number) => setDragIndex(index);
+  const handleDragOver = (e: React.DragEvent) => e.preventDefault();
+  const handleDrop = (index: number) => {
+    if (dragIndex === null || dragIndex === index) { setDragIndex(null); return; }
+    setCategoriesList((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(dragIndex, 1);
+      next.splice(index, 0, moved);
+      return next;
+    });
+    setOrderDirty(true);
+    setDragIndex(null);
+  };
+
+  const handleMoveCategory = (index: number, direction: "up" | "down") => {
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= categoriesList.length) return;
+    setCategoriesList((prev) => {
+      const next = [...prev];
+      const temp = next[index];
+      next[index] = next[targetIndex];
+      next[targetIndex] = temp;
+      return next;
+    });
+    setOrderDirty(true);
+  };
+
+  const handleSaveCategoryOrder = async () => {
+    setSavingOrder(true);
+    try {
+      const orderPayload = categoriesList.map((cat, idx) => ({
+        id: cat.id || cat.slug,
+        priority: idx + 1,
+      }));
+      const res = await adminApi.reorderCategories(orderPayload);
+      setSavingOrder(false);
+      if (res.success) {
+        setOrderDirty(false);
+        setToastMessage({
+          type: "success",
+          text: "✓ Category order saved successfully! Storefront and mobile menu now display categories in this exact order.",
+        });
+        await refreshData();
+      } else {
+        setToastMessage({
+          type: "error",
+          text: `Failed to save category order: ${res.error || "Please try again."}`,
+        });
+      }
+    } catch (err: any) {
+      setSavingOrder(false);
+      setToastMessage({
+        type: "error",
+        text: `Error saving order: ${err.message || "Operation failed"}`,
+      });
+    }
+  };
+
   const totalCatalogedProducts = products.length;
   const homeEnabledCount = categoriesList.filter((c) => c.showOnHome !== false && c.isActive !== false).length;
 
@@ -330,6 +394,90 @@ export default function AdminCategories() {
             <span>View Home Page</span>
             <ExternalLinkIcon size={13} />
           </Link>
+        </div>
+      </div>
+
+      {/* Drag & Drop Category Ordering Panel */}
+      <div className="bg-white rounded-3xl border border-stone-200 shadow-2xs p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 className="font-display text-base font-bold text-stone-900 flex items-center gap-2">
+              <span>↕️</span> Category Display Order
+            </h2>
+            <p className="text-xs text-stone-500 mt-0.5">
+              Drag categories to arrange them 1st, 2nd, 3rd… then click <strong>Save Order</strong>. The customer website displays categories in this exact order.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleSaveCategoryOrder}
+            disabled={!orderDirty || savingOrder}
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-sm flex items-center gap-2 shrink-0 ${
+              orderDirty && !savingOrder
+                ? "bg-[#064E3B] text-white hover:bg-[#0B3D2E]"
+                : "bg-stone-100 text-stone-400 cursor-not-allowed"
+            }`}
+          >
+            {savingOrder ? (
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Saving Order…</span>
+              </>
+            ) : (
+              <>
+                <CheckIcon size={14} />
+                <span>{orderDirty ? "Save Order" : "Order Saved"}</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        <div className="space-y-1.5">
+          {categoriesList.map((cat, idx) => (
+            <div
+              key={cat.id || cat.slug}
+              draggable
+              onDragStart={() => handleDragStart(idx)}
+              onDragOver={handleDragOver}
+              onDrop={() => handleDrop(idx)}
+              className={`flex items-center gap-3 p-3 rounded-2xl border bg-white transition-all cursor-grab active:cursor-grabbing ${
+                dragIndex === idx
+                  ? "opacity-40 border-[#C9A227]"
+                  : "border-stone-200 hover:border-[#C9A227]/60 hover:shadow-sm"
+              }`}
+            >
+              <span className="text-stone-300 text-lg select-none" title="Drag to reorder">⠿</span>
+              <span className="w-7 h-7 rounded-full bg-[#064E3B] text-[#FAF8F1] text-xs font-bold flex items-center justify-center shrink-0">
+                {idx + 1}
+              </span>
+              <img src={cat.image} alt="" className="w-9 h-9 rounded-lg object-cover border border-stone-200 shrink-0" />
+              <span className="flex-1 font-semibold text-sm text-stone-800 truncate">{cat.name}</span>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  title="Move Up"
+                  disabled={idx === 0}
+                  onClick={(e) => { e.stopPropagation(); handleMoveCategory(idx, "up"); }}
+                  className="w-7 h-7 rounded-lg border border-stone-200 hover:bg-stone-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-xs font-bold"
+                >
+                  ↑
+                </button>
+                <button
+                  type="button"
+                  title="Move Down"
+                  disabled={idx === categoriesList.length - 1}
+                  onClick={(e) => { e.stopPropagation(); handleMoveCategory(idx, "down"); }}
+                  className="w-7 h-7 rounded-lg border border-stone-200 hover:bg-stone-100 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-xs font-bold"
+                >
+                  ↓
+                </button>
+              </div>
+              <span className="text-[10px] text-stone-400 font-mono shrink-0 hidden sm:inline">order #{idx + 1}</span>
+            </div>
+          ))}
+          {categoriesList.length === 0 && (
+            <p className="text-xs text-stone-400 italic">No categories to order yet.</p>
+          )}
         </div>
       </div>
 

@@ -198,64 +198,28 @@ export function calculateOrderPricing(
   }
 
   // --- 3. COD ELIGIBILITY & ADVANCE AMOUNT ---
-  let codEligible = isTN;
-  let codIneligibleReason: string | undefined;
+  // Mandatory proportional advance payment rule: 10% advance (e.g. ₹100 on ₹1,000, ₹200 on ₹2,000)
+  // Remaining 90% balance is payable in cash upon delivery.
+  const codEligible = totalUnits > 0;
+  const codIneligibleReason: string | undefined = undefined;
 
-  if (!isTN) {
-    codEligible = false;
-    codIneligibleReason = "Cash on Delivery is currently available only for addresses in Tamil Nadu. Please choose Online Payment.";
-  } else if (totalUnits > 0 && nightyCount === totalUnits && nightyCount < 3) {
-    // ❖ For single nighty or any two not eligible for cash on delivery (Minimum 3 if only nighties)
-    codEligible = false;
-    codIneligibleReason = "Minimum 3 nighties are required for Cash on Delivery. Add more items or pay online.";
-  }
-
+  const grandTotal = subtotalAfterDiscount + (isFreeShipping ? 0 : shippingCharge);
   let codAdvanceAmount = 0;
   const codAdvanceBreakdown: string[] = [];
 
-  if (paymentMethod === "cod" && codEligible) {
-    // ➢ Unstitched salwar suit Advance:
-    // • For 2 set : ₹100
-    // • Upto 5 set : ₹160
-    // • For each 2 set : ₹30 extra
-    if (salwarCount >= 2) {
-      let salAdvance = 0;
-      if (salwarCount === 2) {
-        salAdvance = 100;
-        codAdvanceBreakdown.push(`Salwar Sets (${salwarCount} sets): ₹100 advance`);
-      } else if (salwarCount <= 5) {
-        salAdvance = 160;
-        codAdvanceBreakdown.push(`Salwar Sets (${salwarCount} sets): ₹160 advance`);
-      } else {
-        const extraBlocks = Math.ceil((salwarCount - 5) / 2);
-        salAdvance = 160 + extraBlocks * 30;
-        codAdvanceBreakdown.push(`Salwar Sets (${salwarCount} sets): ₹${salAdvance} advance (₹160 + ₹${extraBlocks * 30} extra)`);
-      }
-      codAdvanceAmount += salAdvance;
-    }
+  if (paymentMethod === "cod" && codEligible && grandTotal > 0) {
+    // 10% proportional advance rounded to nearest ₹10, minimum ₹50, capped at grandTotal
+    codAdvanceAmount = Math.max(50, Math.round((grandTotal * 0.10) / 10) * 10);
+    codAdvanceAmount = Math.min(codAdvanceAmount, grandTotal);
 
-    // ➢ Nighty Advance:
-    // • For 3 nighties : ₹100
-    // • For 4 to 6 nighties : ₹130
-    // • For each 3 nighties : ₹30 extra
-    if (nightyCount >= 3) {
-      let nigAdvance = 0;
-      if (nightyCount === 3) {
-        nigAdvance = 100;
-        codAdvanceBreakdown.push(`Nighties (${nightyCount} items): ₹100 advance`);
-      } else if (nightyCount <= 6) {
-        nigAdvance = 130;
-        codAdvanceBreakdown.push(`Nighties (${nightyCount} items): ₹130 advance`);
-      } else {
-        const extraBlocks = Math.ceil((nightyCount - 6) / 3);
-        nigAdvance = 130 + extraBlocks * 30;
-        codAdvanceBreakdown.push(`Nighties (${nightyCount} items): ₹${nigAdvance} advance (₹130 + ₹${extraBlocks * 30} extra)`);
-      }
-      codAdvanceAmount += nigAdvance;
-    }
+    codAdvanceBreakdown.push(
+      `Mandatory 10% Partial Advance: ₹${codAdvanceAmount.toLocaleString("en-IN")} (Calculated proportionally based on order total)`
+    );
+    codAdvanceBreakdown.push(
+      `Remaining Balance: ₹${(grandTotal - codAdvanceAmount).toLocaleString("en-IN")} payable in Cash upon Delivery`
+    );
   }
 
-  const grandTotal = subtotalAfterDiscount + (isFreeShipping ? 0 : shippingCharge);
   const balanceOnDelivery = paymentMethod === "cod" ? Math.max(0, grandTotal - codAdvanceAmount) : 0;
 
   return {

@@ -7,6 +7,7 @@ const OrderItemSchema = new Schema(
     sku: { type: String, default: "" },
     selectedColor: { type: String, default: "Standard" },
     selectedSize: { type: String, default: "Free Size" },
+    selectedType: { type: String, default: "" },
     quantity: { type: Number, required: true, min: 1 },
     price: { type: Number, required: true },
     discount: { type: Number, default: 0 },
@@ -32,6 +33,8 @@ const OrderSchema = new Schema(
     shippingFee: { type: Number, default: 0 },
     discount: { type: Number, default: 0 },
     total: { type: Number, required: true },
+    codAdvanceAmount: { type: Number, default: 0 },
+    balanceOnDelivery: { type: Number, default: 0 },
     paymentMethod: {
       type: String,
       enum: ["COD", "cod", "Online", "ONLINE", "online", "UPI", "upi", "CARD", "card", "Razorpay", "razorpay"],

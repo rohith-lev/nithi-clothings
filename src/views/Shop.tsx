@@ -5,7 +5,6 @@ import { useStoreProducts, useStoreCategories } from "../services/storefront";
 import ProductCard from "../components/ProductCard";
 import MobileFilterDrawer from "../components/MobileFilterDrawer";
 import RecentlyViewedSection from "../components/RecentlyViewedSection";
-import CircularCategoryBrowser from "../components/CircularCategoryBrowser";
 import SEO from "../components/SEO";
 import { useRecentlyViewed } from "../utils/recentlyViewed";
 import { ProductGridSkeleton } from "../components/SkeletonLoaders";
@@ -22,6 +21,7 @@ export default function Shop() {
 
   const categoryParam = slug || searchParams.get("category") || "";
   const subParam = routeSub || searchParams.get("sub") || searchParams.get("subcategory") || "";
+  const typeParam = searchParams.get("type") || "";
   const filterParam = searchParams.get("filter") || "";
   const searchQuery = searchParams.get("q") || "";
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -205,6 +205,39 @@ export default function Shop() {
 
   const categoryDisplayName = activeCatObj ? activeCatObj.name : categoryParam;
 
+  const isCordSet = Boolean(
+    categoryParam &&
+    (categoryParam.toLowerCase().includes("cord") ||
+     categoryParam.toLowerCase().includes("coord") ||
+     (activeCatObj && (activeCatObj.name.toLowerCase().includes("cord") || activeCatObj.name.toLowerCase().includes("coord"))))
+  );
+
+  const subcategoriesForActiveCat = useMemo(() => {
+    const set = new Set<string>();
+    if (activeCatObj) {
+      if (Array.isArray(activeCatObj.subcategories)) {
+        for (const sub of activeCatObj.subcategories) {
+          const name = typeof sub === "string" ? sub : sub?.name;
+          if (name) set.add(name.trim());
+        }
+      }
+    }
+    for (const p of allProducts) {
+      if (categoryParam && isCategoryMatch({ name: p.category, id: p.category } as Category, categoryParam)) {
+        if (p.subcategory && typeof p.subcategory === "string" && p.subcategory.trim()) {
+          set.add(p.subcategory.trim());
+        }
+      }
+    }
+    if (isCordSet && set.size === 0) {
+      set.add("Printed Cord Set");
+      set.add("Solid Casual Cord Set");
+      set.add("Embroidered Festive Cord Set");
+      set.add("Cotton Cord Set");
+    }
+    return Array.from(set);
+  }, [activeCatObj, allProducts, categoryParam, isCordSet]);
+
   const filtered = useMemo(() => {
     let list = allProducts.filter((p) => p.status === "ACTIVE" || (!p.status && p.stock > 0));
 
@@ -290,14 +323,102 @@ export default function Shop() {
       list = list.filter((p) => matchesSubcategory(p.subcategory, subParam, p));
     }
 
+    if (typeParam) {
+      const tLower = typeParam.toLowerCase().trim();
+      list = list.filter((p) => {
+        const hasType = p.productTypes && p.productTypes.some((pt: any) => pt.name && pt.name.toLowerCase().includes(tLower));
+        return hasType || matchesSubcategory(p.subcategory, typeParam, p);
+      });
+    }
+
     if (filterParam === "new") list = list.filter((p) => p.newArrival || p.isNew);
     if (filterParam === "bestseller") list = list.filter((p) => p.isBestSeller);
     if (filterParam === "sale") list = list.filter((p) => p.discount >= 10);
 
-    list = list.filter((p) => p.price >= priceRange[0] && p.price <= priceRange[1]);
+    if (priceRange[1] < 5000) {
+      list = list.filter((p) => p.price >= priceRange[0] && p.price <= priceRange[1]);
+    }
 
     if (selectedSizes.length > 0) {
-      list = list.filter((p) => p.sizes && p.sizes.some((s) => selectedSizes.includes(s)));
+      list = list.filter((p) => {
+        const prodSizes = [
+          ...(Array.isArray(p.sizes) ? p.sizes : []),
+          ...(Array.isArray(p.sizeOptions) ? p.sizeOptions.map((so: any) => so.size) : []),
+        ].map((s) => String(s || "").toUpperCase().trim());
+
+        const nameUpper = (p.name || "").toUpperCase();
+
+        return selectedSizes.some((sel) => {
+          const selUpper = sel.toUpperCase().trim();
+          if (selUpper === "ALL" || selUpper === "ALL SIZES") return true;
+
+          // Direct match
+          if (prodSizes.includes(selUpper)) return true;
+
+          // 2XL <-> XXL alias
+          if (
+            (selUpper === "2XL" || selUpper === "XXL") &&
+            (prodSizes.includes("2XL") || prodSizes.includes("XXL") || nameUpper.includes("XXL") || nameUpper.includes("2XL"))
+          ) {
+            return true;
+          }
+
+          // 3XL <-> XXXL alias
+          if (
+            (selUpper === "3XL" || selUpper === "XXXL") &&
+            (prodSizes.includes("3XL") || prodSizes.includes("XXXL") || nameUpper.includes("3XL") || nameUpper.includes("XXXL"))
+          ) {
+            return true;
+          }
+
+          // 4XL
+          if (selUpper === "4XL" && (prodSizes.includes("4XL") || nameUpper.includes("4XL"))) {
+            return true;
+          }
+
+          // XL (exclusive of XXL/3XL)
+          if (selUpper === "XL") {
+            if (prodSizes.includes("XL")) return true;
+            if (
+              nameUpper.includes("XL") &&
+              !nameUpper.includes("XXL") &&
+              !nameUpper.includes("2XL") &&
+              !nameUpper.includes("3XL") &&
+              !nameUpper.includes("4XL")
+            ) {
+              return true;
+            }
+          }
+
+          // L
+          if (selUpper === "L") {
+            if (prodSizes.includes("L")) return true;
+            if (nameUpper.includes(" L ") || nameUpper.includes("L SIZE") || (p.category === "Nighty" && prodSizes.length === 0)) {
+              return true;
+            }
+          }
+
+          // M
+          if (selUpper === "M" && (prodSizes.includes("M") || nameUpper.includes(" M ") || nameUpper.includes("M SIZE"))) {
+            return true;
+          }
+
+          // S
+          if (selUpper === "S" && (prodSizes.includes("S") || nameUpper.includes(" S ") || nameUpper.includes("S SIZE"))) {
+            return true;
+          }
+
+          // Free Size
+          if (
+            selUpper === "FREE SIZE" &&
+            (prodSizes.includes("FREE SIZE") || p.category === "Unstitched salwar material" || prodSizes.length === 0)
+          ) {
+            return true;
+          }
+
+          return false;
+        });
+      });
     }
 
     switch (sort) {
@@ -330,18 +451,18 @@ export default function Shop() {
   const pageTitle = searchQuery
     ? `Search: "${searchQuery}"`
     : categoryParam
-    ? subParam
-      ? `${subParam}`
-      : categoryDisplayName
-    : filterParam === "new"
-    ? "New Arrivals"
-    : filterParam === "bestseller"
-    ? "Best Sellers"
-    : filterParam === "sale"
-    ? "Special Offers & Sale"
-    : "All Luxury Collections";
+      ? subParam
+        ? `${subParam}`
+        : categoryDisplayName
+      : filterParam === "new"
+        ? "New Arrivals"
+        : filterParam === "bestseller"
+          ? "Best Sellers"
+          : filterParam === "sale"
+            ? "Special Offers & Sale"
+            : "All Luxury Collections";
 
-  const allSizes = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+  const allSizes = ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "Free Size"];
 
   const toggleSize = (size: string) =>
     setSelectedSizes((prev) =>
@@ -363,16 +484,16 @@ export default function Shop() {
   const shopSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: `${pageTitle} | Nithi Clothings`,
-    description: `Browse our exclusive collection of ${pageTitle.toLowerCase()} crafted with 100% breathable pure cotton and premium designs at Nithi Clothings.`,
-    url: typeof window !== "undefined" ? window.location.href : "https://nithiclothings.com/shop",
+    name: `${pageTitle} | Nithi Collections`,
+    description: `Browse our exclusive collection of ${pageTitle.toLowerCase()} crafted with 100% breathable pure cotton and premium designs at Nithi Collections.`,
+    url: typeof window !== "undefined" ? window.location.href : "https://nithicollections.com/shop",
   };
 
   return (
     <div className="bg-[#FAF8F1] min-h-screen font-body">
       <SEO
         title={`${pageTitle} - Pure Cotton Nighties & Ethnic Wear`}
-        description={`Explore ${pageTitle} at Nithi Clothings. Handcrafted pure cotton nighties, feeding nighties, and loungewear with all-India shipping & COD.`}
+        description={`Explore ${pageTitle} at Nithi Collections. Handcrafted pure cotton nighties, feeding nighties, and loungewear with all-India shipping & COD.`}
         canonical={categoryParam ? `/category/${encodeURIComponent(categoryParam)}` : "/shop"}
         structuredData={shopSchema}
       />
@@ -447,47 +568,121 @@ export default function Shop() {
           </div>
         </div>
 
-        {/* Circular Category & Subcategory Interactive Display */}
-        <CircularCategoryBrowser
-          categories={categories}
-          products={allProducts}
-          selectedCategory={categoryParam}
-          selectedSubcategory={subParam}
-          showSubcategories={true}
-          onSelectCategory={(catId) => {
-            if (!catId) {
-              const params = new URLSearchParams(searchParams);
-              params.delete("category");
-              params.delete("sub");
-              params.delete("subcategory");
-              setSearchParams(params);
-              navigate("/shop");
-            } else {
-              navigate(`/category/${encodeURIComponent(catId)}`);
-            }
-          }}
-          onSelectSubcategory={(subName) => {
-            const currentCat = activeCatObj?.slug || activeCatObj?.id || categoryParam;
-            if (currentCat) {
-              if (subName) {
-                navigate(`/category/${encodeURIComponent(currentCat)}/${encodeURIComponent(subName)}`);
-              } else {
-                navigate(`/category/${encodeURIComponent(currentCat)}`);
-              }
-            } else {
-              const params = new URLSearchParams(searchParams);
-              if (subName) {
-                params.set("sub", subName);
-              } else {
-                params.delete("sub");
-                params.delete("subcategory");
-              }
-              setSearchParams(params);
-            }
-          }}
-          title="Select Category"
-          subtitle="Explore all handpicked categories and styles"
-        />
+        {/* CONDITIONAL TOP FILTER BAR: "Filter by Style" for Cord Set, "Filter by Size" for others */}
+        {isCordSet ? (
+          <div className="w-full bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] p-4 mb-6 shadow-sm">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="flex items-center gap-2 mb-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#C9A227]" />
+                <span className="font-display text-xs sm:text-sm font-bold text-[#064E3B] uppercase tracking-wider">
+                  Filter by Style
+                </span>
+                {subParam && (
+                  <span className="text-[11px] bg-emerald-100 text-[#064E3B] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    {subParam} Active
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+                {/* All Styles Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const currentCat = activeCatObj?.slug || activeCatObj?.id || categoryParam;
+                    navigate(`/category/${encodeURIComponent(currentCat)}`);
+                  }}
+                  className={`min-w-[76px] sm:min-w-[88px] px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer ${
+                    !subParam
+                      ? "bg-[#064E3B] text-white ring-2 ring-[#064E3B]/20 scale-105"
+                      : "bg-slate-50 text-slate-700 border border-slate-200 hover:border-[#064E3B] hover:bg-white"
+                  }`}
+                >
+                  All Styles
+                </button>
+
+                {/* Individual Cord Set Styles */}
+                {subcategoriesForActiveCat.map((style) => {
+                  const isActive = subParam.toLowerCase() === style.toLowerCase();
+                  const currentCat = activeCatObj?.slug || activeCatObj?.id || categoryParam;
+                  return (
+                    <button
+                      key={style}
+                      type="button"
+                      onClick={() => {
+                        if (isActive) {
+                          navigate(`/category/${encodeURIComponent(currentCat)}`);
+                        } else {
+                          navigate(`/category/${encodeURIComponent(currentCat)}/${encodeURIComponent(style)}`);
+                        }
+                      }}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer ${
+                        isActive
+                          ? "bg-[#064E3B] text-white ring-2 ring-[#064E3B]/20 scale-105"
+                          : "bg-slate-50 text-slate-700 border border-slate-200 hover:border-[#064E3B] hover:bg-white"
+                      }`}
+                    >
+                      <span>{style}</span>
+                      {isActive && <span className="text-[10px] text-amber-300">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="w-full bg-[#FFFFFF] rounded-2xl border border-slate-200 p-4 mb-6 shadow-sm">
+            <div className="flex flex-col items-center justify-center text-center">
+              <div className="flex items-center gap-2 mb-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#064E3B]" />
+                <span className="font-display text-xs sm:text-sm font-bold text-[#064E3B] uppercase tracking-wider">
+                  Filter by Size
+                </span>
+                {selectedSizes.length > 0 && (
+                  <span className="text-[11px] bg-emerald-100 text-[#064E3B] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    {selectedSizes.join(", ")} Active
+                  </span>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+                {/* All Sizes Button */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedSizes([])}
+                  className={`min-w-[76px] sm:min-w-[88px] px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer ${
+                    selectedSizes.length === 0
+                      ? "bg-[#064E3B] text-white ring-2 ring-[#064E3B]/20 scale-105"
+                      : "bg-slate-50 text-slate-700 border border-slate-200 hover:border-[#064E3B] hover:bg-white"
+                  }`}
+                >
+                  All Sizes
+                </button>
+
+                {/* Individual Size Pills */}
+                {allSizes.map((sz) => {
+                  const isActive = selectedSizes.includes(sz) || (sz === "XXL" && selectedSizes.includes("2XL"));
+                  const label = sz === "XXL" ? "XXL / 2XL" : sz;
+                  return (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => toggleSize(sz)}
+                      className={`min-w-[56px] sm:min-w-[64px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer ${
+                        isActive
+                          ? "bg-[#064E3B] text-white ring-2 ring-[#064E3B]/20 scale-105"
+                          : "bg-slate-50 text-slate-700 border border-slate-200 hover:border-[#064E3B] hover:bg-white"
+                      }`}
+                    >
+                      <span>{label}</span>
+                      {isActive && <span className="text-[10px] text-amber-300">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Active Filter Chips */}
         {hasActiveFilters && (
@@ -537,6 +732,18 @@ export default function Shop() {
                 </button>
               </span>
             ))}
+            {priceRange[1] < 5000 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#064E3B] px-3.5 py-1 text-[11px] font-bold text-[#FAF8F1] shadow-xs">
+                Max Price: ₹{priceRange[1].toLocaleString("en-IN")}
+                <button
+                  type="button"
+                  onClick={() => setPriceRange([0, 5000])}
+                  className="ml-1 hover:text-[#C9A227]"
+                >
+                  ✕
+                </button>
+              </span>
+            )}
             <button
               type="button"
               onClick={clearAllFilters}
@@ -551,87 +758,125 @@ export default function Shop() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Desktop Filter Sidebar */}
           <aside className="hidden lg:block space-y-6">
-            {/* Categories */}
+            {/* Categories Navigation */}
             <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#E8E2D5] shadow-xs">
-              <h3 className="font-display text-xs font-bold text-[#064E3B] uppercase tracking-[0.18em] mb-3 pb-2 border-b border-[#E8E2D5]">
-                Collections
-              </h3>
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E8E2D5]">
+                <h3 className="font-display text-xs font-bold text-[#064E3B] uppercase tracking-[0.18em]">
+                  {categoryParam ? "Active Collection" : "Collections"}
+                </h3>
+                {categoryParam && (
+                  <button
+                    onClick={() => navigate("/shop")}
+                    className="text-[11px] font-semibold text-[#C9A227] hover:underline cursor-pointer"
+                  >
+                    ← All Categories
+                  </button>
+                )}
+              </div>
+
               <div className="space-y-1 text-xs">
-                <button
-                  onClick={() => navigate("/shop")}
-                  className={`block w-full text-left py-2 px-3 rounded-xl transition-colors ${
-                    !categoryParam && !filterParam
-                      ? "bg-[#064E3B] text-[#FAF8F1] font-semibold"
-                      : "text-[#171A18] hover:text-[#064E3B] hover:bg-[#F3EFE3]/60"
-                  }`}
-                >
-                  ✦ All Products
-                </button>
-                {categories.map((cat) => {
-                  const isCatSelected =
-                    Boolean(categoryParam) &&
-                    ((cat.id && cat.id.toLowerCase() === categoryParam.toLowerCase()) ||
-                      (cat.slug && cat.slug.toLowerCase() === categoryParam.toLowerCase()) ||
-                      (cat.name && cat.name.toLowerCase() === categoryParam.toLowerCase()));
-                  return (
+                {categoryParam ? (
+                  // When a specific category is selected (e.g. Cord set), hide other categories!
+                  <div>
+                    <div className="p-2.5 rounded-xl bg-[#064E3B] text-white font-semibold flex items-center justify-between mb-2 shadow-xs">
+                      <span className="font-bold">{categoryDisplayName}</span>
+                      <span className="text-amber-300 text-xs">✓ Active</span>
+                    </div>
+
+                    {/* Styles/Subcategories under the active category */}
+                    {subcategoriesForActiveCat.length > 0 && (
+                      <div className="mt-3 pt-2.5 border-t border-[#E8E2D5]/70 space-y-1">
+                        <span className="text-[10px] font-bold text-[#5C635E] uppercase tracking-wider block px-1 mb-1.5">
+                          Filter by Style
+                        </span>
+                        <button
+                          onClick={() => {
+                            const catKey = activeCatObj?.slug || activeCatObj?.id || categoryParam;
+                            navigate(`/category/${encodeURIComponent(catKey)}`);
+                          }}
+                          className={`block w-full text-left py-1.5 px-3 rounded-lg text-xs transition-colors cursor-pointer ${
+                            !subParam
+                              ? "bg-emerald-50 text-[#064E3B] font-bold border border-emerald-200"
+                              : "text-slate-700 hover:bg-slate-50 hover:text-[#064E3B]"
+                          }`}
+                        >
+                          All Styles
+                        </button>
+                        {subcategoriesForActiveCat.map((sub) => {
+                          const isSubActive = subParam.toLowerCase() === sub.toLowerCase();
+                          const catKey = activeCatObj?.slug || activeCatObj?.id || categoryParam;
+                          return (
+                            <button
+                              key={sub}
+                              onClick={() => {
+                                if (isSubActive) {
+                                  navigate(`/category/${encodeURIComponent(catKey)}`);
+                                } else {
+                                  navigate(`/category/${encodeURIComponent(catKey)}/${encodeURIComponent(sub)}`);
+                                }
+                              }}
+                              className={`block w-full text-left py-1.5 px-3 rounded-lg text-xs transition-colors cursor-pointer ${
+                                isSubActive
+                                  ? "bg-[#064E3B] text-white font-bold shadow-xs"
+                                  : "text-slate-700 hover:bg-slate-50 hover:text-[#064E3B]"
+                              }`}
+                            >
+                              {sub}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  // When no category is selected, show all categories
+                  <>
                     <button
-                      key={cat.id || cat.slug || cat.name}
-                      onClick={() => navigate(`/category/${encodeURIComponent(cat.slug || cat.id || cat.name)}`)}
-                      className={`block w-full text-left py-2 px-3 rounded-xl transition-colors ${
-                        isCatSelected
-                          ? "bg-[#064E3B] text-[#FAF8F1] font-semibold"
-                          : "text-[#171A18] hover:text-[#064E3B] hover:bg-[#F3EFE3]/60"
-                      }`}
+                      onClick={() => navigate("/shop")}
+                      className={`block w-full text-left py-2 px-3 rounded-xl transition-colors ${!filterParam
+                        ? "bg-[#064E3B] text-[#FAF8F1] font-semibold"
+                        : "text-[#171A18] hover:text-[#064E3B] hover:bg-[#F3EFE3]/60"
+                        }`}
                     >
-                      {cat.name}
+                      ✦ All Products
                     </button>
-                  );
-                })}
+                    {categories.map((cat) => (
+                      <button
+                        key={cat.id || cat.slug || cat.name}
+                        onClick={() => navigate(`/category/${encodeURIComponent(cat.slug || cat.id || cat.name)}`)}
+                        className="block w-full text-left py-2 px-3 rounded-xl transition-colors text-[#171A18] hover:text-[#064E3B] hover:bg-[#F3EFE3]/60 cursor-pointer"
+                      >
+                        {cat.name}
+                      </button>
+                    ))}
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Sizes */}
-            <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#E8E2D5] shadow-xs">
-              <h3 className="font-display text-xs font-bold text-[#064E3B] uppercase tracking-[0.18em] mb-3 pb-2 border-b border-[#E8E2D5]">
-                Sizes
-              </h3>
-              <div className="flex flex-wrap gap-1.5">
-                {allSizes.map((sz) => (
-                  <button
-                    key={sz}
-                    type="button"
-                    onClick={() => toggleSize(sz)}
-                    className={`rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all ${
-                      selectedSizes.includes(sz)
+            {/* Sizes (Hidden when Cord set is selected) */}
+            {!isCordSet && (
+              <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#E8E2D5] shadow-xs">
+                <h3 className="font-display text-xs font-bold text-[#064E3B] uppercase tracking-[0.18em] mb-3 pb-2 border-b border-[#E8E2D5]">
+                  Filter by Size
+                </h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {allSizes.map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => toggleSize(sz)}
+                      className={`rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${selectedSizes.includes(sz)
                         ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1]"
                         : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#C9A227]"
-                    }`}
-                  >
-                    {sz}
-                  </button>
-                ))}
+                        }`}
+                    >
+                      {sz === "XXL" ? "XXL / 2XL" : sz}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-
-            {/* Price Filter */}
-            <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#E8E2D5] shadow-xs space-y-3">
-              <h3 className="font-display text-xs font-bold text-[#064E3B] uppercase tracking-[0.18em] pb-2 border-b border-[#E8E2D5]">
-                Price Limit
-              </h3>
-              <div className="flex justify-between text-xs font-bold text-[#064E3B]">
-                <span>₹0</span>
-                <span>Up to ₹{priceRange[1].toLocaleString("en-IN")}</span>
-              </div>
-              <input
-                type="range"
-                min={300}
-                max={5000}
-                step={100}
-                value={priceRange[1]}
-                onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                className="w-full accent-[#064E3B]"
-              />
-            </div>
+            )}
           </aside>
 
           {/* Product Grid Area */}
@@ -648,7 +893,7 @@ export default function Shop() {
                   </div>
                 </div>
                 <h3 className="font-display text-xl font-bold text-[#064E3B] mb-2">
-                  No matching garments found
+                  No matching products found
                 </h3>
                 <p className="text-xs text-[#5C635E] max-w-sm mx-auto mb-6">
                   Try adjusting your filter options, clearing size selections, or searching for other designs.

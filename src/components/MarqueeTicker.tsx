@@ -3,13 +3,11 @@ import { Link } from "react-router";
 
 export default function MarqueeTicker() {
   const [tickerItems, setTickerItems] = useState<string[]>([
-    "COMPLIMENTARY EXPRESS SHIPPING ON ORDERS ABOVE ₹999",
-    "NEW ARRIVALS: PURE COTTON & SILK FESTIVE COUTURE",
+    "FREE EXPRESS SHIPPING ON QUALIFYING ORDERS",
     "CASH ON DELIVERY AVAILABLE PAN-INDIA",
-    "EXCLUSIVE COMBO OFFERS: BUY 3 NIGHTIES & GET FREE SHIPPING",
-    "USE CODE NITHI10 FOR 10% OFF ON FIRST PURCHASE",
+    "EASY 7-DAY EXCHANGE & SECURE PAYMENTS",
   ]);
-  const [enabled, setEnabled] = useState(true);
+  const [enabled, setEnabled] = useState(false); // Essential info ticker only — no promotional pop-ups
 
   useEffect(() => {
     const loadSettings = () => {

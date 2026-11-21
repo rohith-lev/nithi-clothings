@@ -174,8 +174,8 @@ export default function AdminLayout() {
       {
         id: "action-add-product",
         type: "action" as const,
-        title: "Add New Garment / Product",
-        subtitle: "Create a new garment entry in the catalogue",
+        title: "Add New Product",
+        subtitle: "Create a new product entry in the catalogue",
         icon: "✨",
         action: () => navigate("/admin/products/new"),
       },
@@ -199,7 +199,7 @@ export default function AdminLayout() {
         id: "action-products-list",
         type: "action" as const,
         title: "Open Product Management",
-        subtitle: "View, filter, edit prices and restock garments",
+        subtitle: "View, filter, edit prices and restock products",
         icon: "👗",
         action: () => navigate("/admin/products"),
       },
@@ -819,7 +819,7 @@ export default function AdminLayout() {
                     {paletteResults.products.length > 0 && (
                       <div>
                         <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-stone-400 flex items-center justify-between">
-                          <span>Garments & Products ({paletteResults.products.length})</span>
+                          <span>Products ({paletteResults.products.length})</span>
                           <span className="text-[9px] text-stone-400 font-normal">Click to edit details</span>
                         </div>
                         <div className="space-y-1">

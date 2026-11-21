@@ -55,10 +55,14 @@ export default function Header() {
     }
   };
 
-  // Deduplicate and sanitize categories
+  // Deduplicate and sanitize categories with product types
   const categoriesList = useMemo(() => {
     const seen = new Set<string>();
-    const list: (Category & { cleanSubcategories: { id: string; name: string }[] })[] = [];
+    const list: (Category & {
+      cleanSubcategories: { id: string; name: string }[];
+      cleanProductTypes: string[];
+      nestedItems: { id: string; name: string; isType: boolean }[];
+    })[] = [];
 
     for (const cat of rawCategories) {
       if (!cat || cat.isActive === false) continue;
@@ -80,9 +84,39 @@ export default function Header() {
         }
       }
 
+      // Collect product types dynamically stored in category or fallback defaults for clothing categories
+      let types: string[] = [];
+      if (Array.isArray((cat as any).productTypes) && (cat as any).productTypes.length > 0) {
+        types = (cat as any).productTypes;
+      } else if (key.includes("nighty") || key.includes("nighties")) {
+        types = ["Zip Nighty", "Zipless Nighty", "Elite Nighty"];
+      }
+
+      // Merge product types and subcategories into unified nested items
+      const nested: { id: string; name: string; isType: boolean }[] = [];
+      const itemSeen = new Set<string>();
+
+      for (const t of types) {
+        const norm = t.toLowerCase().trim();
+        if (!itemSeen.has(norm)) {
+          itemSeen.add(norm);
+          nested.push({ id: `type-${norm}`, name: t.trim(), isType: true });
+        }
+      }
+
+      for (const s of cleanSubs) {
+        const norm = s.name.toLowerCase().trim();
+        if (!itemSeen.has(norm)) {
+          itemSeen.add(norm);
+          nested.push({ id: s.id, name: s.name, isType: false });
+        }
+      }
+
       list.push({
         ...cat,
         cleanSubcategories: cleanSubs,
+        cleanProductTypes: types,
+        nestedItems: nested,
       });
     }
 
@@ -100,16 +134,63 @@ export default function Header() {
 
   return (
     <>
-      {/* Top Luxury Announcement Marquee Ticker */}
-      <MarqueeTicker />
+      {/* Animated Marquee Announcement & Order Tracking Bar */}
+      <div className="bg-[#064E3B] text-white border-b border-[#0B3D2E]/40 text-[11px] py-1.5 px-3 select-none font-body overflow-hidden relative">
+        <div className="flex items-center justify-between max-w-7xl mx-auto gap-4">
+          {/* Smooth Scrolling Marquee Track */}
+          <div className="flex-1 overflow-hidden whitespace-nowrap relative">
+            <div className="inline-flex items-center gap-8 animate-marquee text-[11px] font-medium tracking-normal">
+              {[1, 2].map((k) => (
+                <div key={k} className="inline-flex items-center gap-8 shrink-0">
+                  <span className="flex items-center gap-1.5 font-bold text-amber-300">
+                    <span>🚚</span>
+                    <span>FREE EXPRESS DELIVERY ON ORDERS ₹999+</span>
+                  </span>
+                  <span className="text-emerald-300">•</span>
+                  <span className="flex items-center gap-1.5 text-slate-100">
+                    <span>💵</span>
+                    <span>CASH ON DELIVERY (COD) AVAILABLE PAN-INDIA</span>
+                  </span>
+                  <span className="text-emerald-300">•</span>
+                  <span className="flex items-center gap-1.5 text-emerald-200 font-semibold">
+                    <span>🧵</span>
+                    <span>100% PURE COMBED COTTON QUALITY</span>
+                  </span>
+                  <span className="text-emerald-300">•</span>
+                  <span className="flex items-center gap-1.5 text-slate-100">
+                    <span>🔄</span>
+                    <span>EASY 7-DAY EXCHANGE & REPLACEMENTS</span>
+                  </span>
+                  <span className="text-emerald-300">•</span>
+                  <span className="flex items-center gap-1.5 text-amber-200">
+                    <span>📦</span>
+                    <span>FAST 2–4 BUSINESS DAYS DISPATCH</span>
+                  </span>
+                  <span className="text-emerald-300">•</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Persistent Order Tracking Link */}
+          <div className="flex items-center gap-3 shrink-0 z-10 bg-[#064E3B] pl-2 text-xs font-semibold">
+            <Link
+              to="/track"
+              className="flex items-center gap-1 text-white hover:text-amber-300 transition-colors bg-white/10 hover:bg-white/20 px-2.5 py-0.5 rounded-full text-[11px]"
+            >
+              <span>🔍</span>
+              <span>Track Order</span>
+            </Link>
+          </div>
+        </div>
+      </div>
 
       {/* Main Sticky Header */}
       <header
-        className={`sticky top-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? "bg-[#FAF8F1]/95 backdrop-blur-md shadow-sm border-b border-[#E8E2D5]"
-            : "bg-[#FAF8F1] border-b border-[#E8E2D5]"
-        }`}
+        className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled
+          ? "bg-[#FAF8F1]/95 backdrop-blur-md shadow-sm border-b border-[#E8E2D5]"
+          : "bg-[#FAF8F1] border-b border-[#E8E2D5]"
+          }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 sm:h-20 lg:h-24 gap-1 sm:gap-4">
@@ -136,15 +217,15 @@ export default function Header() {
               <BrandLogo variant="dark" size="md" showTagline={true} />
             </div>
 
-            {/* Desktop Navigation - Clean, uncrowded layout */}
-            <nav className="hidden lg:flex items-center gap-8 xl:gap-10 font-body text-xs font-semibold tracking-[0.14em] uppercase text-[#171A18]">
+            {/* Desktop Navigation — Categories first (database-driven) with clean normal tracking and larger text */}
+            <nav className="hidden lg:flex items-center gap-7 xl:gap-8 font-body text-base font-semibold tracking-normal text-slate-800">
               {/* Home Link */}
               <Link
                 to="/"
-                className="relative text-[#171A18] hover:text-[#064E3B] transition-colors py-1 group"
+                className="relative text-slate-800 hover:text-[#064E3B] transition-colors py-1 group"
               >
                 <InteractiveNavText text="Home" />
-                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#064E3B] transition-all duration-300 group-hover:w-full" />
               </Link>
 
               {/* Shop / Categories Dropdown */}
@@ -155,27 +236,17 @@ export default function Header() {
               >
                 <Link
                   to="/shop"
-                  className="flex items-center gap-1.5 text-[#171A18] hover:text-[#064E3B] transition-colors relative py-1"
+                  className="flex items-center gap-1.5 text-slate-800 hover:text-[#064E3B] transition-colors relative py-1"
                 >
                   <InteractiveNavText text="Shop" />
-                  <svg
-                    className={`w-3 h-3 text-[#C9A227] transition-transform duration-200 ${
-                      activeDropdownCatId === "all-shop" ? "rotate-180" : "group-hover:rotate-180"
-                    }`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
                   <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
                 </Link>
 
-                {/* Categories & Subcategories Dropdown */}
+                {/* Categories & Product Types Dropdown (admin-defined order) */}
                 <div className="absolute top-full -left-6 w-80 bg-[#FFFFFF] border border-[#E8E2D5] shadow-2xl rounded-2xl p-3.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="p-2 border-b border-[#E8E2D5]/70 mb-1.5 flex items-center justify-between">
                     <span className="text-[10px] font-bold text-[#C9A227] tracking-[0.2em] uppercase block">
-                      Garment Categories
+                      Product Categories
                     </span>
                     <Link
                       to="/shop"
@@ -212,24 +283,24 @@ export default function Header() {
               {/* Standard Static Links */}
               <Link
                 to="/shop?filter=new"
-                className="relative text-[#171A18] hover:text-[#064E3B] transition-colors py-1 group whitespace-nowrap"
+                className="relative text-slate-800 hover:text-[#064E3B] transition-colors py-1 group whitespace-nowrap"
               >
                 <InteractiveNavText text="New Arrivals" />
-                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
-              </Link>
-              <Link
-                to="/about"
-                className="relative text-[#171A18] hover:text-[#064E3B] transition-colors py-1 group whitespace-nowrap"
-              >
-                <InteractiveNavText text="About Us" />
-                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#064E3B] transition-all duration-300 group-hover:w-full" />
               </Link>
               <Link
                 to="/contact"
-                className="relative text-[#171A18] hover:text-[#064E3B] transition-colors py-1 group whitespace-nowrap"
+                className="relative text-slate-800 hover:text-[#064E3B] transition-colors py-1 group whitespace-nowrap"
               >
                 <InteractiveNavText text="Contact" />
-                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#C9A227] transition-all duration-300 group-hover:w-full" />
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#064E3B] transition-all duration-300 group-hover:w-full" />
+              </Link>
+              <Link
+                to="/track"
+                className="relative text-slate-800 hover:text-[#064E3B] transition-colors py-1 group whitespace-nowrap"
+              >
+                <InteractiveNavText text="Track Order" />
+                <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-[#064E3B] transition-all duration-300 group-hover:w-full" />
               </Link>
             </nav>
 
@@ -239,7 +310,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setSearchOpen(!searchOpen)}
-                className="p-1.5 sm:p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors"
+                className="p-1.5 sm:p-2.5 rounded-full hover:text-[#064E3B] hover:bg-[#F3EFE3]/50 transition-colors"
                 aria-label="Search Collection"
                 title="Search"
               >
@@ -248,18 +319,18 @@ export default function Header() {
                 </svg>
               </button>
 
-              {/* Wishlist Icon (visible on tablets/desktops; on mobile in drawer) */}
+              {/* Wishlist / Favorites Icon */}
               <Link
                 to="/wishlist"
-                className="hidden xs:flex p-1.5 sm:p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors relative"
-                aria-label="Wishlist"
-                title="Wishlist"
+                className="flex p-1.5 sm:p-2.5 rounded-full hover:text-[#064E3B] hover:bg-slate-100 transition-colors relative"
+                aria-label="Wishlist / Favorites"
+                title="Wishlist / Favorites"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                <svg className="w-5 h-5 text-slate-700 hover:text-rose-600 transition-colors" fill={state.wishlist.length > 0 ? "#E11D48" : "none"} viewBox="0 0 24 24" stroke={state.wishlist.length > 0 ? "#E11D48" : "currentColor"}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
                 {state.wishlist.length > 0 && (
-                  <span className="absolute top-1 sm:top-1.5 right-1 sm:right-1.5 bg-[#C9A227] text-[#171A18] text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-xs">
+                  <span className="absolute top-1 sm:top-1.5 right-1 sm:right-1.5 bg-rose-600 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-xs">
                     {state.wishlist.length}
                   </span>
                 )}
@@ -285,9 +356,8 @@ export default function Header() {
               {/* Shopping Bag Icon with Bounce Micro-interaction */}
               <Link
                 to="/cart"
-                className={`p-1.5 sm:p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors relative group ${
-                  cartAnimate ? "animate-cart-bounce" : ""
-                }`}
+                className={`p-1.5 sm:p-2.5 rounded-full hover:text-[#C9A227] hover:bg-[#F3EFE3]/50 transition-colors relative group ${cartAnimate ? "animate-cart-bounce" : ""
+                  }`}
                 aria-label="Shopping Bag"
                 title="Shopping Bag"
               >
@@ -361,24 +431,24 @@ export default function Header() {
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="lg:hidden bg-[#FAF8F1] border-t border-[#E8E2D5] px-4 py-4 space-y-4 max-h-[calc(100vh-5rem)] overflow-y-auto shadow-lg animate-fade-in">
-            <nav className="flex flex-col space-y-1.5 font-body text-sm font-semibold tracking-[0.08em] uppercase text-[#171A18]">
+            <nav className="flex flex-col space-y-2 font-body text-base font-semibold tracking-normal text-[#171A18]">
               {/* Home */}
               <Link
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className="py-2 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between mobile-touch-zoom"
+                className="py-2 hover:text-[#064E3B] border-b border-[#E8E2D5]/50 flex items-center justify-between mobile-touch-zoom"
               >
                 <InteractiveNavText text="Home" />
                 <span className="text-[#C9A227] text-xs">→</span>
               </Link>
 
-              {/* Dynamic Database Categories */}
+              {/* Categories — from the database, in admin-defined order, with product types */}
               {categoriesList.map((cat) => {
                 const catSlug = cat.slug || cat.id;
-                const hasSubs = cat.cleanSubcategories.length > 0;
+                const hasNested = cat.nestedItems.length > 0;
                 const isExpanded = Boolean(mobileExpandedCatIds[cat.id]);
 
-                if (hasSubs) {
+                if (hasNested) {
                   return (
                     <div key={cat.id || cat.slug} className="border-b border-[#E8E2D5]/50 py-1">
                       <div className="flex items-center justify-between py-1">
@@ -392,33 +462,28 @@ export default function Header() {
                         <button
                           type="button"
                           onClick={(e) => toggleMobileCategory(cat.id, e)}
-                          className="p-1.5 text-[#C9A227] hover:bg-[#F3EFE3] rounded-sm transition-colors active:scale-125"
-                          aria-label={`Toggle ${cat.name} subcategories`}
+                          className="px-2.5 py-1 text-xs font-bold text-[#064E3B] hover:text-[#C9A227] hover:bg-[#F3EFE3] rounded-lg transition-colors"
+                          aria-label={`Toggle ${cat.name} styles and types`}
                         >
-                          <svg
-                            className={`w-4 h-4 transition-transform duration-200 ${
-                              isExpanded ? "rotate-180" : ""
-                            }`}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
+                          {isExpanded ? "− Close" : "+ Styles"}
                         </button>
                       </div>
 
-                      {/* Subcategories Accordion */}
+                      {/* Product Types & Subcategories Nested Accordion */}
                       {isExpanded && (
                         <div className="pl-3 py-2 space-y-2 text-xs normal-case tracking-normal font-normal text-[#5C635E] border-l-2 border-[#C9A227]/40 ml-1 animate-fade-in">
-                          {cat.cleanSubcategories.map((sub) => (
+                          {cat.nestedItems.map((item) => (
                             <Link
-                              key={sub.id || sub.name}
-                              to={`/shop?category=${encodeURIComponent(catSlug)}&sub=${encodeURIComponent(sub.name)}`}
+                              key={item.id}
+                              to={
+                                item.isType
+                                  ? `/shop?category=${encodeURIComponent(catSlug)}&type=${encodeURIComponent(item.name)}`
+                                  : `/shop?category=${encodeURIComponent(catSlug)}&sub=${encodeURIComponent(item.name)}`
+                              }
                               onClick={() => setMobileMenuOpen(false)}
                               className="block py-1 hover:text-[#064E3B] transition-colors mobile-touch-zoom"
                             >
-                              ✦ <InteractiveNavText text={sub.name} />
+                              ✦ <InteractiveNavText text={item.name} />
                             </Link>
                           ))}
                         </div>
@@ -440,7 +505,7 @@ export default function Header() {
                 );
               })}
 
-              {/* Standard Static Links */}
+              {/* Standard Links — only commerce-relevant entries */}
               <Link
                 to="/shop?filter=new"
                 onClick={() => setMobileMenuOpen(false)}
@@ -450,19 +515,19 @@ export default function Header() {
                 <span className="text-[#C9A227] text-xs">→</span>
               </Link>
               <Link
-                to="/about"
+                to="/contact"
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-2 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between mobile-touch-zoom"
               >
-                <InteractiveNavText text="About Us" />
+                <InteractiveNavText text="Contact Us" />
                 <span className="text-[#C9A227] text-xs">→</span>
               </Link>
               <Link
-                to="/contact"
+                to="/track"
                 onClick={() => setMobileMenuOpen(false)}
                 className="py-2 hover:text-[#C9A227] flex items-center justify-between mobile-touch-zoom"
               >
-                <InteractiveNavText text="Contact Us" />
+                <InteractiveNavText text="Track Order" />
                 <span className="text-[#C9A227] text-xs">→</span>
               </Link>
             </nav>

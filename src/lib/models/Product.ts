@@ -34,6 +34,21 @@ const colorOptionSchema = new Schema(
   { _id: false }
 );
 
+// Product Type (e.g. Zip Nighty / Zipless Nighty / Elite Nighty)
+// Each type can carry its own price, MRP, stock and image.
+const productTypeSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    price: { type: Number, default: 0 },
+    mrp: { type: Number, default: 0 },
+    stock: { type: Number, default: 0 },
+    image: { type: String, default: "" },
+    active: { type: Boolean, default: true },
+  },
+  { _id: false }
+);
+
 const productSchema = new Schema(
   {
     id: { type: String, required: true, unique: true },
@@ -56,7 +71,7 @@ const productSchema = new Schema(
     colorOptions: { type: [colorOptionSchema], default: [] },
     fabric: { type: String, default: "100% Pure Cotton" },
     material: { type: String, default: "Pure Cotton" },
-    length: { type: String, default: "55 Inches" },
+    productLength: { type: String, default: "55 Inches" },
     pattern: { type: String, default: "Printed" },
     sleeveType: { type: String, default: "Half Sleeve" },
     neckType: { type: String, default: "Round Neck" },
@@ -74,6 +89,7 @@ const productSchema = new Schema(
       default: "ACTIVE",
     },
     variants: { type: [variantSchema], default: [] },
+    productTypes: { type: [productTypeSchema], default: [] },
     images: { type: [String], default: [] },
     coverImage: { type: String, default: "" },
     colorImages: { type: Map, of: String, default: {} },
@@ -124,6 +140,16 @@ productSchema.pre("save", function () {
     this.stock = totalSizeStock;
     const minSizePrice = Math.min(...this.sizeOptions.map((s) => Number(s.price) || Infinity));
     if (minSizePrice !== Infinity && minSizePrice > 0) this.price = minSizePrice;
+  }
+  if (this.productTypes && this.productTypes.length > 0) {
+    const activeTypes = this.productTypes.filter((t: any) => t.active !== false);
+    if (activeTypes.length > 0) {
+      // Total stock is the sum of per-type stock when types are configured
+      const typeStockSum = activeTypes.reduce((sum: number, t: any) => sum + (Number(t.stock) || 0), 0);
+      if (typeStockSum > 0) this.stock = typeStockSum;
+      const minTypePrice = Math.min(...activeTypes.map((t: any) => Number(t.price) || Infinity));
+      if (minTypePrice !== Infinity && minTypePrice > 0) this.price = minTypePrice;
+    }
   }
   if (this.colorOptions && this.colorOptions.length > 0) {
     this.colors = this.colorOptions.map((c) => c.name);

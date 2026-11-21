@@ -298,17 +298,28 @@ export default function AdminProductsList() {
     }
   };
 
-  // Handle Delete All Products
+  // Handle Delete All Products (Purge All — permanent with confirmation popup and feedback)
+  const [purgeConfirmText, setPurgeConfirmText] = useState("");
+  const [purgeTargetMode, setPurgeTargetMode] = useState<"trash" | "all">("trash");
+
   const handleConfirmDeleteAll = async () => {
     setDeletingAll(true);
-    const res = await adminApi.deleteAllProducts();
-    setDeletingAll(false);
-    setShowDeleteAllModal(false);
-    if (res.success) {
-      showToast(res.message || "All products have been deleted successfully.");
-      loadProducts();
-    } else {
-      showToast(res.error || "Failed to delete all products.");
+    try {
+      const res = purgeTargetMode === "trash"
+        ? await adminApi.purgeTrash("trash")
+        : await adminApi.deleteAllProducts();
+      setDeletingAll(false);
+      if (res.success) {
+        setShowDeleteAllModal(false);
+        setPurgeConfirmText("");
+        showToast(res.message || `Successfully purged (${res.data?.count ?? 0} item(s) permanently removed).`);
+        loadProducts();
+      } else {
+        showToast(`❌ Purge failed: ${res.error || "Database operation failed."}`);
+      }
+    } catch (err: any) {
+      setDeletingAll(false);
+      showToast(`❌ Purge failed: ${err.message || "An unexpected error occurred."}`);
     }
   };
 
@@ -462,7 +473,7 @@ export default function AdminProductsList() {
             className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 hover:from-black hover:to-stone-800 rounded-2xl shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2 border border-stone-700 active:scale-95"
           >
             <PlusIcon size={15} className="text-[#DFC15E]" />
-            <span className="tracking-wide">Add New Garment</span>
+            <span className="tracking-wide">Add New Product</span>
           </Link>
         </div>
       </div>
@@ -478,7 +489,7 @@ export default function AdminProductsList() {
           className="group relative bg-white hover:bg-stone-50/80 p-4 rounded-3xl border border-stone-200/80 shadow-sm hover:shadow-md transition-all cursor-pointer overflow-hidden"
         >
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold tracking-wider uppercase text-stone-400">Total Garments</span>
+            <span className="text-[11px] font-bold tracking-wider uppercase text-stone-400">Total Products</span>
             <span className="w-2 h-2 rounded-full bg-stone-400 group-hover:scale-125 transition-transform" />
           </div>
           <div className="text-2xl font-black text-stone-900 mt-2">{stats.total}</div>
@@ -682,6 +693,20 @@ export default function AdminProductsList() {
             Drafts
           </button>
           <button
+            onClick={() => {
+              const next = statusFilter === "TRASH" ? "all" : "TRASH";
+              setStatusFilter(next);
+              if (next === "TRASH") setPurgeTargetMode("trash");
+            }}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              statusFilter === "TRASH"
+                ? "bg-rose-700 text-white shadow-sm"
+                : "bg-rose-50 text-rose-700 hover:bg-rose-100"
+            }`}
+          >
+            🗑️ Trash
+          </button>
+          <button
             onClick={() => setOnlyDiscounted(!onlyDiscounted)}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               onlyDiscounted
@@ -711,7 +736,7 @@ export default function AdminProductsList() {
             <span className="w-6 h-6 rounded-full bg-[#C9A227] text-stone-950 font-black flex items-center justify-center text-xs">
               {selectedIds.length}
             </span>
-            <span className="font-bold text-[#DFC15E]">garments selected</span>
+            <span className="font-bold text-[#DFC15E]">products selected</span>
           </div>
 
           <div className="h-5 w-[1px] bg-stone-700 mx-1 hidden sm:block" />
@@ -783,7 +808,7 @@ export default function AdminProductsList() {
                       className="rounded border-stone-300 w-3.5 h-3.5 text-[#064E3B] focus:ring-[#064E3B] cursor-pointer"
                     />
                   </th>
-                  <th className="py-3.5 px-3 min-w-[180px]">Garment Details</th>
+                  <th className="py-3.5 px-3 min-w-[180px]">Product Details</th>
                   <th className="py-3.5 px-2.5 whitespace-nowrap">SKU Code</th>
                   <th className="py-3.5 px-2.5">Category</th>
                   <th className="py-3.5 px-2.5 whitespace-nowrap">Price & MRP</th>
@@ -1523,13 +1548,13 @@ export default function AdminProductsList() {
               <TrashIcon size={22} />
             </div>
             <div>
-              <h3 className="font-bold text-lg text-stone-900">Remove Garment from Catalogue</h3>
+              <h3 className="font-bold text-lg text-stone-900">Remove Product from Catalogue</h3>
               <p className="text-xs text-stone-600 mt-1 leading-relaxed">
                 Are you sure you want to permanently remove <strong>"{deleteCandidate.name}"</strong>?
               </p>
             </div>
             <div className="p-3.5 bg-stone-50 rounded-2xl border border-stone-200 text-xs text-stone-600">
-              ℹ️ Historical order records associated with this garment remain preserved.
+              ℹ️ Historical order records associated with this product remain preserved.
             </div>
 
             <div className="flex justify-end gap-2.5 pt-2">
@@ -1588,7 +1613,7 @@ export default function AdminProductsList() {
         </div>
       )}
 
-      {/* DELETE ALL PRODUCTS MODAL */}
+      {/* PURGE ALL CONFIRMATION MODAL */}
       {showDeleteAllModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-md w-full p-6 sm:p-7 text-stone-800 animate-in zoom-in-95 duration-150 space-y-4">
@@ -1597,42 +1622,85 @@ export default function AdminProductsList() {
                 <TrashIcon size={22} />
               </div>
               <div>
-                <h3 className="font-bold text-lg text-stone-900 leading-tight">Delete All Garments?</h3>
-                <p className="text-xs text-rose-600 font-semibold">Irreversible Action</p>
+                <h3 className="font-bold text-lg text-stone-900 leading-tight">Purge All Confirmation</h3>
+                <p className="text-xs text-rose-600 font-semibold">Permanent Database Operation</p>
               </div>
             </div>
 
+            {/* Target Selection: Trash vs All */}
+            <div className="grid grid-cols-2 gap-2 p-1.5 bg-stone-100 rounded-2xl text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setPurgeTargetMode("trash")}
+                className={`py-2 px-3 rounded-xl transition-all ${
+                  purgeTargetMode === "trash"
+                    ? "bg-rose-600 text-white shadow-sm"
+                    : "text-stone-600 hover:text-stone-900"
+                }`}
+              >
+                Purge Trash Only
+              </button>
+              <button
+                type="button"
+                onClick={() => setPurgeTargetMode("all")}
+                className={`py-2 px-3 rounded-xl transition-all ${
+                  purgeTargetMode === "all"
+                    ? "bg-rose-600 text-white shadow-sm"
+                    : "text-stone-600 hover:text-stone-900"
+                }`}
+              >
+                Purge All Products
+              </button>
+            </div>
+
             <p className="text-xs text-stone-600 leading-relaxed">
-              Are you sure you want to permanently purge <strong>all {products.length} garments</strong> from the database and storefront catalogue?
+              {purgeTargetMode === "trash" ? (
+                <>Are you sure you want to <strong>permanently delete all items in Trash</strong>? These records will be permanently removed from MongoDB Atlas.</>
+              ) : (
+                <>Are you sure you want to <strong>permanently purge all {products.length} products</strong> from the entire database? This cannot be undone.</>
+              )}
             </p>
 
             <div className="p-3.5 bg-rose-50 rounded-2xl border border-rose-200 text-xs text-rose-900 space-y-1">
-              <p className="font-bold">⚠️ Warning:</p>
-              <p>All product images, variants, size inventories, and descriptions will be cleared.</p>
+              <p className="font-bold">⚠️ Irreversible Action:</p>
+              <p>{purgeTargetMode === "trash" ? "Items in trash will be permanently expunged." : "All product records, variants, and descriptions will be permanently deleted."}</p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-stone-700">
+                Type <span className="font-mono text-rose-600">PURGE</span> to confirm:
+              </label>
+              <input
+                type="text"
+                value={purgeConfirmText}
+                onChange={(e) => setPurgeConfirmText(e.target.value)}
+                placeholder="PURGE"
+                className="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-bold tracking-widest uppercase focus:border-rose-500 focus:outline-none"
+              />
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
               <button
                 type="button"
                 disabled={deletingAll}
-                onClick={() => setShowDeleteAllModal(false)}
+                onClick={() => { setShowDeleteAllModal(false); setPurgeConfirmText(""); }}
                 className="px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="button"
-                disabled={deletingAll}
+                disabled={deletingAll || purgeConfirmText.trim().toUpperCase() !== "PURGE"}
                 onClick={handleConfirmDeleteAll}
                 className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 shadow-md transition disabled:opacity-50 flex items-center gap-2"
               >
                 {deletingAll ? (
                   <>
                     <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Purging Catalogue...</span>
+                    <span>Purging from Database...</span>
                   </>
                 ) : (
-                  <span>Yes, Purge All Garments</span>
+                  <span>Permanently Purge {purgeTargetMode === "trash" ? "Trash" : "All"}</span>
                 )}
               </button>
             </div>

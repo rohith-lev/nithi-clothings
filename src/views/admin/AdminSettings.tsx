@@ -7,10 +7,10 @@ export default function AdminSettings() {
   const [activeTab, setActiveTab] = useState<"storage" | "store" | "notifications">("storage");
 
   const [settings, setSettings] = useState<SiteSettings>({
-    storeName: "Nithi Collection",
+    storeName: "Nithi Collections",
     tagline: "Everyday Elegance in Nighties & Ethnic Wear",
     supportPhone: "+91 98765 43210",
-    supportEmail: "support@nithicollection.com",
+    supportEmail: "support@nithicollections.com",
     defaultLowThreshold: 10,
     marqueeEnabled: true,
     marqueeTexts: [
@@ -21,10 +21,13 @@ export default function AdminSettings() {
       "USE CODE NITHI10 FOR 10% OFF ON FIRST PURCHASE",
     ],
     circularBadgeEnabled: true,
-    circularBadgeText: "• LIMITED OFFER • SHOP NOW • NITHI COLLECTION • ",
+    circularBadgeText: "• LIMITED OFFER • SHOP NOW • NITHI COLLECTIONS • ",
     circularBadgeLink: "/shop?filter=sale",
     freeShippingThreshold: 999,
-    storeAddress: "Nithi Collection, No. 45, Avinashi Main Road, Kumaran Nagar, Tiruppur, Tamil Nadu - 641603",
+    storeAddress: "Nithi Collections, No. 45, Avinashi Main Road, Kumaran Nagar, Tiruppur, Tamil Nadu - 641603",
+    razorpayKeyId: "rzp_test_U2jwVvz252HQ5w",
+    razorpayKeySecret: "lce5f7oC0UtnH13owVdiEsOG",
+    razorpayEnabled: true,
   });
 
   const [marqueeRawText, setMarqueeRawText] = useState("");
@@ -205,9 +208,55 @@ export default function AdminSettings() {
                 rows={2}
                 value={settings.storeAddress || ""}
                 onChange={(e) => setSettings({ ...settings, storeAddress: e.target.value })}
-                placeholder="e.g. Nithi Collection, No. 45, Avinashi Main Road, Kumaran Nagar, Tiruppur, Tamil Nadu - 641603"
+                placeholder="e.g. Nithi Collections, No. 45, Avinashi Main Road, Kumaran Nagar, Tiruppur, Tamil Nadu - 641603"
                 className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227] leading-relaxed"
               />
+            </div>
+
+            {/* Razorpay Payment Gateway Integration */}
+            <div className="pt-4 border-t border-stone-100 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-sans font-bold text-sm text-stone-900 flex items-center gap-2">
+                    <span>💳</span> Razorpay Payment Gateway Configuration
+                  </h4>
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    Configure your live or test Razorpay Key ID and Secret for online payments (UPI, Cards, NetBanking).
+                  </p>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={settings.razorpayEnabled ?? true}
+                    onChange={(e) => setSettings({ ...settings, razorpayEnabled: e.target.checked })}
+                    className="rounded border-stone-300 w-4 h-4 text-[#064E3B] focus:ring-[#064E3B]"
+                  />
+                  <span className="font-bold text-stone-800 text-xs">Gateway Active</span>
+                </label>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-bold mb-1 text-stone-700">Razorpay Key ID</label>
+                  <input
+                    type="text"
+                    value={settings.razorpayKeyId || ""}
+                    onChange={(e) => setSettings({ ...settings, razorpayKeyId: e.target.value })}
+                    placeholder="rzp_live_xxxxxxxxxxxx or rzp_test_xxxxxxxxxxxx"
+                    className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl font-mono text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold mb-1 text-stone-700">Razorpay Key Secret</label>
+                  <input
+                    type="password"
+                    value={settings.razorpayKeySecret || ""}
+                    onChange={(e) => setSettings({ ...settings, razorpayKeySecret: e.target.value })}
+                    placeholder="Enter Razorpay API Secret..."
+                    className="w-full px-4 py-2.5 bg-stone-50 border border-stone-300 rounded-xl font-mono text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="pt-4 border-t border-stone-100 flex justify-end">
