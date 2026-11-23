@@ -84,6 +84,10 @@ export default function Checkout() {
     cartSubtotal,
     comboDiscount,
     subtotalAfterDiscount,
+    taxableSubtotal,
+    cgstAmount,
+    sgstAmount,
+    totalTaxAmount,
     shippingCharge,
     grandTotal,
     isFreeShipping,
@@ -197,7 +201,10 @@ export default function Checkout() {
       }),
       subtotal: cartSubtotal,
       discount: comboDiscount,
-      shippingFee: shippingCharge,
+      tax: totalTaxAmount,
+      cgst: cgstAmount,
+      sgst: sgstAmount,
+      shippingFee: 0,
       total: grandTotal,
       paymentMethod: paymentMethodType,
       paymentStatus: paymentStatusType,
@@ -633,16 +640,12 @@ export default function Checkout() {
             <div className="bg-white border border-[#E8E2D5] rounded-sm p-6 space-y-5 shadow-xs">
               <h2 className="font-display text-lg font-bold text-[#171A18]">Delivery & Payment</h2>
 
-              {/* Free Shipping or Shipping Notice */}
-              <div className={`p-3.5 rounded-sm text-sm font-medium ${isFreeShipping ? "bg-[#064E3B]/10 border border-[#064E3B]/30 text-[#064E3B]" : "bg-[#F3EFE3] border border-[#E8E2D5] text-[#171A18]"}`}>
-                {isFreeShipping ? (
-                  <div className="flex items-center gap-2">
-                    <span>🎉</span>
-                    <span>{freeShippingReason || "Your order qualifies for FREE SHIPPING!"}</span>
-                  </div>
-                ) : (
-                  <span>Shipping charge: ₹{shippingCharge} ({info.state})</span>
-                )}
+              {/* Free Shipping Notice */}
+              <div className="p-3.5 rounded-sm text-sm font-medium bg-[#064E3B]/10 border border-[#064E3B]/30 text-[#064E3B]">
+                <div className="flex items-center gap-2">
+                  <span>🎉</span>
+                  <span className="font-semibold">FREE Delivery Unlocked on All Orders! (Complimentary Express Dispatch via ST Courier)</span>
+                </div>
               </div>
 
               {/* Combo Discounts Notice */}
@@ -797,14 +800,22 @@ export default function Checkout() {
                     <span>-₹{comboDiscount.toLocaleString("en-IN")}</span>
                   </div>
                 )}
+                <div className="flex justify-between text-[#4A4D45] text-xs">
+                  <span>CGST (2.5%)</span>
+                  <span>₹{cgstAmount.toLocaleString("en-IN")}</span>
+                </div>
+                <div className="flex justify-between text-[#4A4D45] text-xs">
+                  <span>SGST (2.5%)</span>
+                  <span>₹{sgstAmount.toLocaleString("en-IN")}</span>
+                </div>
                 <div className="flex justify-between text-[#4A4D45]">
-                  <span>Shipping</span>
-                  <span className={isFreeShipping ? "text-[#064E3B] font-semibold" : ""}>
-                    {isFreeShipping ? "FREE" : `₹${shippingCharge}`}
+                  <span>Delivery / Shipping</span>
+                  <span className="text-[#064E3B] font-semibold">
+                    FREE (₹0)
                   </span>
                 </div>
                 <div className="flex justify-between font-bold text-[#171A18] text-base border-t border-[#E8E2D5] pt-2">
-                  <span>Total</span>
+                  <span>Grand Total (incl. 5% Tax)</span>
                   <span className="text-[#064E3B]">₹{grandTotal.toLocaleString("en-IN")}</span>
                 </div>
                 {paymentMethod === "cod" && codAdvanceAmount > 0 && (
@@ -874,10 +885,18 @@ export default function Checkout() {
                   <span>-₹{comboDiscount.toLocaleString("en-IN")}</span>
                 </div>
               )}
+              <div className="flex justify-between text-[#6A6D65] text-xs">
+                <span>CGST (2.5%)</span>
+                <span>₹{cgstAmount.toLocaleString("en-IN")}</span>
+              </div>
+              <div className="flex justify-between text-[#6A6D65] text-xs">
+                <span>SGST (2.5%)</span>
+                <span>₹{sgstAmount.toLocaleString("en-IN")}</span>
+              </div>
               <div className="border-t border-[#E8E2D5] pt-2 flex justify-between text-[#4A4D45] text-xs">
-                <span>Shipping ({info.state})</span>
-                <span className={isFreeShipping ? "text-[#064E3B] font-semibold" : ""}>
-                  {isFreeShipping ? "FREE" : `₹${shippingCharge}`}
+                <span>Delivery (ST Courier)</span>
+                <span className="text-[#064E3B] font-semibold">
+                  FREE (₹0)
                 </span>
               </div>
               <div className="flex justify-between font-bold text-[#171A18] pt-2 border-t border-[#E8E2D5]">

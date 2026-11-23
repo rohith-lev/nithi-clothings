@@ -7,7 +7,9 @@ import {
   OrdersIcon,
   CustomersIcon,
   SettingsIcon,
+  TrashIcon,
 } from "./AdminIcons";
+import { adminApi } from "../../services/api";
 
 interface StorageData {
   usedMB: number;
@@ -40,6 +42,7 @@ export default function AdminStorageManager() {
   const [loading, setLoading] = useState(true);
   const [savingSettings, setSavingSettings] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [cleaningStorage, setCleaningStorage] = useState(false);
 
   // Settings state
   const [quotaMB, setQuotaMB] = useState(500);
@@ -57,6 +60,12 @@ export default function AdminStorageManager() {
   const [importing, setImporting] = useState(false);
   const [importSummary, setImportSummary] = useState<any>(null);
 
+  // Database & Media Purge State (Settings Action)
+  const [showPurgeModal, setShowPurgeModal] = useState(false);
+  const [purgeTarget, setPurgeTarget] = useState<"both" | "products" | "images" | "orphaned_images">("both");
+  const [purging, setPurging] = useState(false);
+  const [purgeConfirmText, setPurgeConfirmText] = useState("");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getAdminHeaders = (): Record<string, string> => {
@@ -70,7 +79,7 @@ export default function AdminStorageManager() {
         }
       }
     } catch {}
-    return { Authorization: "Bearer nithi_dev_session_token" };
+    return {};
   };
 
   const showToast = (msg: string) => {
@@ -115,6 +124,27 @@ export default function AdminStorageManager() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCleanStorage = async () => {
+    setCleaningStorage(true);
+    try {
+      const res = await fetch("/api/admin/clean-storage", {
+        method: "POST",
+        headers: getAdminHeaders(),
+      });
+      const json = await res.json();
+      if (json.success) {
+        showToast(`✓ MongoDB storage cleaned! Current storage: ${json.data?.currentStorageMB ?? 0.5} MB`);
+        await loadStorageStatus();
+      } else {
+        alert("Cleanup failed: " + (json.error || "Server error"));
+      }
+    } catch (e: any) {
+      alert("Error cleaning storage: " + e.message);
+    } finally {
+      setCleaningStorage(false);
     }
   };
 
@@ -273,6 +303,33 @@ export default function AdminStorageManager() {
     }
   };
 
+  // Open Purge Modal
+  const handleOpenPurge = (target: "both" | "products" | "images" | "orphaned_images") => {
+    setPurgeTarget(target);
+    setPurgeConfirmText("");
+    setShowPurgeModal(true);
+  };
+
+  // Execute Purge
+  const handleExecutePurge = async () => {
+    setPurging(true);
+    try {
+      const res = await adminApi.purgeDatabaseAndMedia(purgeTarget);
+      if (res.success) {
+        showToast(res.message || "Deletion completed successfully.");
+        setShowPurgeModal(false);
+        setPurgeConfirmText("");
+        await loadStorageStatus();
+      } else {
+        alert("❌ Deletion failed: " + (res.error || "Server error"));
+      }
+    } catch (err: any) {
+      alert("❌ Error: " + (err.message || "Failed to execute deletion"));
+    } finally {
+      setPurging(false);
+    }
+  };
+
   const statusColor =
     storageData?.status === "CRITICAL" || storageData?.status === "LIMIT"
       ? "text-rose-600 bg-rose-50 border-rose-200"
@@ -407,6 +464,14 @@ export default function AdminStorageManager() {
                 📤 Import / Restore Data
               </button>
               <button
+                onClick={handleCleanStorage}
+                disabled={cleaningStorage}
+                className="px-3.5 py-2 bg-[#064E3B] hover:bg-[#0B3D2E] text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+                title="Prune logs and reclaim unused storage blocks in MongoDB"
+              >
+                {cleaningStorage ? "Cleaning..." : "🧹 Clean & Reclaim Storage"}
+              </button>
+              <button
                 onClick={handleSendTestAlert}
                 className="px-3.5 py-2 border border-stone-300 text-stone-700 hover:bg-stone-50 rounded-xl text-xs font-semibold transition-colors"
               >
@@ -491,6 +556,34 @@ export default function AdminStorageManager() {
               {savingSettings ? "Saving Settings..." : "Save Configuration"}
             </button>
           </form>
+        </div>
+      </div>
+
+      {/* Product & Media Delete Management (Settings) - Single One-Button Action */}
+      <div className="bg-white rounded-3xl border border-rose-200/80 p-6 sm:p-7 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-0.5 rounded-full">
+                Danger Zone
+              </span>
+            </div>
+            <h3 className="text-xl font-bold text-stone-900 mt-1">Product & Media Image Deletion</h3>
+            <p className="text-xs text-stone-500 max-w-xl leading-relaxed">
+              Permanently delete all catalogue products and all uploaded image files from MongoDB Atlas and storage to reset your store and reclaim storage space.
+            </p>
+          </div>
+
+          <div className="shrink-0">
+            <button
+              type="button"
+              onClick={() => handleOpenPurge("both")}
+              className="py-3 px-6 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-xs font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <TrashIcon size={16} />
+              <span>Delete Products & Media Images</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -649,6 +742,79 @@ export default function AdminStorageManager() {
                   {importing ? "Importing Data..." : `Confirm & Import ${validationResult.validCount} Records`}
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PURGE / DELETE CONFIRMATION MODAL */}
+      {showPurgeModal && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-stone-200 max-w-lg w-full p-6 sm:p-7 text-stone-800 animate-in zoom-in-95 duration-150 space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100 shrink-0">
+                <TrashIcon size={24} />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-rose-600">
+                  CONFIRM DATABASE DELETION
+                </span>
+                <h3 className="font-bold text-lg text-stone-900 mt-0.5">
+                  Delete Products & Media Images
+                </h3>
+              </div>
+            </div>
+
+            <div className="p-4 bg-rose-50/70 border border-rose-200 rounded-2xl text-xs text-rose-900 space-y-2">
+              <p className="font-bold">⚠️ Warning: This action permanently removes data from MongoDB Atlas.</p>
+              <p className="text-[11px] leading-relaxed">
+                Every product record, catalogue inventory, and all uploaded image binaries in MongoDB Atlas Media collection will be permanently deleted and storage will be reclaimed. This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-stone-700">
+                Type <span className="font-mono text-rose-600 font-black">DELETE</span> to confirm:
+              </label>
+              <input
+                type="text"
+                value={purgeConfirmText}
+                onChange={(e) => setPurgeConfirmText(e.target.value)}
+                placeholder="Type DELETE"
+                className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-xs font-mono font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2.5 pt-2 border-t border-stone-100 text-xs">
+              <button
+                type="button"
+                disabled={purging}
+                onClick={() => {
+                  setShowPurgeModal(false);
+                  setPurgeConfirmText("");
+                }}
+                className="px-4 py-2.5 border border-stone-300 rounded-xl font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={purging || purgeConfirmText.trim().toUpperCase() !== "DELETE"}
+                onClick={handleExecutePurge}
+                className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer"
+              >
+                {purging ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Deleting from Database...</span>
+                  </>
+                ) : (
+                  <>
+                    <TrashIcon size={14} />
+                    <span>Permanently Delete</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

@@ -37,6 +37,9 @@ export async function GET(request: NextRequest) {
         pincode: customer.pincode || "",
         totalOrders: customer.totalOrders || 0,
         totalSpent: customer.totalSpent || 0,
+        creditPoints: customer.creditPoints || 0,
+        spendMilestoneTarget: customer.spendMilestoneTarget || 25000,
+        assignedGifts: Array.isArray(customer.assignedGifts) ? customer.assignedGifts : [],
       },
     });
   } catch (error: any) {

@@ -64,16 +64,33 @@ export async function PATCH(
     const { orderId } = await params;
     const cleanOrderId = (orderId || "").trim();
     const body = await request.json().catch(() => ({}));
-    const { orderStatus, paymentStatus, notes, courierName, trackingId, dispatchDate } = body;
+    const { orderStatus, paymentStatus, notes, courierName, trackingId, stCourierTrackingId, dispatchDate } = body;
 
     const updateFields: Record<string, unknown> = {};
 
-    if (courierName !== undefined) {
-      updateFields.courierName = typeof courierName === "string" ? courierName.slice(0, 100).replace(/[<>]/g, "").trim() : "";
+    const cleanTracking = typeof (stCourierTrackingId || trackingId) === "string"
+      ? (stCourierTrackingId || trackingId).slice(0, 100).replace(/[<>]/g, "").trim()
+      : undefined;
+
+    const cleanCourier = typeof courierName === "string"
+      ? courierName.slice(0, 100).replace(/[<>]/g, "").trim()
+      : cleanTracking !== undefined ? "ST Courier" : undefined;
+
+    if (cleanCourier !== undefined) {
+      updateFields.courierName = cleanCourier || "ST Courier";
     }
 
-    if (trackingId !== undefined) {
-      updateFields.trackingId = typeof trackingId === "string" ? trackingId.slice(0, 100).replace(/[<>]/g, "").trim() : "";
+    if (cleanTracking !== undefined) {
+      updateFields.trackingId = cleanTracking;
+      updateFields.stCourierTrackingId = cleanTracking;
+      if (cleanTracking) {
+        const isST = !cleanCourier || cleanCourier.toLowerCase().includes("st");
+        updateFields.trackingUrl = isST
+          ? `https://stcourier.com/track-consignment?awb=${encodeURIComponent(cleanTracking)}`
+          : `https://www.google.com/search?q=${encodeURIComponent(`${cleanCourier} tracking ${cleanTracking}`)}`;
+      } else {
+        updateFields.trackingUrl = "";
+      }
     }
 
     if (dispatchDate !== undefined) {

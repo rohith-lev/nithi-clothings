@@ -9,10 +9,19 @@ const categoryListeners = new Set<(cats: Category[]) => void>();
 let cachedProducts: Product[] = [];
 const productListeners = new Set<(prods: Product[]) => void>();
 
+export function isCorsetOrSareeCorsetItem(text: string | null | undefined): boolean {
+  if (!text) return false;
+  const norm = text.toLowerCase().trim();
+  if (/print(ed)?\s*(corset|cord\s*set)/i.test(norm)) return true;
+  if (/saree\s*(corset|cord\s*set)/i.test(norm)) return true;
+  if (/^corset$/i.test(norm) || /^corsets$/i.test(norm)) return true;
+  return false;
+}
+
 function isPriyaItem(item: any): boolean {
   if (!item) return false;
   const str = `${item.id || ""} ${item.name || ""} ${item.code || ""} ${item.sku || ""} ${item.category || ""} ${item.subcategory || ""} ${item.slug || ""}`.toLowerCase();
-  return str.includes("priya");
+  return str.includes("priya") || isCorsetOrSareeCorsetItem(item.name) || isCorsetOrSareeCorsetItem(item.slug);
 }
 
 export function deleteCategoryFromClientCache(targetIdOrName: string) {
@@ -133,7 +142,13 @@ export function useStoreCategories() {
           const key = (cat.slug || cat.id || cat.name || "").toLowerCase().trim();
           if (key && !seen.has(key)) {
             seen.add(key);
-            uniqueCats.push(cat);
+            const cleanSubs = Array.isArray(cat.subcategories)
+              ? cat.subcategories.filter((s: any) => !isCorsetOrSareeCorsetItem(typeof s === "string" ? s : s?.name))
+              : [];
+            uniqueCats.push({
+              ...cat,
+              subcategories: cleanSubs,
+            });
           }
         }
         // Admin-defined display order takes precedence: priority asc, then name

@@ -537,7 +537,7 @@ export default function CircularCategoryBrowser({
 
           {/* Dynamic Category Circles */}
           {categories.map((cat, idx) => {
-            if (!cat || !cat.name) return null;
+            if (!cat || !cat.name || !cat.name.trim()) return null;
             const isSelected = isCategoryMatch(cat, normSelectedCategory);
             const targetIdentifier = cat.slug || cat.id || cat.name;
             const resolvedImg = getResolvedCategoryImage(cat);

@@ -11,6 +11,7 @@ import {
   TrashIcon,
   EyeIcon,
 } from "../../components/admin/AdminIcons";
+import { batchCompressImages } from "../../utils/imageCompressor";
 
 // Lightweight SVG Icons
 const ArrowLeftIcon = () => (
@@ -97,6 +98,7 @@ export default function AdminProductEdit() {
   // Local files pending upload
   const [rawFiles, setRawFiles] = useState<File[]>([]);
   const [localPreviews, setLocalPreviews] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [customSizeInput, setCustomSizeInput] = useState("");
 
@@ -154,11 +156,8 @@ export default function AdminProductEdit() {
     isNew: true,
     newArrival: true,
     isBestSeller: false,
-    images: [
-      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format",
-      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&h=1000&fit=crop&auto=format"
-    ],
-    coverImage: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format",
+    images: [],
+    coverImage: "",
     seo: {
       title: "Pure Cotton Floral Nighty | Nithi Collection",
       metaDescription: "Buy pure cotton nightwear online at Nithi Collection with front zipper and fast all-India delivery.",
@@ -257,7 +256,12 @@ export default function AdminProductEdit() {
     adminApi.getCategories().then((cats) => {
       if (Array.isArray(cats) && cats.length > 0) {
         setLoadedCategories(cats);
-        const names = Array.from(new Set([...DEFAULT_CATEGORIES, ...cats.map((c) => c.name)]));
+        const names = Array.from(
+          new Set([
+            ...DEFAULT_CATEGORIES,
+            ...cats.map((c) => (c.name || "").trim()).filter((n) => n.length > 0),
+          ])
+        );
         setAllCategories(names);
       }
     });
@@ -393,10 +397,23 @@ export default function AdminProductEdit() {
   const toggleSize = (sz: string) => {
     setIsDirty(true);
     const current = formData.sizeOptions || [];
-    const exists = current.some((s) => s.size.toLowerCase() === sz.toLowerCase());
+    const is2XLorXXL = sz.toUpperCase() === "2XL" || sz.toUpperCase() === "XXL";
+    const is3XLorXXXL = sz.toUpperCase() === "3XL" || sz.toUpperCase() === "XXXL";
+
+    const exists = current.some(
+      (s) =>
+        s.size.toLowerCase() === sz.toLowerCase() ||
+        (is2XLorXXL && (s.size.toUpperCase() === "2XL" || s.size.toUpperCase() === "XXL")) ||
+        (is3XLorXXXL && (s.size.toUpperCase() === "3XL" || s.size.toUpperCase() === "XXXL"))
+    );
 
     if (exists) {
-      const updated = current.filter((s) => s.size.toLowerCase() !== sz.toLowerCase());
+      const updated = current.filter(
+        (s) =>
+          s.size.toLowerCase() !== sz.toLowerCase() &&
+          (!is2XLorXXL || (s.size.toUpperCase() !== "2XL" && s.size.toUpperCase() !== "XXL")) &&
+          (!is3XLorXXXL || (s.size.toUpperCase() !== "3XL" && s.size.toUpperCase() !== "XXXL"))
+      );
       // If sizes remain and we have a total stock, re-split or keep sum
       const newTotal = updated.length > 0 ? formData.stock : 0;
       if (updated.length > 0) {
@@ -430,7 +447,17 @@ export default function AdminProductEdit() {
     const trimmed = sizeName.trim();
     if (!trimmed) return;
     const current = formData.sizeOptions || [];
-    if (current.some((s) => s.size.toLowerCase() === trimmed.toLowerCase())) {
+    const is2XLorXXL = trimmed.toUpperCase() === "2XL" || trimmed.toUpperCase() === "XXL";
+    const is3XLorXXXL = trimmed.toUpperCase() === "3XL" || trimmed.toUpperCase() === "XXXL";
+
+    if (
+      current.some(
+        (s) =>
+          s.size.toLowerCase() === trimmed.toLowerCase() ||
+          (is2XLorXXL && (s.size.toUpperCase() === "2XL" || s.size.toUpperCase() === "XXL")) ||
+          (is3XLorXXXL && (s.size.toUpperCase() === "3XL" || s.size.toUpperCase() === "XXXL"))
+      )
+    ) {
       setToastMessage({ type: "error", text: `Size "${trimmed}" already exists.` });
       return;
     }
@@ -559,17 +586,88 @@ export default function AdminProductEdit() {
     setFormData((prev) => ({ ...prev, productTypes: current, stock: typeStockSum > 0 ? typeStockSum : prev.stock }));
   };
 
-  // Image Management
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
+  // Image Management - Compress to WebP & Upload to MongoDB Atlas
+  const uploadAndProcessFiles = async (rawFiles: File[]) => {
+    if (!rawFiles || rawFiles.length === 0) return;
     setIsDirty(true);
-    const selected = Array.from(e.target.files);
-    setRawFiles((prev) => [...prev, ...selected]);
 
-    const previewUrls = selected.map((file) => URL.createObjectURL(file));
-    setLocalPreviews((prev) => [...prev, ...previewUrls]);
-    if (!formData.coverImage && previewUrls.length > 0) {
-      setFormData((prev) => ({ ...prev, coverImage: previewUrls[0] }));
+    // Show temporary preview while uploading
+    const tempPreviews = rawFiles.map((f) => URL.createObjectURL(f));
+    setLocalPreviews((prev) => [...prev, ...tempPreviews]);
+    setIsUploading(true);
+    setToastMessage({ type: "success", text: `Optimizing & compressing ${rawFiles.length} photo(s) to WebP...` });
+
+    try {
+      // 1. Client-side compression to WebP (max 1200px, 82% quality, ~85% size reduction)
+      const compressedFiles = await batchCompressImages(rawFiles, 1200, 0.82);
+
+      setToastMessage({ type: "success", text: `Uploading optimized photo(s) to MongoDB Atlas...` });
+
+      // 2. Upload compressed files to MongoDB Atlas
+      const res = await adminApi.uploadImages(compressedFiles);
+
+      // Clean temporary object URLs
+      tempPreviews.forEach((u) => {
+        try {
+          URL.revokeObjectURL(u);
+        } catch {}
+      });
+      setLocalPreviews([]);
+
+      if (res.success && res.urls && res.urls.length > 0) {
+        const uploaded = res.urls;
+        setFormData((prev) => {
+          const current = (prev.images || []).filter(
+            (img) => !img.startsWith("blob:") && !img.includes("__LOCAL_") && !img.includes("unsplash.com")
+          );
+          const combined = [...current, ...uploaded];
+          const hasCover = prev.coverImage && !prev.coverImage.includes("unsplash.com") && !prev.coverImage.startsWith("blob:");
+          return {
+            ...prev,
+            images: combined,
+            coverImage: hasCover ? prev.coverImage : uploaded[0],
+          };
+        });
+        setToastMessage({
+          type: "success",
+          text: `✓ ${uploaded.length} photo(s) optimized & uploaded (WebP compressed)!`,
+        });
+      } else {
+        alert(`❌ Upload failed: ${res.error || "Server could not save image files."}`);
+        setToastMessage({ type: "error", text: res.error || "Failed to upload photo." });
+      }
+    } catch (err: any) {
+      tempPreviews.forEach((u) => {
+        try {
+          URL.revokeObjectURL(u);
+        } catch {}
+      });
+      setLocalPreviews([]);
+      alert(`❌ Network error during upload: ${err.message || "Failed to upload"}`);
+      setToastMessage({ type: "error", text: err.message || "Upload error." });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const selected = Array.from(files);
+    e.target.value = "";
+    await uploadAndProcessFiles(selected);
+  };
+
+  const handleFileDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isUploading) return;
+    const dt = e.dataTransfer;
+    if (dt && dt.files && dt.files.length > 0) {
+      const droppedFiles = Array.from(dt.files).filter((f) => f.type.startsWith("image/"));
+      if (droppedFiles.length > 0) {
+        await uploadAndProcessFiles(droppedFiles);
+      }
     }
   };
 
@@ -583,29 +681,21 @@ export default function AdminProductEdit() {
       coverImage: prev.coverImage || urlInput.trim(),
     }));
     setUrlInput("");
+    setToastMessage({ type: "success", text: "Photo URL added to gallery." });
   };
 
-  const handleRemoveImage = (index: number, isLocal: boolean) => {
+  const handleRemoveImage = (index: number) => {
     setIsDirty(true);
-    if (isLocal) {
-      const targetUrl = localPreviews[index];
-      setRawFiles((prev) => prev.filter((_, i) => i !== index));
-      setLocalPreviews((prev) => prev.filter((_, i) => i !== index));
-      if (formData.coverImage === targetUrl) {
-        setFormData((prev) => ({
-          ...prev,
-          coverImage: formData.images[0] || localPreviews[0] || "",
-        }));
-      }
-    } else {
-      const targetUrl = formData.images[index];
-      const updated = formData.images.filter((_, i) => i !== index);
-      setFormData((prev) => ({
+    setFormData((prev) => {
+      const targetUrl = prev.images[index];
+      const updated = prev.images.filter((_, i) => i !== index);
+      return {
         ...prev,
         images: updated,
-        coverImage: prev.coverImage === targetUrl ? updated[0] || localPreviews[0] || "" : prev.coverImage,
-      }));
-    }
+        coverImage: prev.coverImage === targetUrl ? (updated[0] || "") : prev.coverImage,
+      };
+    });
+    setToastMessage({ type: "success", text: "Photo removed from gallery." });
   };
 
   const handleMoveImage = (index: number, direction: "left" | "right") => {
@@ -624,6 +714,7 @@ export default function AdminProductEdit() {
   const handleSetCoverImage = (url: string) => {
     setIsDirty(true);
     setFormData((prev) => ({ ...prev, coverImage: url }));
+    setToastMessage({ type: "success", text: "Cover photo updated." });
   };
 
   // Requirement: Fix Exact Stock and split equally across configured sizes
@@ -706,15 +797,16 @@ export default function AdminProductEdit() {
     }
   };
 
-  // Validation (Min 2 images + Required fields)
-  const validateForm = () => {
+  // Validation (Required fields; image upload is optional)
+  const validateForm = (isDraft = false) => {
     const errors: Record<string, string> = {};
     if (!formData.name?.trim()) errors.name = "Product name is required.";
-    if (!formData.category) errors.category = "Category is required.";
-    if (!formData.price || formData.price <= 0) errors.price = "Valid selling price is required.";
-    if (!formData.mrp || formData.mrp <= 0) errors.mrp = "Valid MRP is required.";
+    if (!isDraft) {
+      if (!formData.category) errors.category = "Category is required.";
+      if (!formData.price || formData.price <= 0) errors.price = "Valid selling price is required.";
+      if (!formData.mrp || formData.mrp <= 0) errors.mrp = "Valid MRP is required.";
+    }
 
-    // No minimum image count required — single image or uploading later is permitted
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -819,15 +911,10 @@ export default function AdminProductEdit() {
 
   // Save / Publish Action (Requirement #7: Save -> Complete -> Publish on Mobile & Desktop)
   const handleSave = async (publishStatus: Product["status"] = "ACTIVE") => {
-    if (!validateForm()) {
-      const errKeys = Object.keys(fieldErrors);
-      if (errKeys.includes("images")) {
-        setActiveTab("images");
-        setToastMessage({ type: "error", text: "Minimum 2 product images are required before publishing." });
-      } else {
-        setActiveTab("basic");
-        setToastMessage({ type: "error", text: "Please complete the required fields marked with *." });
-      }
+    const isDraft = publishStatus === "DRAFT";
+    if (!validateForm(isDraft)) {
+      setActiveTab("basic");
+      setToastMessage({ type: "error", text: "Please enter product name and required fields (*)." });
       return;
     }
 
@@ -859,6 +946,12 @@ export default function AdminProductEdit() {
 
       const autoDisc = calculateAutoDiscount(formData.mrp, formData.price);
 
+      const finalStatus = isDraft
+        ? "DRAFT"
+        : (formData.stock || 0) === 0
+        ? "OUT OF STOCK"
+        : publishStatus;
+
       const payload: Product = {
         ...formData,
         images: safeFinalImages,
@@ -866,9 +959,9 @@ export default function AdminProductEdit() {
         discount: autoDisc,
         discountValue: autoDisc,
         discountType: "percentage",
-        finalPrice: formData.price,
+        finalPrice: Number(formData.price) || 0,
         inStock: (formData.stock || 0) > 0,
-        status: (formData.stock || 0) === 0 ? "OUT OF STOCK" : publishStatus,
+        status: finalStatus,
         updatedAt: new Date().toISOString(),
       };
 
@@ -902,7 +995,7 @@ export default function AdminProductEdit() {
   // Primary 6-Step Core Flow (Requirement #6: Content placed below Inventory/Stock)
   const CORE_STEPS: { id: TabId; label: string; icon: string; shortDesc: string }[] = [
     { id: "basic", label: "1. Basic Info", icon: "📋", shortDesc: "Title, Category & SKU" },
-    { id: "images", label: "2. Images", icon: "🖼️", shortDesc: "Min 2 Photos Required" },
+    { id: "images", label: "2. Images", icon: "🖼️", shortDesc: "Photos & Cover" },
     { id: "pricing", label: "3. Pricing", icon: "₹", shortDesc: "MRP, Price & Auto-Discount" },
     { id: "inventory", label: "4. Inventory", icon: "📦", shortDesc: "Stock Level & Threshold" },
     { id: "content", label: "5. Content & Specs", icon: "📝", shortDesc: "Description & Details" },
@@ -1051,7 +1144,7 @@ export default function AdminProductEdit() {
                   step.id === "basic"
                     ? Boolean(formData.name?.trim() && formData.category)
                     : step.id === "images"
-                    ? allImagesList.length >= 2
+                    ? true // Image upload is optional
                     : step.id === "pricing"
                     ? Number(formData.price) > 0 && Number(formData.mrp) > 0
                     : step.id === "inventory"
@@ -1078,16 +1171,16 @@ export default function AdminProductEdit() {
                     {step.id === "images" && (
                       <span
                         className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                          allImagesList.length >= 2
+                          allImagesList.length > 0
                             ? isActive
                               ? "bg-white/20 text-white"
                               : "bg-emerald-100 text-emerald-800"
                             : isActive
-                            ? "bg-amber-400 text-black font-extrabold"
-                            : "bg-amber-100 text-amber-800 font-bold"
+                            ? "bg-stone-600 text-white"
+                            : "bg-stone-100 text-stone-600"
                         }`}
                       >
-                        {allImagesList.length}/2
+                        {allImagesList.length}
                       </span>
                     )}
                     {isStepComplete ? (
@@ -1321,10 +1414,17 @@ export default function AdminProductEdit() {
                   >
                     <option value="">-- None / General Collection --</option>
                     {(() => {
-                      const catName = formData.category;
-                      const hierarchy = CATEGORY_HIERARCHY[catName];
+                      const catName = formData.category || "Nighty";
+                      const catNorm = catName.toLowerCase().trim();
+                      const hierarchy =
+                        CATEGORY_HIERARCHY[catName] ||
+                        (catNorm.startsWith("night") ? CATEGORY_HIERARCHY["Nighty"] : undefined);
                       const catObj = loadedCategories.find(
-                        (c) => c.name.toLowerCase() === catName.toLowerCase() || c.id.toLowerCase() === catName.toLowerCase()
+                        (c) =>
+                          (c.name && c.name.toLowerCase().trim() === catNorm) ||
+                          (c.slug && c.slug.toLowerCase().trim() === catNorm) ||
+                          (c.id && c.id.toLowerCase().trim() === catNorm) ||
+                          (catNorm.startsWith("night") && (c.name.toLowerCase() === "nighty" || c.slug === "nighty"))
                       );
 
                       const renderedSubNames = new Set<string>();
@@ -1444,7 +1544,7 @@ export default function AdminProductEdit() {
       )}
 
       {/* ------------------------------------------------------------- */}
-      {/* TAB 2: IMAGES (MIN 2 REQUIRED)                                */}
+      {/* TAB 2: IMAGES                                                 */}
       {/* ------------------------------------------------------------- */}
       {activeTab === "images" && (
         <div className="space-y-6">
@@ -1452,33 +1552,33 @@ export default function AdminProductEdit() {
             <div className="border-b border-stone-100 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                  <span>🖼️</span> Product Photos & Gallery (Min 2 Required)
+                  <span>🖼️</span> Product Photos & Gallery
                 </h2>
                 <p className="text-xs text-stone-500 mt-1">
-                  Upload high-resolution dress photos. First image acts as the primary catalog cover card.
+                  Upload dress photos. First image acts as the primary catalog cover card. (Photos are optional)
                 </p>
               </div>
               <span className={`text-xs font-bold px-3 py-1 rounded-full self-start ${
-                allImagesList.length >= 2
+                allImagesList.length > 0
                   ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                  : "bg-amber-100 text-amber-800 border border-amber-300"
+                  : "bg-stone-100 text-stone-700 border border-stone-300"
               }`}>
-                {allImagesList.length} / 2 Images Attached
+                {allImagesList.length} {allImagesList.length === 1 ? "Photo" : "Photos"} Attached
               </span>
             </div>
 
-            {/* Minimum 2 Images Banner */}
+            {/* Photos Status Banner */}
             <div
               className={`mb-6 p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                allImagesList.length < 2
-                  ? "bg-amber-50/90 border-amber-300 text-amber-900"
+                allImagesList.length === 0
+                  ? "bg-stone-50/90 border-stone-200 text-stone-700"
                   : "bg-emerald-50/90 border-emerald-300 text-emerald-900"
               }`}
             >
               <div className="flex items-center gap-3">
                 <div
                   className={`w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0 ${
-                    allImagesList.length === 0 ? "bg-amber-100 text-amber-900" : "bg-emerald-200 text-emerald-900"
+                    allImagesList.length === 0 ? "bg-stone-200 text-stone-600" : "bg-emerald-200 text-emerald-900"
                   }`}
                 >
                   {allImagesList.length === 0 ? "📷" : "✅"}
@@ -1491,8 +1591,8 @@ export default function AdminProductEdit() {
                   </h4>
                   <p className="text-xs mt-0.5 opacity-90">
                     {allImagesList.length === 0
-                      ? "You can upload 1 or more photos, or save and add them later."
-                      : `Great! ${allImagesList.length} image(s) attached.`}
+                      ? "You can upload 1 or more photos now, or save product and add them later."
+                      : `${allImagesList.length} photo(s) attached. First photo will be used as the catalog cover.`}
                   </p>
                 </div>
               </div>
@@ -1500,8 +1600,21 @@ export default function AdminProductEdit() {
 
             {/* Drag & Drop Upload Zone */}
             <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-stone-300 hover:border-[#064E3B] rounded-3xl p-8 text-center cursor-pointer transition bg-stone-50/50 hover:bg-emerald-50/20 group"
+              onClick={() => !isUploading && fileInputRef.current?.click()}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDragEnter={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={handleFileDrop}
+              className={`border-2 border-dashed rounded-3xl p-8 text-center transition ${
+                isUploading
+                  ? "border-[#064E3B] bg-emerald-50/50 cursor-wait"
+                  : "border-stone-300 hover:border-[#064E3B] cursor-pointer bg-stone-50/50 hover:bg-emerald-50/20 group"
+              }`}
             >
               <input
                 ref={fileInputRef}
@@ -1509,20 +1622,39 @@ export default function AdminProductEdit() {
                 multiple
                 accept="image/*"
                 onChange={handleFileSelect}
+                disabled={isUploading}
                 className="hidden"
               />
               <div className="flex flex-col items-center justify-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-stone-200 flex items-center justify-center text-stone-600 group-hover:scale-110 group-hover:text-[#064E3B] transition">
-                  <UploadIcon />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-stone-800">
-                    Click to browse or drag & drop high-resolution dress photos
-                  </p>
-                  <p className="text-xs text-stone-500 mt-1">
-                    Supports JPG, PNG, WebP.
-                  </p>
-                </div>
+                {isUploading ? (
+                  <>
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-[#064E3B]">
+                      <div className="w-6 h-6 border-3 border-emerald-300 border-t-[#064E3B] rounded-full animate-spin" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-[#064E3B]">
+                        Optimizing & saving photo(s) to MongoDB Atlas...
+                      </p>
+                      <p className="text-xs text-stone-500 mt-1">
+                        Auto-compressing to lightweight WebP for fast mobile browsing.
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-stone-200 flex items-center justify-center text-stone-600 group-hover:scale-110 group-hover:text-[#064E3B] transition">
+                      <UploadIcon />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-stone-800">
+                        Click to browse or drag & drop dress photos
+                      </p>
+                      <p className="text-xs text-stone-500 mt-1">
+                        Supports JPG, PNG, WebP up to 15MB • Auto-compressed to WebP for fast loading.
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -1584,8 +1716,8 @@ export default function AdminProductEdit() {
                           <div className="flex justify-end gap-1">
                             <button
                               type="button"
-                              onClick={() => handleRemoveImage(idx, item.isLocal)}
-                              className="p-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white transition"
+                              onClick={() => handleRemoveImage(idx)}
+                              className="p-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white transition cursor-pointer"
                               title="Delete photo"
                             >
                               <TrashIcon size={13} />
@@ -1597,32 +1729,30 @@ export default function AdminProductEdit() {
                               <button
                                 type="button"
                                 onClick={() => handleSetCoverImage(item.url)}
-                                className="w-full py-1 rounded-md bg-[#064E3B] hover:bg-[#0B3D2E] text-white text-[10px] font-bold uppercase transition"
+                                className="w-full py-1 rounded-md bg-[#064E3B] hover:bg-[#0B3D2E] text-white text-[10px] font-bold uppercase transition cursor-pointer"
                               >
                                 Set as Cover
                               </button>
                             )}
 
-                            {!item.isLocal && (
-                              <div className="flex gap-1">
-                                <button
-                                  type="button"
-                                  disabled={idx === 0}
-                                  onClick={() => handleMoveImage(idx, "left")}
-                                  className="flex-1 py-1 rounded-md bg-white/20 hover:bg-white/40 disabled:opacity-30 text-white text-[10px] font-bold transition flex items-center justify-center"
-                                >
-                                  <MoveLeftIcon />
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={idx === formData.images.length - 1}
-                                  onClick={() => handleMoveImage(idx, "right")}
-                                  className="flex-1 py-1 rounded-md bg-white/20 hover:bg-white/40 disabled:opacity-30 text-white text-[10px] font-bold transition flex items-center justify-center"
-                                >
-                                  <MoveRightIcon />
-                                </button>
-                              </div>
-                            )}
+                            <div className="flex gap-1">
+                              <button
+                                type="button"
+                                disabled={idx === 0}
+                                onClick={() => handleMoveImage(idx, "left")}
+                                className="flex-1 py-1 rounded-md bg-white/20 hover:bg-white/40 disabled:opacity-30 text-white text-[10px] font-bold transition flex items-center justify-center cursor-pointer"
+                              >
+                                <MoveLeftIcon />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={idx === allImagesList.length - 1}
+                                onClick={() => handleMoveImage(idx, "right")}
+                                className="flex-1 py-1 rounded-md bg-white/20 hover:bg-white/40 disabled:opacity-30 text-white text-[10px] font-bold transition flex items-center justify-center cursor-pointer"
+                              >
+                                <MoveRightIcon />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -2214,15 +2344,23 @@ export default function AdminProductEdit() {
 
                 <button
                   type="button"
-                  onClick={() => handleApplySizePreset(["M", "L", "XL", "XXL"])}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-50 text-blue-900 border border-blue-300 hover:bg-blue-100 transition shadow-2xs flex items-center gap-1.5"
+                  onClick={() => handleApplySizePreset(["S", "M", "L", "XL", "2XL"])}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-purple-50 text-purple-900 border border-purple-300 hover:bg-purple-100 transition shadow-2xs flex items-center gap-1.5"
                 >
-                  <span>⚡ M, L, XL, XXL (4 Sizes)</span>
+                  <span>⚡ S, M, L, XL, 2XL (5 Sizes)</span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleApplySizePreset(["XS", "S", "M", "L", "XL", "XXL", "XXXL"])}
+                  onClick={() => handleApplySizePreset(["L", "XL", "2XL"])}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold bg-blue-50 text-blue-900 border border-blue-300 hover:bg-blue-100 transition shadow-2xs flex items-center gap-1.5"
+                >
+                  <span>⚡ L, XL, 2XL (3 Sizes)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleApplySizePreset(["XS", "S", "M", "L", "XL", "2XL", "3XL"])}
                   className="px-3.5 py-2 rounded-xl text-xs font-bold bg-stone-100 text-stone-800 border border-stone-300 hover:bg-stone-200 transition shadow-2xs flex items-center gap-1.5"
                 >
                   <span>Full Range (XS - 3XL)</span>
@@ -2236,8 +2374,13 @@ export default function AdminProductEdit() {
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {STANDARD_SIZES.map((sz) => {
+                    const is2XLorXXL = sz.toUpperCase() === "2XL" || sz.toUpperCase() === "XXL";
+                    const is3XLorXXXL = sz.toUpperCase() === "3XL" || sz.toUpperCase() === "XXXL";
                     const isAdded = (formData.sizeOptions || []).some(
-                      (s) => s.size.toLowerCase() === sz.toLowerCase()
+                      (s) =>
+                        s.size.toLowerCase() === sz.toLowerCase() ||
+                        (is2XLorXXL && (s.size.toUpperCase() === "2XL" || s.size.toUpperCase() === "XXL")) ||
+                        (is3XLorXXXL && (s.size.toUpperCase() === "3XL" || s.size.toUpperCase() === "XXXL"))
                     );
                     return (
                       <button

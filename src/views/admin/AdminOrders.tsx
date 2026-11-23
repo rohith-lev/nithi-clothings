@@ -72,13 +72,18 @@ export default function AdminOrders() {
           subtotal: o.subtotal || o.total || 0,
           shippingFee: o.shippingFee || 0,
           discount: o.discount || 0,
+          tax: o.tax || 0,
+          cgst: o.cgst || Math.round(((o.subtotal || o.total || 0) - (o.discount || 0)) * 0.025),
+          sgst: o.sgst || Math.round(((o.subtotal || o.total || 0) - (o.discount || 0)) * 0.025),
           total: o.total || 0,
           status: o.orderStatus || o.status || "Pending",
           paymentMethod: o.paymentMethod || "COD",
           shippingState: o.shippingState || "Tamil Nadu",
           shippingAddress: o.shippingAddress || "",
-          courierName: o.courierName || "",
-          trackingId: o.trackingId || "",
+          courierName: o.courierName || "ST Courier",
+          trackingId: o.trackingId || o.stCourierTrackingId || "",
+          stCourierTrackingId: o.stCourierTrackingId || o.trackingId || "",
+          trackingUrl: o.trackingUrl || (o.trackingId ? `https://stcourier.com/track-consignment?awb=${encodeURIComponent(o.trackingId)}` : ""),
           dispatchDate: o.dispatchDate || "",
           createdAt: o.createdAt || new Date().toISOString(),
         }));
@@ -112,17 +117,25 @@ export default function AdminOrders() {
     if (!selectedOrder) return;
     setSavingTracking(true);
     try {
+      const courier = trackingCourier.trim() || "ST Courier";
+      const awb = trackingIdInput.trim();
+      const trackingUrl = awb ? `https://stcourier.com/track-consignment?awb=${encodeURIComponent(awb)}` : "";
+
       await adminApi.updateOrderTracking(selectedOrder.id, {
-        courierName: trackingCourier.trim(),
-        trackingId: trackingIdInput.trim(),
+        courierName: courier,
+        trackingId: awb,
+        stCourierTrackingId: awb,
+        trackingUrl,
         dispatchDate: dispatchDateInput.trim(),
         orderStatus: orderStatusInput,
-      });
+      } as any);
 
       const updatedOrder = {
         ...selectedOrder,
-        courierName: trackingCourier.trim(),
-        trackingId: trackingIdInput.trim(),
+        courierName: courier,
+        trackingId: awb,
+        stCourierTrackingId: awb,
+        trackingUrl,
         dispatchDate: dispatchDateInput.trim(),
         status: orderStatusInput,
       };
@@ -507,14 +520,27 @@ export default function AdminOrders() {
                 </div>
               </div>
 
-              <div className="flex justify-end pt-1">
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                {trackingIdInput.trim() ? (
+                  <a
+                    href={`https://stcourier.com/track-consignment?awb=${encodeURIComponent(trackingIdInput.trim())}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3 py-2 bg-emerald-50 text-[#064E3B] border border-emerald-300 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 hover:bg-emerald-100 transition-colors"
+                  >
+                    <span>🚚 Test ST Courier Link:</span>
+                    <span className="font-mono underline">{trackingIdInput.trim()}</span>
+                  </a>
+                ) : (
+                  <span className="text-xs text-stone-400 italic">Enter ST Courier AWB to generate customer tracking link</span>
+                )}
                 <button
                   type="button"
                   onClick={handleSaveTracking}
                   disabled={savingTracking}
-                  className="px-4 py-2 bg-[#064E3B] text-white rounded-xl font-bold hover:bg-[#0B3D2E] transition-all shadow-xs flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-4 py-2 bg-[#064E3B] text-white rounded-xl font-bold hover:bg-[#0B3D2E] transition-all shadow-xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
                 >
-                  {savingTracking ? "Saving Tracking..." : "💾 Save Tracking Details"}
+                  {savingTracking ? "Saving Tracking..." : "💾 Save ST Courier Tracking"}
                 </button>
               </div>
             </div>
@@ -621,18 +647,26 @@ export default function AdminOrders() {
                   <span>Subtotal:</span>
                   <span>₹{selectedOrder.subtotal.toLocaleString("en-IN")}</span>
                 </div>
-                <div className="flex justify-between text-stone-600">
-                  <span>Shipping Fee:</span>
-                  <span>₹{selectedOrder.shippingFee}</span>
-                </div>
                 {selectedOrder.discount > 0 && (
                   <div className="flex justify-between text-emerald-700 font-semibold">
                     <span>Discount:</span>
                     <span>-₹{selectedOrder.discount}</span>
                   </div>
                 )}
+                <div className="flex justify-between text-stone-600">
+                  <span>CGST (2.5%):</span>
+                  <span>₹{selectedOrder.cgst ?? Math.round(((selectedOrder.subtotal - selectedOrder.discount) * 0.025))}</span>
+                </div>
+                <div className="flex justify-between text-stone-600">
+                  <span>SGST (2.5%):</span>
+                  <span>₹{selectedOrder.sgst ?? Math.round(((selectedOrder.subtotal - selectedOrder.discount) * 0.025))}</span>
+                </div>
+                <div className="flex justify-between text-stone-600">
+                  <span>Delivery (ST Courier):</span>
+                  <span className="text-emerald-700 font-bold">FREE (₹0)</span>
+                </div>
                 <div className="flex justify-between font-bold text-stone-900 text-sm pt-1.5 border-t border-stone-300">
-                  <span>Grand Total:</span>
+                  <span>Grand Total (incl. 5% GST):</span>
                   <span className="text-[#064E3B] font-display text-base">₹{selectedOrder.total.toLocaleString("en-IN")}</span>
                 </div>
               </div>

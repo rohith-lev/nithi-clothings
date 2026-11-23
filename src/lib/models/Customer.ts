@@ -1,5 +1,20 @@
 import mongoose, { Schema } from "mongoose";
 
+const AssignedGiftSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    title: { type: String, required: true },
+    description: { type: String, default: "" },
+    couponCode: { type: String, default: "" },
+    value: { type: Number, default: 0 },
+    status: { type: String, enum: ["ACTIVE", "REDEEMED", "EXPIRED"], default: "ACTIVE" },
+    assignedAt: { type: Date, default: Date.now },
+    assignedBy: { type: String, default: "Super Admin" },
+    notes: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
 const CustomerSchema = new Schema(
   {
     customerId: { type: String, required: true, unique: true, index: true },
@@ -14,6 +29,9 @@ const CustomerSchema = new Schema(
     pincode: { type: String, default: "" },
     totalOrders: { type: Number, default: 0 },
     totalSpent: { type: Number, default: 0 },
+    creditPoints: { type: Number, default: 0 },
+    spendMilestoneTarget: { type: Number, default: 25000 },
+    assignedGifts: { type: [AssignedGiftSchema], default: [] },
     registrationDate: { type: Date, default: Date.now },
     status: { type: String, enum: ["ACTIVE", "INACTIVE", "BLOCKED"], default: "ACTIVE" },
     notes: { type: String, default: "" },

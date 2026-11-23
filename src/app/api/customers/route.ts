@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const { errorResponse } = requireAdmin(request);
+  const { user, errorResponse } = requireAdmin(request);
   if (errorResponse) return errorResponse;
 
   try {
@@ -44,6 +44,16 @@ export async function DELETE(request: NextRequest) {
     const customerId = searchParams.get("customerId") || searchParams.get("id") || body.customerId || body.id;
 
     if (all || customerId === "all") {
+      const confirmToken = searchParams.get("confirm") || body.confirm;
+      if (confirmToken !== "CONFIRM_PURGE_ALL_CUSTOMERS" || user?.role !== "Super Admin") {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Mass customer purge requires Super Admin privileges and explicit confirmation (confirm: 'CONFIRM_PURGE_ALL_CUSTOMERS').",
+          },
+          { status: 403 }
+        );
+      }
       const res = await Customer.deleteMany({});
       return NextResponse.json({
         success: true,

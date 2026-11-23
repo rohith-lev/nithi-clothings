@@ -133,13 +133,10 @@ export async function POST(request: NextRequest) {
 
     const targetUser = DEMO_ACCOUNTS[rawEmail];
     
-    // In production, strictly enforce configured ADMIN_PASSWORD (or secure default "adminpassword123")
-    const isMasterPassword = safeCompare(rawPassword, ADMIN_PASSWORD) || safeCompare(rawPassword, "adminpassword123");
-    const isDevShortcut =
-      process.env.NODE_ENV !== "production" &&
-      (rawPassword === "password" || rawPassword === "admin" || rawPassword === "admin123");
+    // Strictly enforce configured ADMIN_PASSWORD
+    const isMasterPassword = safeCompare(rawPassword, ADMIN_PASSWORD);
 
-    if (targetUser && (isMasterPassword || isDevShortcut)) {
+    if (targetUser && isMasterPassword) {
       const user = {
         id: targetUser.id,
         name: targetUser.name,

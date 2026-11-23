@@ -103,6 +103,9 @@ export interface OrderRecord {
   subtotal: number;
   shippingFee: number;
   discount: number;
+  tax?: number;
+  cgst?: number;
+  sgst?: number;
   total: number;
   status: "Pending" | "Confirmed" | "Processing" | "Packed" | "Shipped" | "Delivered" | "Cancelled";
   paymentMethod: "COD" | "Online" | "UPI";
@@ -110,8 +113,42 @@ export interface OrderRecord {
   shippingAddress: string;
   courierName?: string;
   trackingId?: string;
+  stCourierTrackingId?: string;
+  trackingUrl?: string;
   dispatchDate?: string;
   createdAt: string;
+}
+
+export interface AssignedGift {
+  id: string;
+  title: string;
+  description?: string;
+  couponCode?: string;
+  value?: number;
+  status: "ACTIVE" | "REDEEMED" | "EXPIRED";
+  assignedAt: string;
+  assignedBy?: string;
+  notes?: string;
+}
+
+export interface CustomerData {
+  customerId?: string;
+  name: string;
+  phone: string;
+  email: string;
+  state: string;
+  address?: string;
+  addressLine?: string;
+  areaLocality?: string;
+  city?: string;
+  pincode?: string;
+  orders: number;
+  spent: number;
+  creditPoints?: number;
+  spendMilestoneTarget?: number;
+  assignedGifts?: AssignedGift[];
+  tier: string;
+  registrationDate?: string;
 }
 
 export interface AuditLog {

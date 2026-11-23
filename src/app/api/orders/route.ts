@@ -160,20 +160,52 @@ export async function POST(request: NextRequest) {
     const normalizedPaymentMethod =
       rawMethod === "ONLINE" || rawMethod === "RAZORPAY" ? "Online" : rawMethod === "COD" ? "COD" : "Online";
 
-    // Verify Razorpay signature server-side if credentials present
-    const rzpSecret = process.env.RAZORPAY_KEY_SECRET || "lce5f7oC0UtnH13owVdiEsOG";
+    // Verify Razorpay signature server-side strictly for Online orders
+    const rzpSecret = process.env.RAZORPAY_KEY_SECRET;
     const { razorpay_order_id, razorpay_signature } = body;
-    if ((normalizedPaymentMethod === "Online" || normalizedPaymentMethod === "COD") && rzpSecret && razorpay_signature && razorpay_order_id && safePaymentReference) {
+    let paymentVerified = false;
+
+    if (normalizedPaymentMethod === "Online") {
+      if (!safePaymentReference || !razorpay_order_id || !razorpay_signature) {
+        return NextResponse.json(
+          { success: false, error: "Payment verification parameters (orderId, paymentReference, signature) are required for Online orders." },
+          { status: 400 }
+        );
+      }
+      if (!rzpSecret) {
+        return NextResponse.json(
+          { success: false, error: "Razorpay payment credentials not configured on the server." },
+          { status: 500 }
+        );
+      }
+
       const crypto = await import("crypto");
       const generatedSignature = crypto
         .createHmac("sha256", rzpSecret)
         .update(`${razorpay_order_id}|${safePaymentReference}`)
         .digest("hex");
-      if (generatedSignature !== razorpay_signature) {
+
+      const bufA = Buffer.from(razorpay_signature, "utf-8");
+      const bufB = Buffer.from(generatedSignature, "utf-8");
+
+      if (bufA.length !== bufB.length || !crypto.timingSafeEqual(bufA, bufB)) {
         return NextResponse.json(
           { success: false, error: "Payment verification failed: Razorpay signature mismatch." },
           { status: 400 }
         );
+      }
+      paymentVerified = true;
+    } else if (normalizedPaymentMethod === "COD" && safePaymentReference && razorpay_signature && razorpay_order_id && rzpSecret) {
+      // Advance COD payment verification
+      const crypto = await import("crypto");
+      const generatedSignature = crypto
+        .createHmac("sha256", rzpSecret)
+        .update(`${razorpay_order_id}|${safePaymentReference}`)
+        .digest("hex");
+      const bufA = Buffer.from(razorpay_signature, "utf-8");
+      const bufB = Buffer.from(generatedSignature, "utf-8");
+      if (bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB)) {
+        paymentVerified = true;
       }
     }
 
@@ -295,22 +327,50 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Server-side calculation of shipping fee and discounts
-    const totalQty = validatedItems.reduce((acc, it) => acc + it.quantity, 0);
-    const shippingFee = totalQty >= 3 ? 0 : normalizedPaymentMethod === "COD" ? 70 : 50;
+    // Server-side calculation: Free Shipping across all orders
+    const shippingFee = 0;
 
-    // Validated coupon/combo discount
-    const requestedDiscount = typeof body.discount === "number" ? Math.max(0, Math.min(serverCalculatedSubtotal, body.discount)) : 0;
-    const finalServerTotal = Math.max(0, serverCalculatedSubtotal + shippingFee - requestedDiscount);
+    // Server-Side Coupon / Promo Validation: Never trust raw client-supplied discount values
+    let serverCalculatedDiscount = 0;
+    const rawCoupon = typeof body.couponCode === "string" ? body.couponCode.trim().toUpperCase() : "";
+    if (rawCoupon) {
+      try {
+        const ComboOffer = (await import("@/lib/models/ComboOffer")).default;
+        const offer = await ComboOffer.findOne({
+          $or: [{ code: rawCoupon }, { id: rawCoupon }],
+          status: { $ne: "INACTIVE" },
+        }).lean();
 
-    // Verify payment status
-    const isOnlinePaid = normalizedPaymentMethod === "Online" && Boolean(safePaymentReference);
-    const isCodAdvancePaid = normalizedPaymentMethod === "COD" && Boolean(safePaymentReference);
+        if (offer) {
+          const discountPct = Number((offer as any).discountPercentage || (offer as any).discountPercent || 0);
+          const discountFlat = Number((offer as any).discountAmount || (offer as any).discount || 0);
+          if (discountPct > 0) {
+            serverCalculatedDiscount = Math.round((serverCalculatedSubtotal * Math.min(100, discountPct)) / 100);
+          } else if (discountFlat > 0) {
+            serverCalculatedDiscount = Math.min(serverCalculatedSubtotal, discountFlat);
+          }
+        }
+      } catch (e) {
+        console.warn("Coupon validation error:", e);
+      }
+    }
+    const requestedDiscount = serverCalculatedDiscount;
+    const taxableSubtotal = Math.max(0, serverCalculatedSubtotal - requestedDiscount);
+
+    // 5% Total Tax split into 2.5% GST/CGST and 2.5% SGST
+    const cgst = Math.round(taxableSubtotal * 0.025);
+    const sgst = Math.round(taxableSubtotal * 0.025);
+    const tax = cgst + sgst;
+    const finalServerTotal = taxableSubtotal + tax + shippingFee;
+
+    // Verify payment status strictly via server cryptographic verification
+    const isOnlinePaid = normalizedPaymentMethod === "Online" && paymentVerified;
+    const isCodAdvancePaid = normalizedPaymentMethod === "COD" && paymentVerified;
     const paymentStatus = isOnlinePaid
       ? "Paid"
       : isCodAdvancePaid
       ? "Advance Paid"
-      : (body.paymentStatus || "Pending");
+      : "Pending";
 
     const customerId = sanitizeString(body.customerId || body.customer?.customerId, 60);
     const orderId = `ORD-${Date.now().toString().slice(-6)}`;
@@ -331,14 +391,21 @@ export async function POST(request: NextRequest) {
       shippingPincode: shippingPincode || "",
       items: validatedItems,
       subtotal: serverCalculatedSubtotal,
-      shippingFee,
+      shippingFee: 0,
       discount: requestedDiscount,
+      tax,
+      cgst,
+      sgst,
       total: finalServerTotal,
       codAdvanceAmount: requestedCodAdvance,
       balanceOnDelivery: requestedBalanceOnDelivery,
       paymentMethod: normalizedPaymentMethod,
       paymentStatus,
       paymentReference: safePaymentReference,
+      courierName: "ST Courier",
+      trackingId: "",
+      stCourierTrackingId: "",
+      trackingUrl: "",
       orderStatus: "Confirmed",
       idempotencyKey: safeIdempotencyKey || "",
       notes: sanitizeString(notes, 500),
@@ -446,6 +513,16 @@ export async function DELETE(request: NextRequest) {
     const isAll = searchParams.get("all") === "true" || orderId === "all";
 
     if (isAll) {
+      const confirmToken = searchParams.get("confirm") || body.confirm;
+      if (confirmToken !== "CONFIRM_PURGE_ALL_ORDERS" || user?.role !== "Super Admin") {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Mass order purge requires Super Admin privileges and explicit confirmation (confirm: 'CONFIRM_PURGE_ALL_ORDERS').",
+          },
+          { status: 403 }
+        );
+      }
       const res = await Order.deleteMany({});
       return NextResponse.json({
         success: true,

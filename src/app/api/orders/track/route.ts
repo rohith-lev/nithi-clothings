@@ -67,12 +67,6 @@ export async function GET(request: NextRequest) {
       candidates.add(rawMatch);
     }
 
-    // 3. If query contains 4-8 digits, check ORD- prefix (e.g. "090600" -> "ORD-090600")
-    const digitsMatch = cleanId.match(/\b\d{4,8}\b/);
-    if (digitsMatch) {
-      candidates.add(`ORD-${digitsMatch[0]}`);
-    }
-
     const orConditions: any[] = [];
     for (const cand of candidates) {
       const safe = escapeRegex(cand);
@@ -127,18 +121,28 @@ export async function GET(request: NextRequest) {
 
     const FALLBACK_IMG = "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format";
 
+    const maskedName = order.customerName
+      ? order.customerName.replace(/^(.{2})(.*)(.{1}\s+[A-Za-z]+)$/, (_: any, a: string, b: string, c: string) => `${a}${"*".repeat(b.length)}${c}`)
+      : "";
+
+    const maskedAddress = [
+      order.shippingCity || "",
+      order.shippingState || "",
+      order.shippingPincode ? `- ${order.shippingPincode}` : "",
+    ].filter(Boolean).join(" ");
+
     return NextResponse.json({
       success: true,
       data: {
         orderId: order.orderId,
-        customerName: order.customerName,
+        customerName: maskedName || (order.customerName ? `${order.customerName.slice(0, 2)}***` : "Customer"),
         customerPhone: order.customerPhone ? `${order.customerPhone.slice(0, 3)}****${order.customerPhone.slice(-3)}` : "",
         orderStatus: order.orderStatus,
         status: order.orderStatus,
         courierName: order.courierName || "Express Courier Logistics",
         trackingId: activeTrackingId,
         dispatchDate: order.dispatchDate || "",
-        shippingAddress: order.shippingAddress,
+        shippingAddress: maskedAddress || "Address Protected for Privacy",
         shippingState: order.shippingState,
         createdAt: order.createdAt,
         paymentPending: false,

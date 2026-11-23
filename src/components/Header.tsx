@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import { useCart } from "../store/cart";
 import { useCustomerAuth } from "../services/customerAuth";
-import { useStoreCategories } from "../services/storefront";
+import { useStoreCategories, isCorsetOrSareeCorsetItem } from "../services/storefront";
 import type { Category } from "../types/store";
 import BrandLogo from "./BrandLogo";
 import MarqueeTicker from "./MarqueeTicker";
@@ -16,7 +16,6 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeDropdownCatId, setActiveDropdownCatId] = useState<string | null>(null);
-  const [mobileExpandedCatIds, setMobileExpandedCatIds] = useState<Record<string, boolean>>({});
   const [isScrolled, setIsScrolled] = useState(false);
   const [cartAnimate, setCartAnimate] = useState(false);
   const navigate = useNavigate();
@@ -66,6 +65,14 @@ export default function Header() {
 
     for (const cat of rawCategories) {
       if (!cat || cat.isActive === false) continue;
+      // Completely exclude any top-level item related to "Print Corset" or "Saree Corset"
+      if (
+        isCorsetOrSareeCorsetItem(cat.name) ||
+        isCorsetOrSareeCorsetItem(cat.slug) ||
+        isCorsetOrSareeCorsetItem(cat.id)
+      ) {
+        continue;
+      }
       const key = (cat.slug || cat.id || cat.name || "").toLowerCase().trim();
       if (!key || seen.has(key)) continue;
       seen.add(key);
@@ -77,7 +84,11 @@ export default function Header() {
         for (const sub of cat.subcategories) {
           const subName = typeof sub === "string" ? sub : sub?.name;
           const subId = typeof sub === "string" ? sub : sub?.id || sub?.name;
-          if (subName && !subSeen.has(subName.toLowerCase().trim())) {
+          if (
+            subName &&
+            !isCorsetOrSareeCorsetItem(subName) &&
+            !subSeen.has(subName.toLowerCase().trim())
+          ) {
             subSeen.add(subName.toLowerCase().trim());
             cleanSubs.push({ id: subId, name: subName.trim() });
           }
@@ -87,7 +98,7 @@ export default function Header() {
       // Collect product types dynamically stored in category or fallback defaults for clothing categories
       let types: string[] = [];
       if (Array.isArray((cat as any).productTypes) && (cat as any).productTypes.length > 0) {
-        types = (cat as any).productTypes;
+        types = (cat as any).productTypes.filter((t: string) => !isCorsetOrSareeCorsetItem(t));
       } else if (key.includes("nighty") || key.includes("nighties")) {
         types = ["Zip Nighty", "Zipless Nighty", "Elite Nighty"];
       }
@@ -98,7 +109,7 @@ export default function Header() {
 
       for (const t of types) {
         const norm = t.toLowerCase().trim();
-        if (!itemSeen.has(norm)) {
+        if (!isCorsetOrSareeCorsetItem(t) && !itemSeen.has(norm)) {
           itemSeen.add(norm);
           nested.push({ id: `type-${norm}`, name: t.trim(), isType: true });
         }
@@ -106,7 +117,7 @@ export default function Header() {
 
       for (const s of cleanSubs) {
         const norm = s.name.toLowerCase().trim();
-        if (!itemSeen.has(norm)) {
+        if (!isCorsetOrSareeCorsetItem(s.name) && !itemSeen.has(norm)) {
           itemSeen.add(norm);
           nested.push({ id: s.id, name: s.name, isType: false });
         }
@@ -122,15 +133,6 @@ export default function Header() {
 
     return list;
   }, [rawCategories]);
-
-  const toggleMobileCategory = (catId: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setMobileExpandedCatIds((prev) => ({
-      ...prev,
-      [catId]: !prev[catId],
-    }));
-  };
 
   return (
     <>
@@ -442,62 +444,15 @@ export default function Header() {
                 <span className="text-[#C9A227] text-xs">→</span>
               </Link>
 
-              {/* Categories — from the database, in admin-defined order, with product types */}
+              {/* Categories — direct links without accordions */}
               {categoriesList.map((cat) => {
                 const catSlug = cat.slug || cat.id;
-                const hasNested = cat.nestedItems.length > 0;
-                const isExpanded = Boolean(mobileExpandedCatIds[cat.id]);
-
-                if (hasNested) {
-                  return (
-                    <div key={cat.id || cat.slug} className="border-b border-[#E8E2D5]/50 py-1">
-                      <div className="flex items-center justify-between py-1">
-                        <Link
-                          to={`/shop?category=${encodeURIComponent(catSlug)}`}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className="flex-1 hover:text-[#064E3B] transition-colors mobile-touch-zoom"
-                        >
-                          <InteractiveNavText text={cat.name} />
-                        </Link>
-                        <button
-                          type="button"
-                          onClick={(e) => toggleMobileCategory(cat.id, e)}
-                          className="px-2.5 py-1 text-xs font-bold text-[#064E3B] hover:text-[#C9A227] hover:bg-[#F3EFE3] rounded-lg transition-colors"
-                          aria-label={`Toggle ${cat.name} styles and types`}
-                        >
-                          {isExpanded ? "− Close" : "+ Styles"}
-                        </button>
-                      </div>
-
-                      {/* Product Types & Subcategories Nested Accordion */}
-                      {isExpanded && (
-                        <div className="pl-3 py-2 space-y-2 text-xs normal-case tracking-normal font-normal text-[#5C635E] border-l-2 border-[#C9A227]/40 ml-1 animate-fade-in">
-                          {cat.nestedItems.map((item) => (
-                            <Link
-                              key={item.id}
-                              to={
-                                item.isType
-                                  ? `/shop?category=${encodeURIComponent(catSlug)}&type=${encodeURIComponent(item.name)}`
-                                  : `/shop?category=${encodeURIComponent(catSlug)}&sub=${encodeURIComponent(item.name)}`
-                              }
-                              onClick={() => setMobileMenuOpen(false)}
-                              className="block py-1 hover:text-[#064E3B] transition-colors mobile-touch-zoom"
-                            >
-                              ✦ <InteractiveNavText text={item.name} />
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
                 return (
                   <Link
                     key={cat.id || cat.slug}
                     to={`/shop?category=${encodeURIComponent(catSlug)}`}
                     onClick={() => setMobileMenuOpen(false)}
-                    className="py-2 hover:text-[#C9A227] border-b border-[#E8E2D5]/50 flex items-center justify-between mobile-touch-zoom"
+                    className="py-2 hover:text-[#064E3B] border-b border-[#E8E2D5]/50 flex items-center justify-between mobile-touch-zoom"
                   >
                     <InteractiveNavText text={cat.name} />
                     <span className="text-[#C9A227] text-xs">→</span>

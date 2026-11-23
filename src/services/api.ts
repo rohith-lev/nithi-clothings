@@ -576,18 +576,60 @@ export const adminApi = {
   },
 
   // 8. DELETE / ARCHIVE PRODUCT
-  async deleteProduct(productId: string, adminName: string = "Super Admin"): Promise<ApiResponse<{ archived: boolean }>> {
-    const res = await apiFetch<any>(`/api/products/${productId}`, {
-      method: "DELETE",
-    });
+  async deleteProduct(
+    productId: string,
+    adminName: string = "Super Admin",
+    extra?: { _id?: string; sku?: string; code?: string }
+  ): Promise<ApiResponse<{ archived: boolean }>> {
+    const trimmedId = String(productId || "").trim();
+    if (!trimmedId && !extra?._id) {
+      return { success: false, error: "Product identifier is required for deletion." };
+    }
+
+    const cleanId = encodeURIComponent(trimmedId || extra?._id || "");
+    const deletePayload = {
+      ids: [trimmedId, ...(extra?._id ? [extra._id] : []), ...(extra?.sku ? [extra.sku] : [])].filter(Boolean),
+      id: trimmedId,
+      _id: extra?._id,
+      sku: extra?.sku,
+      code: extra?.code,
+    };
+
+    let res: ApiResponse<any>;
+    try {
+      res = await apiFetch<any>(`/api/products/${cleanId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(deletePayload),
+      });
+    } catch {
+      res = { success: false, error: "Network error when requesting product deletion." };
+    }
+
+    // Fallback: If single product endpoint returns 404 or fails, call root DELETE /api/products
+    if (!res.success) {
+      try {
+        const fallbackRes = await apiFetch<any>("/api/products", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(deletePayload),
+        });
+        if (fallbackRes.success) {
+          res = fallbackRes;
+        }
+      } catch (err) {
+        console.warn("Fallback delete failed:", err);
+      }
+    }
+
     if (res.success && typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("nithi_products_updated", { detail: { deletedId: productId } }));
+      window.dispatchEvent(new CustomEvent("nithi_products_updated", { detail: { deletedId: trimmedId } }));
       try { localStorage.setItem("nithi_prod_version", Date.now().toString()); } catch (e) {}
     }
     return {
       success: res.success,
       data: { archived: false },
-      message: res.message || (res.success ? "Product deleted successfully." : res.error),
+      message: res.message || (res.success ? "Product permanently removed from database." : res.error),
       error: res.error,
     };
   },
@@ -632,6 +674,27 @@ export const adminApi = {
     };
   },
 
+  // 8d. PURGE DATABASE & MEDIA (SETTINGS ACTION)
+  async purgeDatabaseAndMedia(
+    target: "both" | "products" | "images" | "orphaned_images"
+  ): Promise<ApiResponse<{ deletedProducts: number; deletedMedia: number }>> {
+    const res = await apiFetch<any>("/api/admin/purge", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target }),
+    });
+    if (res.success && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("nithi_products_updated"));
+      try { localStorage.setItem("nithi_prod_version", Date.now().toString()); } catch (e) {}
+    }
+    return {
+      success: res.success,
+      data: res.data || { deletedProducts: 0, deletedMedia: 0 },
+      message: res.message || (res.success ? "Purge executed successfully." : res.error),
+      error: res.error,
+    };
+  },
+
   // 9. BULK ACTIONS
   async bulkUpdate(
     productIds: string[],
@@ -640,11 +703,24 @@ export const adminApi = {
     adminName: string = "Super Admin"
   ): Promise<ApiResponse<{ affected: number }>> {
     let affected = 0;
-    for (const id of productIds) {
-      if (action === "delete") {
-        const delRes = await this.deleteProduct(id, adminName);
-        if (delRes.success) affected++;
+    if (action === "delete") {
+      // Direct bulk delete in MongoDB
+      const res = await apiFetch<any>("/api/products", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: productIds }),
+      });
+      if (res.success) {
+        affected = res.data?.deletedCount ?? productIds.length;
       } else {
+        // Fallback to sequential individual deletion
+        for (const id of productIds) {
+          const delRes = await this.deleteProduct(id, adminName);
+          if (delRes.success) affected++;
+        }
+      }
+    } else {
+      for (const id of productIds) {
         const updates: any = {};
         if (action === "activate") updates.status = "ACTIVE";
         else if (action === "deactivate") updates.status = "DRAFT";
@@ -920,6 +996,26 @@ export const adminApi = {
       message: res.message || "All customers deleted successfully.",
       error: res.error,
     };
+  },
+  async assignCustomerGift(payload: {
+    customerId: string;
+    title: string;
+    description?: string;
+    couponCode?: string;
+    value?: number;
+    notes?: string;
+    creditPointsToAdd?: number;
+  }): Promise<ApiResponse<any>> {
+    return apiFetch<any>("/api/customers/gift", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+  },
+  async removeCustomerGift(customerId: string, giftId: string): Promise<ApiResponse<any>> {
+    return apiFetch<any>(`/api/customers/gift?customerId=${encodeURIComponent(customerId)}&giftId=${encodeURIComponent(giftId)}`, {
+      method: "DELETE",
+    });
   },
 
   // 17. INVENTORY TRANSACTIONS

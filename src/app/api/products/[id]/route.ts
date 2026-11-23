@@ -76,38 +76,98 @@ export async function DELETE(
     const rawId = id ? decodeURIComponent(id).trim() : "";
     const safeId = escapeRegex(rawId);
 
+    // Optional body payload with additional identifier fallbacks
+    const body = await request.json().catch(() => ({}));
+
     const query: any = {
       $or: [
         { id: rawId },
-        { id: safeId },
+        { id: new RegExp(`^${safeId}$`, "i") },
         { code: rawId },
+        { code: new RegExp(`^${safeId}$`, "i") },
         { sku: rawId },
+        { sku: new RegExp(`^${safeId}$`, "i") },
       ],
     };
     if (mongoose.Types.ObjectId.isValid(rawId)) {
       query.$or.push({ _id: rawId });
+      try {
+        query.$or.push({ _id: new mongoose.Types.ObjectId(rawId) });
+      } catch {}
+    }
+
+    if (body._id && mongoose.Types.ObjectId.isValid(body._id)) {
+      query.$or.push({ _id: body._id });
+      try {
+        query.$or.push({ _id: new mongoose.Types.ObjectId(body._id) });
+      } catch {}
+    }
+    if (body.id && typeof body.id === "string") {
+      const extraId = body.id.trim();
+      query.$or.push({ id: extraId });
+      query.$or.push({ id: new RegExp(`^${escapeRegex(extraId)}$`, "i") });
+    }
+    if (body.sku && typeof body.sku === "string") {
+      query.$or.push({ sku: body.sku.trim() });
+    }
+    if (body.code && typeof body.code === "string") {
+      query.$or.push({ code: body.code.trim() });
     }
 
     const product = await Product.findOne(query);
-    if (!product) {
-      // Try fallback direct delete in case findOne missed legacy format
-      const deleteResult = await Product.deleteMany(query);
-      if (deleteResult.deletedCount > 0) {
-        return NextResponse.json({
-          success: true,
-          message: "Product deleted successfully",
-        });
+    const productName = product?.name || "Product";
+    const targetId = product?.id || rawId;
+
+    // Collect associated product images to delete from MongoDB Media collection
+    const imageUrls: string[] = [];
+    if (product) {
+      if (product.coverImage) imageUrls.push(product.coverImage);
+      if (Array.isArray(product.images)) imageUrls.push(...product.images);
+      if (Array.isArray(product.colorOptions)) {
+        product.colorOptions.forEach((co: any) => co?.image && imageUrls.push(co.image));
       }
+      if (Array.isArray(product.variants)) {
+        product.variants.forEach((v: any) => v?.image && imageUrls.push(v.image));
+      }
+      if (Array.isArray(product.productTypes)) {
+        product.productTypes.forEach((pt: any) => pt?.image && imageUrls.push(pt.image));
+      }
+      if (product.colorImages && typeof product.colorImages === "object") {
+        Object.values(product.colorImages).forEach((img: any) => img && imageUrls.push(String(img)));
+      }
+    }
+
+    const delResult = await Product.deleteMany(query);
+    if (!product && delResult.deletedCount === 0) {
       return NextResponse.json(
         { success: false, error: "Product not found" },
         { status: 404 }
       );
     }
 
-    const productName = product.name || "Product";
-    const targetId = product.id || rawId;
+    // Clean up associated images from MongoDB Media collection and local uploads
+    if (imageUrls.length > 0) {
+      try {
+        const { deleteMediaFiles } = await import("@/lib/mediaStorage");
+        await deleteMediaFiles(imageUrls);
+      } catch (err) {
+        console.warn("Cleanup media error:", err);
+      }
+    }
 
-    await Product.deleteMany(query);
+    // Clean up related inventory transactions and references
+    try {
+      const InventoryTransaction = (await import("@/lib/models/InventoryTransaction")).default;
+      await InventoryTransaction.deleteMany({
+        $or: [
+          { productId: rawId },
+          { productId: targetId },
+          { productId: safeId },
+        ],
+      });
+    } catch (e) {
+      console.warn("Cleanup inventory transactions error:", e);
+    }
 
     try {
       await new AuditLog({

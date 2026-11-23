@@ -2,6 +2,10 @@
 
 import { useState, useEffect, type ComponentType } from "react";
 
+// Module-level cache so App only loads once and never re-triggers the spinner on navigations
+let cachedAppModule: ComponentType | null = null;
+let appLoadingPromise: Promise<ComponentType> | null = null;
+
 // Spinner shown during the loading phase (SSR and initial client load)
 function Spinner() {
   return (
@@ -30,24 +34,34 @@ function Spinner() {
 }
 
 export default function AppShell() {
-  // `App` starts null — nothing is imported on the server.
-  // useEffect only runs in the browser, so the dynamic import()
-  // is never executed (or statically analyzed) on the server.
-  const [App, setApp] = useState<ComponentType | null>(null);
+  // Synchronously initialize with cachedAppModule if already loaded, preventing spinner flash
+  const [App, setApp] = useState<ComponentType | null>(() => cachedAppModule);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // This import() runs only after hydration, purely client-side.
-    // Webpack/Turbopack still chunks this module but it NEVER runs on the server.
-    import("./App")
-      .then((mod) => {
-        setApp(() => mod.default as ComponentType);
+    if (cachedAppModule) {
+      if (!App) {
+        setApp(() => cachedAppModule);
+      }
+      return;
+    }
+
+    if (!appLoadingPromise) {
+      appLoadingPromise = import("./App").then((mod) => {
+        cachedAppModule = mod.default as ComponentType;
+        return cachedAppModule;
+      });
+    }
+
+    appLoadingPromise
+      .then((comp) => {
+        setApp(() => comp);
       })
       .catch((err) => {
         console.error("Failed to load App module:", err);
         setError(err instanceof Error ? err.message : String(err));
       });
-  }, []);
+  }, [App]);
 
   if (error) {
     return (

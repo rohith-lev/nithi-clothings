@@ -48,8 +48,50 @@ export default function AdminCategories() {
       adminApi.getCategories(),
       adminApi.getProducts(),
     ]);
+
+    // Remove any empty, blank, or whitespace-only category entries
+    const validCats = (cats || []).filter(
+      (c) => c && typeof c.name === "string" && c.name.trim().length > 0
+    );
+
+    // Ensure Nighty category is always available and well-formed
+    const hasNighty = validCats.some(
+      (c) =>
+        (c.name || "").toLowerCase().trim() === "nighty" ||
+        (c.slug || "").toLowerCase().trim() === "nighty" ||
+        (c.id || "").toLowerCase().trim() === "cat-nighty"
+    );
+
+    let completeCats = [...validCats];
+    if (!hasNighty) {
+      completeCats.unshift({
+        id: "cat-nighty",
+        name: "Nighty",
+        slug: "nighty",
+        image: "/uploads/catalog/elite-xl-zip-model-nighty-collections.jpg",
+        description: "Premium pure cotton nighties in Zip, Piping, Titanic and Maternity Feeding models.",
+        subcategories: [
+          { id: "sub-zip-nighty", name: "Zip nighty", parentGroup: "Normal Nighty (55 inches)" },
+          { id: "sub-zipless-nighty", name: "Zipless nighty", parentGroup: "Normal Nighty (55 inches)" },
+          { id: "sub-piping-nighty", name: "Piping nighty", parentGroup: "Normal Nighty (55 inches)" },
+          { id: "sub-titanic-nighty", name: "Titanic model nighty", parentGroup: "Normal Nighty (55 inches)" },
+          { id: "sub-collar-nighty", name: "Collar model nighty", parentGroup: "Normal Nighty (55 inches)" },
+          { id: "sub-elastic-nighty", name: "Elastic model nighty", parentGroup: "Normal Nighty (55 inches)" },
+          { id: "sub-feeding-vertical-zip", name: "Double side vertical zip", parentGroup: "Maternity & Feeding wear" },
+          { id: "sub-feeding-frock", name: "Feeding frock model", parentGroup: "Frock model (55 inches)" },
+          { id: "sub-60inch-zip", name: "60 inch Zip nighty", parentGroup: "60 inch Nighty" },
+          { id: "sub-60inch-piping", name: "60 inch Piping nighty", parentGroup: "60 inch Nighty" },
+          { id: "sub-3xl-nighty", name: "3XL Nighty collections", parentGroup: "Specialty Nighties" },
+        ],
+        isCustom: true,
+        isActive: true,
+        showOnHome: true,
+        priority: 1,
+      });
+    }
+
     // Sort by priority (admin-defined display order: 1st, 2nd, 3rd…)
-    const sorted = [...cats].sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
+    const sorted = completeCats.sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0));
     setCategoriesList(sorted);
     setProducts(prods);
   };
@@ -197,20 +239,25 @@ export default function AdminCategories() {
 
   const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formCatName.trim()) {
+    const cleanName = formCatName.trim();
+    if (!cleanName) {
       setToastMessage({ type: "error", text: "Please enter a category name." });
       return;
     }
 
-    const subObjects: SubCategory[] = formSubcategories.map((subName) => ({
+    const cleanSubs = formSubcategories
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+
+    const subObjects: SubCategory[] = cleanSubs.map((subName) => ({
       id: `sub-${subName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
       name: subName,
     }));
 
     const catPayload = {
       id: editingCategory?.id,
-      name: formCatName.trim(),
-      slug: formCatSlug.trim() || formCatName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      name: cleanName,
+      slug: formCatSlug.trim() || cleanName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       image: formCatImage.trim() || "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&h=1000&fit=crop&auto=format",
       priority: Number(formCatPriority) || 0,
       showOnHome: Boolean(formCatShowOnHome),
@@ -262,24 +309,46 @@ export default function AdminCategories() {
     if (!quickSubModalCat || !quickSubName.trim()) return;
 
     const trimmed = quickSubName.trim();
-    const existingSubs = quickSubModalCat.subcategories || [];
+    const existingSubs = (quickSubModalCat.subcategories || []).filter(
+      (s) => (typeof s === "string" ? s : s?.name || "").trim().length > 0
+    );
+
+    const exists = existingSubs.some(
+      (s) => (typeof s === "string" ? s : s?.name || "").toLowerCase().trim() === trimmed.toLowerCase()
+    );
+
+    if (exists) {
+      setToastMessage({
+        type: "error",
+        text: `Sub-category "${trimmed}" already exists under ${quickSubModalCat.name}.`,
+      });
+      return;
+    }
+
     const newSubs = [
       ...existingSubs,
       { id: `sub-${trimmed.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, name: trimmed },
     ];
 
-    await adminApi.saveCategory({
+    const res = await adminApi.saveCategory({
       ...quickSubModalCat,
       subcategories: newSubs,
     });
 
-    setToastMessage({
-      type: "success",
-      text: `Sub-category "${trimmed}" added to ${quickSubModalCat.name}!`,
-    });
-    setQuickSubName("");
-    setQuickSubModalCat(null);
-    await refreshData();
+    if (res.success) {
+      setToastMessage({
+        type: "success",
+        text: `✓ Sub-category "${trimmed}" added to ${quickSubModalCat.name}!`,
+      });
+      setQuickSubName("");
+      setQuickSubModalCat(null);
+      await refreshData();
+    } else {
+      setToastMessage({
+        type: "error",
+        text: res.error || "Failed to add sub-category.",
+      });
+    }
   };
 
   // ── Drag & Drop & Button Reorder Handlers ─────────────────────────────

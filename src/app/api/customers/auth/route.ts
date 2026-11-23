@@ -5,8 +5,44 @@ import Customer from "@/lib/models/Customer";
 import { signToken, checkRateLimit, getClientIp } from "@/lib/auth";
 import { sendPasswordResetOtpEmail } from "@/services/notificationService";
 
-function hashPassword(password: string): string {
-  return crypto.pbkdf2Sync(password, "nithi_collections_salt_2026", 1000, 64, "sha512").toString("hex");
+function hashPassword(password: string, customSalt?: string): string {
+  const salt = customSalt || crypto.randomBytes(16).toString("hex");
+  const iterations = 100000;
+  const hash = crypto.pbkdf2Sync(password, salt, iterations, 64, "sha512").toString("hex");
+  return `${salt}:${iterations}:${hash}`;
+}
+
+function verifyPassword(password: string, storedHash: string): { valid: boolean; needsRehash: boolean } {
+  if (!storedHash || !password) return { valid: false, needsRehash: false };
+
+  // Modern salted format: salt:iterations:hash
+  if (storedHash.includes(":")) {
+    const parts = storedHash.split(":");
+    if (parts.length === 3) {
+      const [salt, iterStr, hash] = parts;
+      const iterations = parseInt(iterStr, 10) || 100000;
+      const computed = crypto.pbkdf2Sync(password, salt, iterations, 64, "sha512").toString("hex");
+      try {
+        const bufA = Buffer.from(computed, "hex");
+        const bufB = Buffer.from(hash, "hex");
+        const valid = bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB);
+        return { valid, needsRehash: iterations < 100000 };
+      } catch {
+        return { valid: false, needsRehash: false };
+      }
+    }
+  }
+
+  // Legacy format (static salt, 1000 iterations) with timing-safe comparison
+  const legacyHash = crypto.pbkdf2Sync(password, "nithi_collections_salt_2026", 1000, 64, "sha512").toString("hex");
+  try {
+    const bufA = Buffer.from(legacyHash, "hex");
+    const bufB = Buffer.from(storedHash, "hex");
+    const valid = bufA.length === bufB.length && crypto.timingSafeEqual(bufA, bufB);
+    return { valid, needsRehash: valid };
+  } catch {
+    return { valid: false, needsRehash: false };
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -174,22 +210,46 @@ export async function POST(request: NextRequest) {
       customer = await Customer.findOne({ email: cleanEmail });
     }
 
-    if (customer && customer.passwordHash && rawPassword) {
-      // Validate password if user has password set
-      const incomingHash = hashPassword(rawPassword);
-      if (incomingHash !== customer.passwordHash) {
-        return NextResponse.json(
-          { success: false, error: "Incorrect password. Please try again or click Forgot Password." },
-          { status: 401 }
-        );
+    if (customer) {
+      if (customer.passwordHash) {
+        if (!rawPassword) {
+          return NextResponse.json(
+            { success: false, error: "Password is required to sign in to your account." },
+            { status: 400 }
+          );
+        }
+        const check = verifyPassword(rawPassword, customer.passwordHash);
+        if (!check.valid) {
+          return NextResponse.json(
+            { success: false, error: "Incorrect password. Please try again or click Forgot Password." },
+            { status: 401 }
+          );
+        }
+        // Upgrade legacy hash format to salted 100k iteration format automatically
+        if (check.needsRehash) {
+          customer.passwordHash = hashPassword(rawPassword);
+          await customer.save();
+        }
+      } else if (rawPassword) {
+        // First time password setup
+        customer.passwordHash = hashPassword(rawPassword);
+        await customer.save();
       }
-    } else if (customer && !customer.passwordHash && rawPassword) {
-      // First time password setup
-      customer.passwordHash = hashPassword(rawPassword);
-      await customer.save();
     }
 
     if (!customer) {
+      if (!cleanPhone) {
+        return NextResponse.json(
+          { success: false, error: "A valid 10-digit mobile number is required for account sign-in or registration." },
+          { status: 400 }
+        );
+      }
+      if (!rawPassword) {
+        return NextResponse.json(
+          { success: false, error: "Please enter a password for your account." },
+          { status: 400 }
+        );
+      }
       const customerId = `CUST-${cleanPhone || Date.now().toString().slice(-8)}`;
       const name = rawName || (cleanEmail ? cleanEmail.split("@")[0] : `Customer ${cleanPhone.slice(-4)}`);
       customer = new Customer({
@@ -198,7 +258,7 @@ export async function POST(request: NextRequest) {
         phone: cleanPhone || "",
         email: cleanEmail || "",
         state: "Tamil Nadu",
-        passwordHash: rawPassword ? hashPassword(rawPassword) : "",
+        passwordHash: hashPassword(rawPassword),
       });
       await customer.save();
     } else {

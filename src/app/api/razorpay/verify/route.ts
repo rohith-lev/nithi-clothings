@@ -10,28 +10,35 @@ export async function POST(request: NextRequest) {
       razorpay_signature,
     } = body;
 
-    if (!razorpay_order_id || !razorpay_payment_id) {
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return NextResponse.json(
-        { success: false, error: "Missing required payment parameters" },
+        { success: false, error: "Missing required payment verification parameters (orderId, paymentId, signature)." },
         { status: 400 }
       );
     }
 
-    const key_secret = process.env.RAZORPAY_KEY_SECRET || "lce5f7oC0UtnH13owVdiEsOG";
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    if (!key_secret) {
+      return NextResponse.json(
+        { success: false, error: "Payment gateway secret is not configured on server." },
+        { status: 500 }
+      );
+    }
 
-    // If live/test secret key is provided, perform HMAC SHA256 cryptographic verification
-    if (key_secret && razorpay_signature) {
-      const generatedSignature = crypto
-        .createHmac("sha256", key_secret)
-        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-        .digest("hex");
+    // Perform timing-safe HMAC SHA256 cryptographic verification
+    const generatedSignature = crypto
+      .createHmac("sha256", key_secret)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
 
-      if (generatedSignature !== razorpay_signature) {
-        return NextResponse.json(
-          { success: false, error: "Payment verification failed: Signature mismatch." },
-          { status: 400 }
-        );
-      }
+    const bufA = Buffer.from(razorpay_signature, "utf-8");
+    const bufB = Buffer.from(generatedSignature, "utf-8");
+
+    if (bufA.length !== bufB.length || !crypto.timingSafeEqual(bufA, bufB)) {
+      return NextResponse.json(
+        { success: false, error: "Payment verification failed: Signature mismatch." },
+        { status: 400 }
+      );
     }
 
     return NextResponse.json({

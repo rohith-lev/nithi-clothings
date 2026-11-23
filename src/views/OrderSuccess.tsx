@@ -36,8 +36,22 @@ export default function OrderSuccess() {
             <span className="text-sm font-bold text-[#064E3B] font-mono">#{orderId}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-xs text-slate-500 uppercase tracking-wider">Total Amount</span>
+            <span className="text-xs text-slate-500 uppercase tracking-wider">Total Amount (incl. 5% GST)</span>
             <span className="text-base font-bold text-[#0F172A]">₹{Number(total).toLocaleString("en-IN")}</span>
+          </div>
+          <div className="bg-[#FAF8F1] rounded-xl p-3 border border-[#E8E2D5] space-y-1.5 text-xs text-[#5C635E]">
+            <div className="flex justify-between">
+              <span>CGST (2.5%)</span>
+              <span className="font-semibold text-stone-800">₹{Math.round((Number(total) / 1.05) * 0.025).toLocaleString("en-IN")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>SGST (2.5%)</span>
+              <span className="font-semibold text-stone-800">₹{Math.round((Number(total) / 1.05) * 0.025).toLocaleString("en-IN")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Courier Delivery</span>
+              <span className="font-bold text-[#064E3B]">ST Courier (FREE)</span>
+            </div>
           </div>
           {isCOD && advance && Number(advance) > 0 && (
             <>

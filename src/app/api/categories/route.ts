@@ -47,6 +47,46 @@ async function getSynchronizedCategories(activeOnly = false) {
 
   let dbCategories = await Category.find().sort({ priority: 1, createdAt: 1 }).lean();
 
+  // Filter out any blank, empty, or whitespace-only categories
+  dbCategories = (dbCategories || []).filter(
+    (cat: any) => cat && typeof cat.name === "string" && cat.name.trim().length > 0
+  );
+
+  // Ensure "Nighty" category is guaranteed to be present and available
+  const hasNighty = dbCategories.some(
+    (cat: any) =>
+      (cat.name || "").toLowerCase().trim() === "nighty" ||
+      (cat.slug || "").toLowerCase().trim() === "nighty" ||
+      (cat.id || "").toLowerCase().trim() === "cat-nighty"
+  );
+
+  if (!hasNighty) {
+    dbCategories.unshift({
+      id: "cat-nighty",
+      name: "Nighty",
+      slug: "nighty",
+      image: "/uploads/catalog/elite-xl-zip-model-nighty-collections.jpg",
+      description: "Premium pure cotton nighties in Zip, Piping, Titanic and Maternity Feeding models.",
+      subcategories: [
+        { id: "sub-zip-nighty", name: "Zip nighty", parentGroup: "Normal Nighty (55 inches)" },
+        { id: "sub-zipless-nighty", name: "Zipless nighty", parentGroup: "Normal Nighty (55 inches)" },
+        { id: "sub-piping-nighty", name: "Piping nighty", parentGroup: "Normal Nighty (55 inches)" },
+        { id: "sub-titanic-nighty", name: "Titanic model nighty", parentGroup: "Normal Nighty (55 inches)" },
+        { id: "sub-collar-nighty", name: "Collar model nighty", parentGroup: "Normal Nighty (55 inches)" },
+        { id: "sub-elastic-nighty", name: "Elastic model nighty", parentGroup: "Normal Nighty (55 inches)" },
+        { id: "sub-feeding-vertical-zip", name: "Double side vertical zip", parentGroup: "Maternity & Feeding wear" },
+        { id: "sub-feeding-frock", name: "Feeding frock model", parentGroup: "Frock model (55 inches)" },
+        { id: "sub-60inch-zip", name: "60 inch Zip nighty", parentGroup: "60 inch Nighty" },
+        { id: "sub-60inch-piping", name: "60 inch Piping nighty", parentGroup: "60 inch Nighty" },
+        { id: "sub-3xl-nighty", name: "3XL Nighty collections", parentGroup: "Specialty Nighties" },
+      ],
+      isCustom: true,
+      isActive: true,
+      showOnHome: true,
+      priority: 1,
+    } as any);
+  }
+
   // Aggregate dynamic product types per category from the live product catalogue
   const typeMap: Record<string, string[]> = {};
   try {

@@ -429,7 +429,12 @@ export async function sendCustomerOrderWhatsAppNotification(order: {
   orderId: string;
   customerName?: string;
   customerPhone?: string;
+  subtotal?: number;
+  cgst?: number;
+  sgst?: number;
+  tax?: number;
   total?: number;
+  shippingFee?: number;
   paymentMethod?: string;
   paymentStatus?: string;
   codAdvanceAmount?: number;
@@ -469,6 +474,9 @@ export async function sendCustomerOrderWhatsAppNotification(order: {
     paymentText += `\n*10% Advance Paid/Booking:* ₹${order.codAdvanceAmount.toLocaleString("en-IN")}\n*Balance on Delivery:* ₹${(order.balanceOnDelivery ?? Math.max(0, (order.total || 0) - order.codAdvanceAmount)).toLocaleString("en-IN")}`;
   }
 
+  const cgstVal = order.cgst !== undefined ? order.cgst : Math.round(((order.subtotal || order.total || 0) * 0.025));
+  const sgstVal = order.sgst !== undefined ? order.sgst : Math.round(((order.subtotal || order.total || 0) * 0.025));
+
   const message = [
     `🛍️ *ORDER CONFIRMED — NITHI COLLECTIONS*`,
     ``,
@@ -479,12 +487,17 @@ export async function sendCustomerOrderWhatsAppNotification(order: {
     `*Items:*`,
     itemsList,
     ``,
+    `*Price Breakdown:*`,
+    `  • Subtotal: ₹${(order.subtotal || order.total || 0).toLocaleString("en-IN")}`,
+    `  • CGST (2.5%): ₹${cgstVal.toLocaleString("en-IN")}`,
+    `  • SGST (2.5%): ₹${sgstVal.toLocaleString("en-IN")}`,
+    `  • Delivery: FREE (Complimentary)`,
     `*Total Order Amount:* ₹${(order.total || 0).toLocaleString("en-IN")}`,
     paymentText,
     ``,
     order.shippingAddress ? `*Delivery Address:* ${order.shippingAddress}${order.shippingCity ? `, ${order.shippingCity}` : ""}${order.shippingState ? `, ${order.shippingState}` : ""}${order.shippingPincode ? ` - ${order.shippingPincode}` : ""}` : "",
     ``,
-    `📦 We will send you another WhatsApp message with your courier tracking details as soon as your parcel is dispatched.`,
+    `📦 We will send you another WhatsApp message with your ST Courier tracking AWB number as soon as your parcel is dispatched.`,
     ``,
     `For any assistance, reply directly to this message or call us at 8122436850 / 9345136762.`,
   ].filter(Boolean).join("\n");
@@ -499,15 +512,21 @@ export async function sendCustomerTrackingWhatsAppNotification(order: {
   customerPhone?: string;
   courierName?: string;
   trackingId?: string;
+  stCourierTrackingId?: string;
+  trackingUrl?: string;
   shippingCity?: string;
   shippingState?: string;
 }) {
   const phone = order.customerPhone || "";
   if (!phone) return { success: false, reason: "No customer phone provided" };
-  if (!order.trackingId) return { success: false, reason: "No tracking ID provided" };
+  const awb = (order.stCourierTrackingId || order.trackingId || "").trim();
+  if (!awb) return { success: false, reason: "No tracking ID provided" };
 
-  const courier = order.courierName || "Professional Express Courier";
-  const trackingLink = `https://www.google.com/search?q=${encodeURIComponent(`${courier} tracking ${order.trackingId}`)}`;
+  const courier = order.courierName || "ST Courier";
+  const isST = courier.toLowerCase().includes("st");
+  const trackingLink = order.trackingUrl || (isST
+    ? `https://stcourier.com/track-consignment?awb=${encodeURIComponent(awb)}`
+    : `https://www.google.com/search?q=${encodeURIComponent(`${courier} tracking ${awb}`)}`);
 
   const message = [
     `🚚 *YOUR ORDER HAS BEEN DISPATCHED! — NITHI COLLECTIONS*`,
@@ -516,10 +535,10 @@ export async function sendCustomerTrackingWhatsAppNotification(order: {
     `Exciting news! Your order *#${order.orderId}* is on its way to you.`,
     ``,
     `📦 *Courier Partner:* ${courier}`,
-    `🔢 *Tracking ID / AWB:* ${order.trackingId}`,
-    `🔗 *Track Parcel:* ${trackingLink}`,
+    `🔢 *ST Courier AWB / Tracking ID:* ${awb}`,
+    `🔗 *Track ST Courier Parcel:* ${trackingLink}`,
     ``,
-    `⏱️ Expected delivery within 2–4 business days.`,
+    `⏱️ Expected delivery within 2–4 business days across Tamil Nadu & South India.`,
     ``,
     `Thank you for choosing Nithi Collections!`,
     `Questions? Contact us at 8122436850 / 9345136762.`,

@@ -35,29 +35,23 @@ export default function ProductDetail() {
   useEffect(() => {
     if (product) {
       setSelectedTypeIdx(0);
-      const cat = (product.category || "").toLowerCase();
-      const isNightyOrDress = cat.includes("nighty") || cat.includes("dress") || cat.includes("night");
 
-      if (isNightyOrDress) {
-        const nameUpper = (product.name || "").toUpperCase();
-        if (nameUpper.includes("XXL") || nameUpper.includes("2XL")) {
-          setSelectedSize("2XL");
-        } else if (nameUpper.includes("3XL") || nameUpper.includes("XXXL")) {
-          setSelectedSize("3XL");
-        } else if (nameUpper.includes("XL")) {
-          setSelectedSize("XL");
-        } else if (nameUpper.includes(" L ") || nameUpper.includes("L SIZE")) {
-          setSelectedSize("L");
-        } else {
-          setSelectedSize("XL");
-        }
+      // Determine initial selected size strictly from the product's configured sizes
+      const configuredSizes: string[] = [];
+      if (product.sizeOptions && product.sizeOptions.length > 0) {
+        configuredSizes.push(...product.sizeOptions.map((o) => o.size).filter(Boolean));
       } else if (product.sizes && product.sizes.length > 0) {
-        setSelectedSize(product.sizes[0]);
-      } else if (product.sizeOptions && product.sizeOptions.length > 0) {
-        setSelectedSize(product.sizeOptions[0].size);
+        configuredSizes.push(...product.sizes.filter(Boolean));
+      }
+
+      if (configuredSizes.length > 0) {
+        // Prefer first in-stock size if available, otherwise first size
+        const inStockOption = product.sizeOptions?.find((o) => (Number(o.stock) || 0) > 0);
+        setSelectedSize(inStockOption?.size || configuredSizes[0]);
       } else {
         setSelectedSize("Free Size");
       }
+
       setSelectedImage(0);
       setQuantity(1);
       setPincodeMsg(null);
@@ -65,73 +59,40 @@ export default function ProductDetail() {
     }
   }, [product?.id]);
 
-  // Computed available sizes for display, guaranteeing options like L, XL, 2XL for nighties
+  // Computed available sizes for display - STRICTLY displays the sizes configured by the admin!
+  // Prevents phantom sizes (like unconfigured 2XL) from appearing or being purchased.
   const availableDisplaySizes = useMemo(() => {
     if (!product) return [];
-    const cat = (product.category || "").toLowerCase();
-    const isNightyOrDress =
-      cat.includes("nighty") ||
-      cat.includes("dress") ||
-      cat.includes("night") ||
-      cat.includes("maxi") ||
-      cat.includes("kurti");
 
-    let rawList: { size: string; price: number; mrp?: number; stock: number }[] = [];
+    let rawList: { size: string; price: number; mrp?: number; stock: number; sku?: string }[] = [];
     if (product.sizeOptions && product.sizeOptions.length > 0) {
-      rawList = [...product.sizeOptions];
+      rawList = product.sizeOptions.map((opt) => ({
+        size: opt.size,
+        price: opt.price || product.finalPrice || product.price,
+        mrp: opt.mrp || product.mrp,
+        stock: Number(opt.stock) || 0,
+        sku: opt.sku,
+      }));
     } else if (product.sizes && product.sizes.length > 0) {
+      const perSizeStock = Math.max(1, Math.floor((product.stock || 10) / product.sizes.length));
       rawList = product.sizes.map((sz) => ({
         size: sz,
-        price: product.price,
+        price: product.finalPrice || product.price,
         mrp: product.mrp,
-        stock: product.stock ?? 25,
+        stock: perSizeStock,
       }));
+    } else {
+      rawList = [
+        {
+          size: "Free Size",
+          price: product.finalPrice || product.price,
+          mrp: product.mrp,
+          stock: product.stock ?? 10,
+        },
+      ];
     }
 
-    if (isNightyOrDress) {
-      const standardOrder = ["L", "XL", "2XL"];
-      const has3XL =
-        rawList.some((s) => s.size?.toUpperCase().includes("3XL") || s.size?.toUpperCase().includes("XXXL")) ||
-        (product.name || "").toUpperCase().includes("3XL") ||
-        (product.name || "").toUpperCase().includes("XXXL");
-      if (has3XL) standardOrder.push("3XL");
-
-      const map = new Map<string, { size: string; price: number; mrp?: number; stock: number }>();
-      rawList.forEach((item) => {
-        let label = item.size;
-        if (label?.toUpperCase() === "XXL") label = "2XL";
-        if (label?.toUpperCase() === "XXXL") label = "3XL";
-        map.set(label.toUpperCase(), { ...item, size: label });
-      });
-
-      const result: { size: string; price: number; mrp?: number; stock: number }[] = [];
-      standardOrder.forEach((sz) => {
-        const found = map.get(sz.toUpperCase());
-        if (found) {
-          result.push(found);
-        } else {
-          result.push({
-            size: sz,
-            price: product.price,
-            mrp: product.mrp,
-            stock: 25,
-          });
-        }
-      });
-
-      // Add any custom defined sizes (e.g. S, M, Free Size)
-      map.forEach((val, key) => {
-        if (!standardOrder.map((s) => s.toUpperCase()).includes(key)) {
-          result.push(val);
-        }
-      });
-
-      return result;
-    }
-
-    return rawList.length > 0
-      ? rawList
-      : [{ size: "Free Size", price: product.price, mrp: product.mrp, stock: product.stock ?? 25 }];
+    return rawList;
   }, [product]);
 
   const recentProducts = useRecentlyViewed(allProducts, product?.id);

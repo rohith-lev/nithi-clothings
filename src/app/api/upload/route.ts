@@ -3,7 +3,7 @@ import path from "path";
 import { requireAdmin, checkRateLimit, getClientIp } from "@/lib/auth";
 import { saveMediaBuffer, detectImageFormat } from "@/lib/mediaStorage";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15 MB
 
 const ALLOWED_MIME_TYPES: Record<string, string> = {
   "image/jpeg": ".jpg",
@@ -11,9 +11,10 @@ const ALLOWED_MIME_TYPES: Record<string, string> = {
   "image/png": ".png",
   "image/webp": ".webp",
   "image/avif": ".avif",
+  "image/gif": ".gif",
 };
 
-const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif"]);
+const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif", ".jfif"]);
 
 /**
  * Validate image buffer magic bytes / signature for real image formats.
@@ -50,7 +51,11 @@ export async function POST(request: NextRequest) {
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
-      const files = formData.getAll("images") as (File | string)[];
+      const files = [
+        ...(formData.getAll("images") as (File | string)[]),
+        ...(formData.getAll("image") as (File | string)[]),
+        ...(formData.getAll("file") as (File | string)[]),
+      ];
 
       for (const item of files) {
         if (typeof item === "object" && item !== null && "arrayBuffer" in item) {

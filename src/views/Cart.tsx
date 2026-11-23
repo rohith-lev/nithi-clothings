@@ -3,32 +3,8 @@ import { useCart, getCartItemKey } from "../store/cart";
 import { useState } from "react";
 import FreeShippingProgress from "../components/FreeShippingProgress";
 
-function calculateShipping(
-  items: ReturnType<typeof useCart>["state"]["items"],
-  state: string,
-  cartTotal: number
-): { charge: number; message: string; isFree: boolean; threshold: number } {
-  const nightyCount = items.filter((i) => i.product.category === "nighty").reduce((s, i) => s + i.quantity, 0);
-  const salwarCount = items.filter((i) => ["unstitched-salwar", "salwar-set"].includes(i.product.category)).reduce((s, i) => s + i.quantity, 0);
-  const cordCount = items.filter((i) => i.product.category === "cord-set").reduce((s, i) => s + i.quantity, 0);
-
-  if (cartTotal >= 999) {
-    return { charge: 0, message: "🎉 Free Express Shipping Unlocked!", isFree: true, threshold: 999 };
-  }
-
-  if (state === "Tamil Nadu") {
-    if (nightyCount >= 3 || salwarCount >= 2 || cordCount >= 2 || (salwarCount >= 1 && nightyCount >= 1)) {
-      return { charge: 0, message: "🎉 You are eligible for FREE SHIPPING in Tamil Nadu!", isFree: true, threshold: 999 };
-    }
-    return { charge: 0, message: "Standard Express Delivery in Tamil Nadu", isFree: true, threshold: 999 };
-  }
-
-  if (["Andhra Pradesh", "Telangana", "Kerala", "Karnataka"].includes(state)) {
-    if (salwarCount >= 2) return { charge: 0, message: "🎉 Free shipping on 2+ items!", isFree: true, threshold: 999 };
-    return { charge: 60, message: "Standard South India Shipping (₹60)", isFree: false, threshold: 999 };
-  }
-
-  return { charge: 90, message: "Standard Pan-India Shipping (₹90)", isFree: false, threshold: 999 };
+function calculateShipping(): { charge: number; message: string; isFree: boolean; threshold: number } {
+  return { charge: 0, message: "🎉 FREE Delivery across all orders! (100% Complimentary Express Shipping)", isFree: true, threshold: 0 };
 }
 
 const indianStates = [
@@ -45,9 +21,13 @@ export default function Cart() {
   const [coupon, setCoupon] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
 
-  const shipping = calculateShipping(state.items, selectedState, cartTotal);
+  const shipping = calculateShipping();
   const couponDiscount = couponApplied ? Math.round(cartTotal * 0.1) : 0;
-  const grandTotal = cartTotal - couponDiscount + (shipping.isFree ? 0 : shipping.charge);
+  const taxableAmount = cartTotal - couponDiscount;
+  const cgst = Math.round(taxableAmount * 0.025);
+  const sgst = Math.round(taxableAmount * 0.025);
+  const totalTax = cgst + sgst;
+  const grandTotal = taxableAmount + totalTax;
 
   const applyCoupon = () => {
     if (coupon.trim().toUpperCase() === "NITHI10") {
@@ -305,9 +285,19 @@ export default function Cart() {
             )}
 
             <div className="flex justify-between text-[#5C635E]">
-              <span>Shipping ({selectedState})</span>
-              <span className={shipping.isFree ? "text-emerald-700 font-bold" : "font-semibold text-[#171A18]"}>
-                {shipping.isFree ? "FREE" : `₹${shipping.charge}`}
+              <span>CGST (2.5%)</span>
+              <span className="font-semibold text-[#171A18]">₹{cgst.toLocaleString("en-IN")}</span>
+            </div>
+
+            <div className="flex justify-between text-[#5C635E]">
+              <span>SGST (2.5%)</span>
+              <span className="font-semibold text-[#171A18]">₹{sgst.toLocaleString("en-IN")}</span>
+            </div>
+
+            <div className="flex justify-between text-[#5C635E]">
+              <span>Delivery (ST Courier)</span>
+              <span className="text-emerald-700 font-bold">
+                FREE (₹0)
               </span>
             </div>
 

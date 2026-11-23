@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const { errorResponse } = requireAdmin(request);
+  const { user, errorResponse } = requireAdmin(request);
   if (errorResponse) return errorResponse;
 
   try {
@@ -31,13 +31,30 @@ export async function DELETE(request: NextRequest) {
     const all = searchParams.get("all") === "true" || body.all === true;
     const id = searchParams.get("id") || body.id;
 
-    if (all || !id || id === "all") {
+    if (all || id === "all") {
+      const confirmToken = searchParams.get("confirm") || body.confirm;
+      if (confirmToken !== "CONFIRM_CLEAR_AUDIT_LOGS" || user?.role !== "Super Admin") {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Clearing all audit logs requires Super Admin privileges and explicit confirmation (confirm: 'CONFIRM_CLEAR_AUDIT_LOGS').",
+          },
+          { status: 403 }
+        );
+      }
       const res = await AuditLog.deleteMany({});
       return NextResponse.json({
         success: true,
         message: `All ${res.deletedCount} audit logs cleared successfully`,
         data: { deletedCount: res.deletedCount },
       });
+    }
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Audit log ID is required" },
+        { status: 400 }
+      );
     }
 
     const res = await AuditLog.findByIdAndDelete(id);

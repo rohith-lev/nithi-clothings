@@ -551,6 +551,25 @@ export default function Account() {
                       </span>
                     </div>
                   </div>
+
+                  {trackingOrder.trackingId && (
+                    <div className="mt-3 pt-3 border-t border-[#E8E2D5] flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-[#064E3B]">🚚 Partner: ST Courier</span>
+                        <span className="font-mono text-[11px] bg-emerald-50 text-[#064E3B] border border-emerald-200 px-2 py-0.5 rounded font-bold">
+                          AWB: {trackingOrder.trackingId}
+                        </span>
+                      </div>
+                      <a
+                        href={`https://stcourier.com/track-consignment?awb=${encodeURIComponent(trackingOrder.trackingId)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-1.5 bg-[#064E3B] hover:bg-[#0B3D2E] text-white rounded-lg text-xs font-bold inline-flex items-center gap-1.5 transition-colors shadow-2xs cursor-pointer"
+                      >
+                        <span>Track Parcel on ST Courier →</span>
+                      </a>
+                    </div>
+                  )}
                 </div>
 
                 {/* Milestones Stepper */}
@@ -668,6 +687,89 @@ export default function Account() {
                   Sign Out
                 </button>
               </div>
+            </div>
+
+            {/* Customer Spend Tracking & ₹25,000 Milestone & Privilege Gifts */}
+            <div className="bg-[#FFFFFF] border border-[#E8E2D5] rounded-2xl p-6 sm:p-7 shadow-xs space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E8E2D5] pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🌟</span>
+                    <h3 className="font-display font-bold text-lg text-[#064E3B]">
+                      Privilege Rewards & Spend Milestones
+                    </h3>
+                  </div>
+                  <p className="text-xs text-[#5C635E] mt-0.5">
+                    Track your cumulative purchase total toward the ₹25,000 Milestone and view your exclusive privilege gifts.
+                  </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="px-3 py-1 bg-[#FAF8F1] border border-[#C9A227]/40 text-[#8A5F38] text-xs font-bold rounded-full font-mono">
+                    🪙 {customer.creditPoints || 0} Credit Points
+                  </span>
+                  <span className="px-3 py-1 bg-emerald-50 border border-emerald-200 text-[#064E3B] text-xs font-bold rounded-full font-mono">
+                    ₹{(customer.totalSpent || 0).toLocaleString("en-IN")} Lifetime Purchases
+                  </span>
+                </div>
+              </div>
+
+              {/* ₹25,000 Milestone Progress Bar */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-semibold text-stone-700">₹25,000 VIP Milestone Progress</span>
+                  <span className="font-bold text-[#064E3B]">
+                    ₹{(customer.totalSpent || 0).toLocaleString("en-IN")} / ₹25,000 ({Math.min(100, Math.round(((customer.totalSpent || 0) / 25000) * 100))}%)
+                  </span>
+                </div>
+                <div className="w-full bg-stone-100 rounded-full h-3 overflow-hidden border border-stone-200 p-0.5">
+                  <div
+                    className="bg-gradient-to-r from-[#064E3B] via-[#C9A227] to-[#064E3B] h-full rounded-full transition-all duration-500"
+                    style={{ width: `${Math.min(100, Math.round(((customer.totalSpent || 0) / 25000) * 100))}%` }}
+                  />
+                </div>
+                <p className="text-[11px] text-stone-500">
+                  {(customer.totalSpent || 0) >= 25000
+                    ? "🎉 Congratulations! You have achieved the ₹25,000 Elite Milestone. Special gifts and privileges are unlocked!"
+                    : `Spend ₹${Math.max(0, 25000 - (customer.totalSpent || 0)).toLocaleString("en-IN")} more to achieve the prestigious ₹25,000 VIP Milestone.`}
+                </p>
+              </div>
+
+              {/* Explicitly Assigned Gifts List */}
+              {customer.assignedGifts && customer.assignedGifts.length > 0 && (
+                <div className="pt-4 border-t border-[#E8E2D5] space-y-3">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#064E3B] flex items-center gap-1.5">
+                    <span>🎁</span> Assigned Gifts & Exclusive Offers (From Nithi Collections)
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {customer.assignedGifts.map((gift: any) => (
+                      <div
+                        key={gift.id}
+                        className="p-4 rounded-xl border border-[#C9A227]/40 bg-[#FAF8F1] shadow-2xs space-y-1.5"
+                      >
+                        <div className="flex justify-between items-start">
+                          <h5 className="font-bold text-sm text-stone-900">{gift.title}</h5>
+                          {gift.value && gift.value > 0 ? (
+                            <span className="font-bold text-xs text-[#064E3B] bg-emerald-100 px-2 py-0.5 rounded-full">
+                              ₹{gift.value} Value
+                            </span>
+                          ) : null}
+                        </div>
+                        {gift.description && (
+                          <p className="text-xs text-stone-600 leading-relaxed">{gift.description}</p>
+                        )}
+                        {gift.couponCode && (
+                          <div className="flex items-center gap-2 pt-1 font-mono text-xs">
+                            <span className="text-stone-500 text-[11px]">Promo Code:</span>
+                            <span className="bg-white border border-stone-300 px-2 py-0.5 rounded font-bold text-[#064E3B]">
+                              {gift.couponCode}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* PRIORITY 1: Active Consignments & Tracking IDs Spotlight */}
@@ -1510,18 +1612,28 @@ export default function Account() {
                     <div>
                       <span className="text-[10px] text-stone-500 uppercase block font-semibold">Tracking ID / AWB</span>
                       {selectedOrderModal.trackingId ? (
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="font-mono font-bold text-[#064E3B] bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300 text-xs">
-                            {selectedOrderModal.trackingId}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleCopyTrackingId(selectedOrderModal.trackingId || "")}
-                            className="px-1.5 py-0.5 text-[10px] bg-white border border-stone-300 rounded hover:border-[#064E3B] cursor-pointer"
-                            title="Copy Tracking ID"
+                        <div className="flex flex-col gap-1.5 mt-0.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-mono font-bold text-[#064E3B] bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300 text-xs">
+                              {selectedOrderModal.trackingId}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyTrackingId(selectedOrderModal.trackingId || "")}
+                              className="px-1.5 py-0.5 text-[10px] bg-white border border-stone-300 rounded hover:border-[#064E3B] cursor-pointer"
+                              title="Copy Tracking ID"
+                            >
+                              {copiedTrackId === selectedOrderModal.trackingId ? "✓" : "📋"}
+                            </button>
+                          </div>
+                          <a
+                            href={`https://stcourier.com/track-consignment?awb=${encodeURIComponent(selectedOrderModal.trackingId)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#064E3B] text-white text-[11px] font-bold hover:bg-[#0B3D2E] transition-colors w-fit"
                           >
-                            {copiedTrackId === selectedOrderModal.trackingId ? "✓" : "📋"}
-                          </button>
+                            <span>🚚 Track on ST Courier Portal →</span>
+                          </a>
                         </div>
                       ) : (
                         <span className="text-amber-800 font-medium text-[11px]">Awaiting Courier Dispatch</span>
@@ -1588,18 +1700,26 @@ export default function Account() {
                     <span>Subtotal:</span>
                     <span className="font-mono">₹{selectedOrderModal.subtotal.toLocaleString("en-IN")}</span>
                   </div>
-                  <div className="flex justify-between text-stone-600">
-                    <span>Shipping Fee:</span>
-                    <span className="font-mono">{selectedOrderModal.shippingFee === 0 ? "FREE" : `₹${selectedOrderModal.shippingFee}`}</span>
-                  </div>
                   {selectedOrderModal.discount > 0 && (
                     <div className="flex justify-between text-emerald-700 font-semibold">
                       <span>Combo / Coupon Discount:</span>
                       <span className="font-mono">-₹{selectedOrderModal.discount.toLocaleString("en-IN")}</span>
                     </div>
                   )}
+                  <div className="flex justify-between text-stone-600">
+                    <span>CGST (2.5%):</span>
+                    <span className="font-mono">₹{selectedOrderModal.cgst ?? Math.round(((selectedOrderModal.subtotal - selectedOrderModal.discount) * 0.025))}</span>
+                  </div>
+                  <div className="flex justify-between text-stone-600">
+                    <span>SGST (2.5%):</span>
+                    <span className="font-mono">₹{selectedOrderModal.sgst ?? Math.round(((selectedOrderModal.subtotal - selectedOrderModal.discount) * 0.025))}</span>
+                  </div>
+                  <div className="flex justify-between text-stone-600">
+                    <span>Delivery (ST Courier):</span>
+                    <span className="font-bold text-emerald-700">FREE (₹0)</span>
+                  </div>
                   <div className="flex justify-between font-bold text-stone-900 text-sm pt-2 border-t">
-                    <span>Total Amount:</span>
+                    <span>Total Amount (incl. 5% Tax):</span>
                     <span className="text-[#064E3B] font-display text-base">₹{selectedOrderModal.total.toLocaleString("en-IN")}</span>
                   </div>
                 </div>

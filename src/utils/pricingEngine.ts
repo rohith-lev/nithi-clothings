@@ -13,6 +13,13 @@ export interface PricingCalculationResult {
   cartSubtotal: number;
   comboDiscount: number;
   subtotalAfterDiscount: number;
+  taxableSubtotal: number;
+  cgstRate: number; // 2.5%
+  sgstRate: number; // 2.5%
+  totalTaxRate: number; // 5.0%
+  cgstAmount: number;
+  sgstAmount: number;
+  totalTaxAmount: number;
   shippingCharge: number;
   grandTotal: number;
   isFreeShipping: boolean;
@@ -107,103 +114,29 @@ export function calculateOrderPricing(
 
   const subtotalAfterDiscount = Math.max(0, cartSubtotal - comboDiscount);
 
-  // --- 2. FREE SHIPPING & SHIPPING CHARGE ---
-  let isFreeShipping = false;
-  let freeShippingReason = "";
-  let shippingCharge = 0;
+  // --- 2. TAX CALCULATION (GST & SGST) ---
+  // 5% Total Tax split into 2.5% GST/CGST and 2.5% SGST
+  const cgstRate = 2.5;
+  const sgstRate = 2.5;
+  const totalTaxRate = 5.0;
+  const taxableSubtotal = subtotalAfterDiscount;
+  const cgstAmount = Math.round(taxableSubtotal * 0.025);
+  const sgstAmount = Math.round(taxableSubtotal * 0.025);
+  const totalTaxAmount = cgstAmount + sgstAmount;
 
-  if (totalUnits === 0) {
-    isFreeShipping = true;
-    shippingCharge = 0;
-  } else if (paymentMethod === "online") {
-    if (isTN) {
-      // Online Tamil Nadu Criteria:
-      // • Single Unstitched salwar suit/Salwar set = Free shipping
-      // • Buy any 3 Nighties = Free shipping
-      // • Buy any 2 Cord sets = Free shipping
-      // • Buy any 3 Kurtis = Free shipping
-      // • COMBO INHERITANCE: If ANY ONE criteria is met, all combination is Free Shipping!
-      const salwarEligible = salwarCount >= 1;
-      const nightyEligible = nightyCount >= 3;
-      const cordEligible = cordCount >= 2;
-      const kurtiEligible = kurtiCount >= 3;
+  // --- 3. FREE SHIPPING ACROSS ALL ORDERS ---
+  // Shipping fee calculation rules removed: shipping is 100% free across all orders
+  const isFreeShipping = true;
+  const shippingCharge = 0;
+  const freeShippingReason = "FREE Delivery across all orders (Complimentary Express Shipping)";
 
-      if (salwarEligible || nightyEligible || cordEligible || kurtiEligible) {
-        isFreeShipping = true;
-        shippingCharge = 0;
-        if (salwarEligible) freeShippingReason = "Free Shipping within TN unlocked via Salwar Set (1+ set)";
-        else if (nightyEligible) freeShippingReason = "Free Shipping within TN unlocked via Nighties (3+ units)";
-        else if (cordEligible) freeShippingReason = "Free Shipping within TN unlocked via Cord Sets (2+ sets)";
-        else if (kurtiEligible) freeShippingReason = "Free Shipping within TN unlocked via Kurtis (3+ tops)";
-      } else {
-        isFreeShipping = false;
-        shippingCharge = 70; // Standard shipping fallback within TN
-      }
-    } else if (isSouth4) {
-      // Online South 4 (AP, Telangana, Kerala, Karnataka):
-      // • 2 or more Salwar sets = Free shipping
-      // • Single set = ₹50 shipping extra
-      if (salwarCount >= 2) {
-        isFreeShipping = true;
-        shippingCharge = 0;
-        freeShippingReason = "Free Shipping to South India unlocked via 2+ Salwar Sets";
-      } else if (salwarCount === 1) {
-        isFreeShipping = false;
-        shippingCharge = 50;
-      } else {
-        isFreeShipping = false;
-        shippingCharge = 70;
-      }
-    } else {
-      // Online Remaining States (Rest of India):
-      // • 1 set = ₹70 shipping
-      // • 2+ sets = ₹70 + ₹40 for each additional set (e.g. 2 sets = 110, 3 sets = 150)
-      isFreeShipping = false;
-      const baseCount = salwarCount > 0 ? salwarCount : totalUnits;
-      shippingCharge = baseCount <= 1 ? 70 : 70 + (baseCount - 1) * 40;
-    }
-  } else {
-    // --- CASH ON DELIVERY (COD) ---
-    // (As of now only within Tamil Nadu)
-    if (!isTN) {
-      isFreeShipping = false;
-      shippingCharge = 70;
-    } else {
-      // COD Tamil Nadu Criteria:
-      // • Unstitched salwar suit/Salwar set: 2 or more = Free shipping, 1 set = ₹70 extra
-      // • Nighty: 5 or more = Free shipping, 3 or 4 = ₹70 extra
-      // • Cord set: 4 or more = Free shipping, 2 or 3 = ₹70 extra
-      // • Kurtis: 5 or more = Free shipping
-      // • COMBO INHERITANCE: If ANY ONE criteria is eligible, entire combo gets Free Shipping!
-      // • TOTAL VALUE OVERRIDE: If total amount >= ₹2,000, Free Shipping on COD!
-      const salwarCodFree = salwarCount >= 2;
-      const nightyCodFree = nightyCount >= 5;
-      const cordCodFree = cordCount >= 4;
-      const kurtiCodFree = kurtiCount >= 5;
-      const valueOver2000Free = subtotalAfterDiscount >= 2000;
-
-      if (salwarCodFree || nightyCodFree || cordCodFree || kurtiCodFree || valueOver2000Free) {
-        isFreeShipping = true;
-        shippingCharge = 0;
-        if (valueOver2000Free) freeShippingReason = "Free Shipping on COD unlocked! (Order value ₹2,000+)";
-        else if (salwarCodFree) freeShippingReason = "Free Shipping on COD unlocked via 2+ Salwar Sets";
-        else if (nightyCodFree) freeShippingReason = "Free Shipping on COD unlocked via 5+ Nighties";
-        else if (cordCodFree) freeShippingReason = "Free Shipping on COD unlocked via 4+ Cord Sets";
-        else if (kurtiCodFree) freeShippingReason = "Free Shipping on COD unlocked via 5+ Kurtis";
-      } else {
-        isFreeShipping = false;
-        shippingCharge = 70; // Standard COD shipping charge within TN
-      }
-    }
-  }
-
-  // --- 3. COD ELIGIBILITY & ADVANCE AMOUNT ---
-  // Mandatory proportional advance payment rule: 10% advance (e.g. ₹100 on ₹1,000, ₹200 on ₹2,000)
+  // --- 4. COD ELIGIBILITY & ADVANCE AMOUNT ---
+  // Mandatory proportional advance payment rule: 10% advance
   // Remaining 90% balance is payable in cash upon delivery.
   const codEligible = totalUnits > 0;
   const codIneligibleReason: string | undefined = undefined;
 
-  const grandTotal = subtotalAfterDiscount + (isFreeShipping ? 0 : shippingCharge);
+  const grandTotal = taxableSubtotal + totalTaxAmount + shippingCharge;
   let codAdvanceAmount = 0;
   const codAdvanceBreakdown: string[] = [];
 
@@ -226,9 +159,16 @@ export function calculateOrderPricing(
     cartSubtotal,
     comboDiscount,
     subtotalAfterDiscount,
-    shippingCharge: isFreeShipping ? 0 : shippingCharge,
+    taxableSubtotal,
+    cgstRate,
+    sgstRate,
+    totalTaxRate,
+    cgstAmount,
+    sgstAmount,
+    totalTaxAmount,
+    shippingCharge: 0,
     grandTotal,
-    isFreeShipping,
+    isFreeShipping: true,
     freeShippingReason,
     comboDiscountBreakdown,
     isTN,

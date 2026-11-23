@@ -23,7 +23,9 @@ const AVAILABLE_SIZES = [
   "M",
   "L",
   "XL",
+  "2XL",
   "XXL",
+  "3XL",
   "XXXL",
 ];
 
@@ -94,6 +96,7 @@ export default function AdminProductsList() {
 
   // Delete Confirmation Modal State
   const [deleteCandidate, setDeleteCandidate] = useState<Product | null>(null);
+  const [isDeletingProduct, setIsDeletingProduct] = useState(false);
 
   // Bulk Discount Modal State
   const [showBulkDiscountModal, setShowBulkDiscountModal] = useState(false);
@@ -137,6 +140,12 @@ export default function AdminProductsList() {
   useEffect(() => {
     setPage(1);
     loadProducts();
+
+    const handleProductsUpdated = () => {
+      loadProducts();
+    };
+    window.addEventListener("nithi_products_updated", handleProductsUpdated);
+    return () => window.removeEventListener("nithi_products_updated", handleProductsUpdated);
   }, [searchQuery, selectedCategory, stockStatusFilter, statusFilter, sortOption, onlyDiscounted, onlyBestSeller]);
 
   // Pagination Computations
@@ -198,8 +207,10 @@ export default function AdminProductsList() {
   // Toggle size in quick edit
   const toggleQuickSize = (sz: string) => {
     setQuickForm((prev) => {
-      const exists = prev.sizes.includes(sz);
-      const updated = exists ? prev.sizes.filter((s) => s !== sz) : [...prev.sizes, sz];
+      const exists = prev.sizes.some((s) => s.toLowerCase() === sz.toLowerCase());
+      const updated = exists
+        ? prev.sizes.filter((s) => s.toLowerCase() !== sz.toLowerCase())
+        : [...prev.sizes, sz];
       return { ...prev, sizes: updated };
     });
   };
@@ -289,12 +300,38 @@ export default function AdminProductsList() {
 
   // Handle Delete / Archive
   const confirmDelete = async () => {
-    if (!deleteCandidate) return;
-    const res = await adminApi.deleteProduct(deleteCandidate.id);
-    if (res.success) {
-      showToast(res.message || "Product removed.");
-      setDeleteCandidate(null);
-      loadProducts();
+    if (!deleteCandidate || isDeletingProduct) return;
+    setIsDeletingProduct(true);
+    const targetId = deleteCandidate.id || (deleteCandidate as any)._id;
+    const extra = {
+      _id: (deleteCandidate as any)._id,
+      sku: deleteCandidate.sku,
+      code: deleteCandidate.code,
+    };
+
+    try {
+      const res = await adminApi.deleteProduct(targetId, "Super Admin", extra);
+      if (res.success) {
+        setProducts((prev) =>
+          prev.filter(
+            (p) =>
+              p.id !== targetId &&
+              (p as any)._id !== targetId &&
+              (!extra._id || (p as any)._id !== extra._id)
+          )
+        );
+        showToast(res.message || `Product "${deleteCandidate.name}" permanently deleted.`);
+        setDeleteCandidate(null);
+        await loadProducts();
+      } else {
+        alert(`❌ MongoDB Deletion Failed: ${res.error || "The product could not be deleted from the database."}`);
+        showToast(`❌ Deletion failed: ${res.error || "Database error"}`);
+        await loadProducts();
+      }
+    } catch (err: any) {
+      alert(`❌ Error connecting to server: ${err.message || "Network error"}`);
+    } finally {
+      setIsDeletingProduct(false);
     }
   };
 
@@ -1266,6 +1303,13 @@ export default function AdminProductsList() {
                     >
                       {p.status === "ACTIVE" ? "Pause" : "Live"}
                     </button>
+                    <button
+                      onClick={() => setDeleteCandidate(p)}
+                      className="p-1.5 rounded-xl text-rose-500 hover:text-white hover:bg-rose-600 border border-rose-200 hover:border-rose-600 transition-all text-xs"
+                      title="Delete Product"
+                    >
+                      <TrashIcon size={13} />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1388,13 +1432,13 @@ export default function AdminProductsList() {
                 <label className="block font-bold text-stone-700 mb-1.5">Available Sizes</label>
                 <div className="flex flex-wrap gap-1.5">
                   {AVAILABLE_SIZES.map((sz) => {
-                    const isSel = quickForm.sizes.includes(sz);
+                    const isSel = quickForm.sizes.some((s) => s.toLowerCase() === sz.toLowerCase());
                     return (
                       <button
                         key={sz}
                         type="button"
                         onClick={() => toggleQuickSize(sz)}
-                        className={`rounded-xl border px-3 py-1.5 text-xs font-bold transition-all ${
+                        className={`rounded-xl border px-3 py-1.5 text-xs font-bold transition-all cursor-pointer ${
                           isSel
                             ? "border-stone-900 bg-stone-900 text-white shadow-sm"
                             : "border-stone-200 bg-stone-50 text-stone-600 hover:border-stone-300"
@@ -1559,16 +1603,28 @@ export default function AdminProductsList() {
 
             <div className="flex justify-end gap-2.5 pt-2">
               <button
-                onClick={() => setDeleteCandidate(null)}
-                className="px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50"
+                disabled={isDeletingProduct}
+                onClick={() => !isDeletingProduct && setDeleteCandidate(null)}
+                className="px-4 py-2.5 border border-stone-200 rounded-xl text-xs font-semibold text-stone-700 hover:bg-stone-50 disabled:opacity-50 cursor-pointer"
               >
                 Cancel
               </button>
               <button
+                disabled={isDeletingProduct}
                 onClick={confirmDelete}
-                className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 shadow-sm"
+                className="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 shadow-sm flex items-center gap-2 disabled:opacity-60 cursor-pointer"
               >
-                Confirm Delete
+                {isDeletingProduct ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Deleting from Database...</span>
+                  </>
+                ) : (
+                  <>
+                    <TrashIcon size={14} />
+                    <span>Confirm Delete</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

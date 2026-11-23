@@ -26,15 +26,6 @@ export function getAuthUser(request: NextRequest): AuthUser | null {
     token = request.cookies.get("nithi_admin_token")?.value;
   }
 
-  if (token === "nithi_dev_session_token") {
-    return {
-      id: "adm-1",
-      name: "Nithi (Founder & Owner)",
-      email: "admin@nithicollection.com",
-      role: "Super Admin",
-    };
-  }
-
   const effectiveSecret = JWT_SECRET;
 
   if (token && token.trim()) {
@@ -52,16 +43,6 @@ export function getAuthUser(request: NextRequest): AuthUser | null {
     } catch {
       // Token verification failed or expired
     }
-  }
-
-  // Development fallback when running locally in development mode
-  if (process.env.NODE_ENV !== "production") {
-    return {
-      id: "adm-1",
-      name: "Nithi (Founder & Owner)",
-      email: "admin@nithicollections.com",
-      role: "Super Admin",
-    };
   }
 
   return null;
@@ -215,14 +196,22 @@ export function checkRateLimit(
 }
 
 /**
- * Extract client IP safely from request headers.
+ * Extract client IP safely from request headers, prioritizing trusted upstream proxy headers.
  */
 export function getClientIp(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    return forwarded.split(",")[0].trim();
-  }
+  const cfIp = request.headers.get("cf-connecting-ip");
+  if (cfIp) return cfIp.trim();
+
   const realIp = request.headers.get("x-real-ip");
   if (realIp) return realIp.trim();
+
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) {
+    const ips = forwarded.split(",").map((s) => s.trim()).filter(Boolean);
+    if (ips.length > 0) {
+      // Pick the closest proxy IP from rightmost entries to mitigate client-spoofed leftmost values
+      return ips[ips.length - 1];
+    }
+  }
   return "127.0.0.1";
 }

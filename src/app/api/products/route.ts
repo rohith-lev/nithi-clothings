@@ -391,15 +391,17 @@ export async function DELETE(request: NextRequest) {
     await connectToDatabase();
     const body = await request.json().catch(() => ({}));
     const { searchParams } = new URL(request.url);
-    const ids = body.ids || (searchParams.get("ids") ? searchParams.get("ids")!.split(",") : null);
+    const rawIds = body.ids || (body.id ? [body.id] : null) || (searchParams.get("ids") ? searchParams.get("ids")!.split(",") : null) || (searchParams.get("id") ? [searchParams.get("id")!] : null);
     const purgeAll = searchParams.get("all") === "true" || body.all === true;
 
     let deleteFilter: any = {};
+    let cleanIds: string[] = [];
+
     if (purgeAll) {
       // Explicit purge-all: permanently deletes every product in the catalogue.
       deleteFilter = {};
-    } else if (Array.isArray(ids) && ids.length > 0) {
-      const cleanIds = ids.map((i: string) => String(i).trim()).filter(Boolean);
+    } else if (Array.isArray(rawIds) && rawIds.length > 0) {
+      cleanIds = rawIds.map((i: string) => String(i).trim()).filter(Boolean);
       if (cleanIds.length === 0) {
         return NextResponse.json(
           { success: false, error: "No valid product IDs provided for deletion." },
@@ -407,10 +409,26 @@ export async function DELETE(request: NextRequest) {
         );
       }
       const validObjectIds = cleanIds.filter((id: string) => mongoose.Types.ObjectId.isValid(id));
+      const objectIdInstances = validObjectIds.map((id: string) => {
+        try {
+          return new mongoose.Types.ObjectId(id);
+        } catch {
+          return null;
+        }
+      }).filter(Boolean);
+
+      const regexList = cleanIds.map((id: string) => new RegExp(`^${escapeRegex(id)}$`, "i"));
+
       deleteFilter = {
         $or: [
           { id: { $in: cleanIds } },
+          { id: { $in: regexList } },
+          { sku: { $in: cleanIds } },
+          { sku: { $in: regexList } },
+          { code: { $in: cleanIds } },
+          { code: { $in: regexList } },
           ...(validObjectIds.length > 0 ? [{ _id: { $in: validObjectIds } }] : []),
+          ...(objectIdInstances.length > 0 ? [{ _id: { $in: objectIdInstances } }] : []),
         ],
       };
     } else {
@@ -421,7 +439,53 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
+    // Collect image URLs from products to be deleted
+    const productsToDelete = await Product.find(deleteFilter).lean();
+    const imageUrls: string[] = [];
+    productsToDelete.forEach((p: any) => {
+      if (p.coverImage) imageUrls.push(p.coverImage);
+      if (Array.isArray(p.images)) imageUrls.push(...p.images);
+      if (Array.isArray(p.colorOptions)) p.colorOptions.forEach((co: any) => co?.image && imageUrls.push(co.image));
+      if (Array.isArray(p.variants)) p.variants.forEach((v: any) => v?.image && imageUrls.push(v.image));
+      if (Array.isArray(p.productTypes)) p.productTypes.forEach((pt: any) => pt?.image && imageUrls.push(pt.image));
+      if (p.colorImages && typeof p.colorImages === "object") {
+        Object.values(p.colorImages).forEach((img: any) => img && imageUrls.push(String(img)));
+      }
+    });
+
     const result = await Product.deleteMany(deleteFilter);
+
+    // Clean up associated images from MongoDB Media collection and disk
+    if (purgeAll) {
+      try {
+        const { deleteAllMedia } = await import("@/lib/mediaStorage");
+        await deleteAllMedia();
+      } catch (err) {
+        console.warn("Cleanup all media error:", err);
+      }
+    } else if (imageUrls.length > 0) {
+      try {
+        const { deleteMediaFiles } = await import("@/lib/mediaStorage");
+        await deleteMediaFiles(imageUrls);
+      } catch (err) {
+        console.warn("Cleanup media error in bulk delete:", err);
+      }
+    }
+
+    // Clean up related inventory transactions
+    if (cleanIds.length > 0) {
+      try {
+        const InventoryTransaction = (await import("@/lib/models/InventoryTransaction")).default;
+        await InventoryTransaction.deleteMany({
+          $or: [
+            { productId: { $in: cleanIds } },
+            { productId: { $in: cleanIds.map((id) => new RegExp(`^${escapeRegex(id)}$`, "i")) } },
+          ],
+        });
+      } catch (e) {
+        console.warn("Cleanup inventory transactions error in bulk delete:", e);
+      }
+    }
 
     try {
       await new AuditLog({
@@ -430,8 +494,8 @@ export async function DELETE(request: NextRequest) {
         adminName: user?.name || "Super Admin",
         action: "DELETE",
         targetType: "PRODUCT",
-        targetId: purgeAll ? "ALL (PURGE)" : ids ? ids.join(",") : "ALL",
-        targetName: purgeAll ? "Full catalogue purge" : ids ? `${result.deletedCount} products` : "All products",
+        targetId: purgeAll ? "ALL (PURGE)" : cleanIds.length > 0 ? cleanIds.join(",") : "ALL",
+        targetName: purgeAll ? "Full catalogue purge" : cleanIds.length > 0 ? `${result.deletedCount} products` : "All products",
         oldValue: `Permanently deleted ${result.deletedCount} products from database`,
         reason: purgeAll ? "Admin Purge All operation" : "Admin bulk delete operation",
       }).save();

@@ -11,6 +11,21 @@ export interface CustomerUser {
   city?: string;
   state?: string;
   pincode?: string;
+  totalOrders?: number;
+  totalSpent?: number;
+  creditPoints?: number;
+  spendMilestoneTarget?: number;
+  assignedGifts?: Array<{
+    id: string;
+    title: string;
+    description?: string;
+    couponCode?: string;
+    value?: number;
+    status: string;
+    assignedAt: string;
+    assignedBy?: string;
+    notes?: string;
+  }>;
   createdAt?: string;
 }
 

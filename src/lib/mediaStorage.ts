@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import fs from "fs";
 import path from "path";
+import mongoose from "mongoose";
 import { connectToDatabase } from "./mongodb";
 import Media from "./models/Media";
 
@@ -230,4 +231,137 @@ export async function migrateLocalUploadsToAtlas(): Promise<{ migrated: number; 
   }
 
   return { migrated, total: files.length, errors };
+}
+
+/**
+ * Delete specific image files from MongoDB Atlas Media collection and local uploads disk
+ */
+export async function deleteMediaFiles(filenamesOrUrls: string[]): Promise<number> {
+  if (!Array.isArray(filenamesOrUrls) || filenamesOrUrls.length === 0) return 0;
+  await connectToDatabase();
+
+  const filenames = Array.from(
+    new Set(
+      filenamesOrUrls
+        .map((url) => {
+          if (!url || typeof url !== "string") return "";
+          const cleaned = url.split("?")[0].split("#")[0];
+          return path.basename(cleaned).replace(/[^a-zA-Z0-9._-]/g, "");
+        })
+        .filter(
+          (fn) =>
+            fn &&
+            fn.length > 0 &&
+            (fn.endsWith(".jpg") ||
+              fn.endsWith(".jpeg") ||
+              fn.endsWith(".png") ||
+              fn.endsWith(".webp") ||
+              fn.endsWith(".avif") ||
+              fn.endsWith(".gif"))
+        )
+    )
+  );
+
+  if (filenames.length === 0) return 0;
+
+  // 1. Delete from MongoDB Media collection
+  const delRes = await Media.deleteMany({ filename: { $in: filenames } });
+
+  // 2. Delete from local disk public/uploads
+  const uploadDir = path.join(process.cwd(), "public", "uploads");
+  filenames.forEach((fn) => {
+    try {
+      const diskPath = path.join(uploadDir, fn);
+      if (fs.existsSync(diskPath)) {
+        fs.unlinkSync(diskPath);
+      }
+    } catch {}
+  });
+
+  return delRes.deletedCount || 0;
+}
+
+/**
+ * Permanently deletes ALL media from MongoDB Atlas Media collection and local disk
+ */
+export async function deleteAllMedia(): Promise<number> {
+  await connectToDatabase();
+  const res = await Media.deleteMany({});
+
+  // Drop and recreate empty collection to reclaim physical disk allocation in WiredTiger/Atlas
+  try {
+    const db = mongoose.connection.db;
+    if (db) {
+      await db.collection("media").drop();
+      await db.createCollection("media");
+      await db.collection("media").createIndex({ filename: 1 }, { unique: true });
+    }
+  } catch (err) {
+    console.warn("[mediaStorage] Reclaim disk storage on drop failed:", err);
+  }
+
+  // Clean disk uploads
+  try {
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    if (fs.existsSync(uploadDir)) {
+      const files = fs.readdirSync(uploadDir);
+      for (const file of files) {
+        if (!file.startsWith(".")) {
+          try {
+            fs.unlinkSync(path.join(uploadDir, file));
+          } catch {}
+        }
+      }
+    }
+  } catch {}
+
+  return res.deletedCount || 0;
+}
+
+/**
+ * Deletes all media documents from MongoDB Atlas that are no longer referenced by any product
+ */
+export async function deleteOrphanedMedia(): Promise<number> {
+  await connectToDatabase();
+  const Product = (await import("./models/Product")).default;
+  const products = await Product.find({}).lean();
+
+  const referencedFilenames = new Set<string>();
+  const addUrl = (url: unknown) => {
+    if (typeof url === "string" && url.trim()) {
+      const fn = path.basename(url.split("?")[0].split("#")[0]).replace(/[^a-zA-Z0-9._-]/g, "");
+      if (fn) referencedFilenames.add(fn);
+    }
+  };
+
+  products.forEach((p: any) => {
+    addUrl(p.coverImage);
+    if (Array.isArray(p.images)) p.images.forEach(addUrl);
+    if (Array.isArray(p.colorOptions)) p.colorOptions.forEach((co: any) => addUrl(co?.image));
+    if (Array.isArray(p.variants)) p.variants.forEach((v: any) => addUrl(v?.image));
+    if (Array.isArray(p.productTypes)) p.productTypes.forEach((pt: any) => addUrl(pt?.image));
+    if (p.colorImages && typeof p.colorImages === "object") {
+      Object.values(p.colorImages).forEach(addUrl);
+    }
+  });
+
+  const allMedia = await Media.find({}, { filename: 1 }).lean();
+  const orphanedFilenames = allMedia
+    .map((m: any) => m.filename)
+    .filter((fn: string) => !referencedFilenames.has(fn));
+
+  if (orphanedFilenames.length === 0) return 0;
+
+  const delRes = await Media.deleteMany({ filename: { $in: orphanedFilenames } });
+
+  // Clean local files
+  const uploadDir = path.join(process.cwd(), "public", "uploads");
+  orphanedFilenames.forEach((fn: string) => {
+    try {
+      const diskPath = path.join(uploadDir, fn);
+      if (fs.existsSync(diskPath)) fs.unlinkSync(diskPath);
+    } catch {}
+  });
+
+  return delRes.deletedCount || 0;
 }

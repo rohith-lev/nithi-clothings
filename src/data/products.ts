@@ -167,7 +167,7 @@ export const CATEGORY_HIERARCHY: Record<string, { groups?: { name: string; items
     items: ["Chanderi Silk Salwar Material", "Pure Cotton Printed Material", "Bandhani Suit Piece", "Jacquard Salwar Material"],
   },
   "Cord set": {
-    items: ["Printed Cord Set", "Solid Casual Cord Set", "Embroidered Festive Cord Set"],
+    items: ["Solid Casual Cord Set", "Embroidered Festive Cord Set"],
   },
   "Kurtis(Tops)": {
     items: ["A-Line Kurti", "Straight Cut Kurti", "Anarkali Kurti", "Short Top Kurti"],
