@@ -32,14 +32,14 @@ export default function Footer() {
 
             {/* Newsletter Subscription */}
             <div className="pt-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#C9A227] block mb-2">
+              <span className="font-collection text-sm font-medium uppercase tracking-[0.14em] text-[#C9A227] block mb-2">
                 Join Our Private Circle
               </span>
-              <p className="text-[11px] text-[#FAF8F1]/70 mb-3">
+              <p className="font-body text-[11px] text-[#FAF8F1]/70 mb-3">
                 Receive curated collection previews, festival offers, and bespoke style guides.
               </p>
               {subscribed ? (
-                <div className="p-3 bg-[#064E3B] border border-[#C9A227] text-xs text-[#C9A227] rounded-sm flex items-center gap-2">
+                <div className="p-3 bg-[#064E3B] border border-[#C9A227] text-xs text-[#C9A227] rounded-sm flex items-center gap-2 font-sans">
                   <span>✓</span> Welcome to Nithi Collections. Your private offer code is dispatched.
                 </div>
               ) : (
@@ -50,11 +50,11 @@ export default function Footer() {
                     value={newsletterEmail}
                     onChange={(e) => setNewsletterEmail(e.target.value)}
                     placeholder="Enter your email address..."
-                    className="flex-1 px-3.5 py-2.5 bg-[#064E3B] border border-[#C9A227]/40 text-xs text-[#FAF8F1] placeholder-[#FAF8F1]/40 rounded-l-sm focus:outline-none focus:border-[#C9A227]"
+                    className="flex-1 px-3.5 py-2.5 bg-[#064E3B] border border-[#C9A227]/40 font-sans text-xs text-[#FAF8F1] placeholder-[#FAF8F1]/40 rounded-l-sm focus:outline-none focus:border-[#C9A227]"
                   />
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-[#C9A227] text-[#0B3D2E] hover:bg-[#E2C467] text-xs font-bold uppercase tracking-wider rounded-r-sm transition-colors shrink-0"
+                    className="px-5 py-2.5 bg-[#C9A227] text-[#0B3D2E] hover:bg-[#E2C467] font-sans text-xs font-semibold uppercase tracking-[0.14em] rounded-r-sm transition-colors shrink-0 cursor-pointer"
                   >
                     Subscribe
                   </button>
@@ -64,7 +64,7 @@ export default function Footer() {
 
             {/* Social Media Links */}
             <div className="pt-2 flex items-center gap-3">
-              <span className="text-[11px] text-[#C9A227] font-semibold uppercase tracking-wider">Follow Us:</span>
+              <span className="font-sans text-[11px] text-[#C9A227] font-medium uppercase tracking-[0.14em]">Follow Us:</span>
               <div className="flex gap-2.5">
                 {[
                   {
@@ -81,7 +81,7 @@ export default function Footer() {
                     href: "https://www.youtube.com/@nithicollections",
                     icon: (
                       <svg className="w-4 h-4 text-[#C9A227]" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                       </svg>
                     ),
                   },
@@ -121,11 +121,11 @@ export default function Footer() {
 
           {/* Quick Links Column */}
           <div className="space-y-3">
-            <h4 className="font-display text-sm font-semibold text-[#FAF8F1] uppercase tracking-[0.16em] flex items-center gap-2">
+            <h4 className="font-collection text-sm font-medium text-[#FAF8F1] uppercase tracking-[0.14em] flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#C9A227]" />
               Quick Links
             </h4>
-            <ul className="space-y-2 text-xs text-[#FAF8F1]/80">
+            <ul className="space-y-2 text-xs text-[#FAF8F1]/80 font-sans">
               {[
                 { label: "Home", to: "/" },
                 { label: "Shop Catalogue", to: "/shop" },
@@ -146,11 +146,11 @@ export default function Footer() {
 
           {/* Customer Support & Policies */}
           <div className="space-y-3">
-            <h4 className="font-display text-sm font-semibold text-[#FAF8F1] uppercase tracking-[0.16em] flex items-center gap-2">
+            <h4 className="font-collection text-sm font-medium text-[#FAF8F1] uppercase tracking-[0.14em] flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#C9A227]" />
               Support & Policies
             </h4>
-            <ul className="space-y-2 text-xs text-[#FAF8F1]/80">
+            <ul className="space-y-2 text-xs text-[#FAF8F1]/80 font-sans">
               {[
                 { label: "Shipping Information", to: "/shipping-policy" },
                 { label: "Refund & Return Policy", to: "/return-policy" },
@@ -170,7 +170,7 @@ export default function Footer() {
 
           {/* Contact Information */}
           <div className="space-y-3">
-            <h4 className="font-display text-sm font-semibold text-[#FAF8F1] uppercase tracking-[0.16em] flex items-center gap-2">
+            <h4 className="font-collection text-sm font-medium text-[#FAF8F1] uppercase tracking-[0.14em] flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[#C9A227]" />
               Boutique Atelier
             </h4>

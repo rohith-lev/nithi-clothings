@@ -208,8 +208,8 @@ export default function Shop() {
   const isCordSet = Boolean(
     categoryParam &&
     (categoryParam.toLowerCase().includes("cord") ||
-     categoryParam.toLowerCase().includes("coord") ||
-     (activeCatObj && (activeCatObj.name.toLowerCase().includes("cord") || activeCatObj.name.toLowerCase().includes("coord"))))
+      categoryParam.toLowerCase().includes("coord") ||
+      (activeCatObj && (activeCatObj.name.toLowerCase().includes("cord") || activeCatObj.name.toLowerCase().includes("coord"))))
   );
 
   const subcategoriesForActiveCat = useMemo(() => {
@@ -225,7 +225,11 @@ export default function Shop() {
     for (const p of allProducts) {
       if (categoryParam && isCategoryMatch({ name: p.category, id: p.category } as Category, categoryParam)) {
         if (p.subcategory && typeof p.subcategory === "string" && p.subcategory.trim()) {
-          set.add(p.subcategory.trim());
+          let s = p.subcategory.trim();
+          if (s.includes(" - ")) {
+            s = s.split(" - ").slice(1).join(" - ").trim();
+          }
+          if (s) set.add(s);
         }
       }
     }
@@ -526,10 +530,10 @@ export default function Shop() {
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between pb-6 mb-8 border-b border-[#E8E2D5] gap-4">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-[#C9A227] block mb-1">
+            <span className="font-nav text-[11px] font-medium uppercase tracking-[0.16em] text-[#C9A227] block mb-1">
               Handpicked Coutures
             </span>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-[#064E3B]">
+            <h1 className="font-collection text-3xl sm:text-4xl lg:text-5xl font-medium text-[#064E3B] tracking-[-0.015em]">
               {pageTitle}
             </h1>
           </div>
@@ -539,7 +543,7 @@ export default function Shop() {
             <button
               type="button"
               onClick={() => setMobileFiltersOpen(true)}
-              className="lg:hidden flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] text-xs font-bold uppercase tracking-wider shadow-sm"
+              className="lg:hidden flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-sans text-xs font-medium uppercase tracking-[0.1em] shadow-sm"
             >
               <svg className="w-3.5 h-3.5 text-[#C9A227]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -548,12 +552,12 @@ export default function Shop() {
             </button>
 
             {/* Desktop Sort Dropdown */}
-            <div className="hidden lg:flex items-center gap-2 text-xs font-semibold text-[#171A18]">
+            <div className="hidden lg:flex items-center gap-2 font-sans text-xs font-medium text-[#171A18]">
               <span>Sort By:</span>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
-                className="bg-[#FFFFFF] border border-[#E8E2D5] rounded-xl px-3.5 py-2 text-xs font-medium text-[#171A18] focus:outline-none focus:border-[#064E3B] shadow-2xs"
+                className="bg-[#FFFFFF] border border-[#E8E2D5] rounded-xl px-3.5 py-2 font-sans text-xs font-medium text-[#171A18] focus:outline-none focus:border-[#064E3B] shadow-2xs"
               >
                 <option value="featured">Featured</option>
                 <option value="newest">Newest First</option>
@@ -568,17 +572,17 @@ export default function Shop() {
           </div>
         </div>
 
-        {/* CONDITIONAL TOP FILTER BAR: "Filter by Style" for Cord Set, "Filter by Size" for others */}
-        {isCordSet ? (
+        {/* TOP FILTER BAR: "Filter by Style / Subcategory" for any category with subcategories */}
+        {subcategoriesForActiveCat.length > 0 && (
           <div className="w-full bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] p-4 mb-6 shadow-sm">
             <div className="flex flex-col items-center justify-center text-center">
               <div className="flex items-center gap-2 mb-2.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#C9A227]" />
-                <span className="font-display text-xs sm:text-sm font-bold text-[#064E3B] uppercase tracking-wider">
-                  Filter by Style
+                <span className="font-display text-xs sm:text-sm font-medium text-[#064E3B] uppercase tracking-[0.16em]">
+                  Filter by Style / Subcategory
                 </span>
                 {subParam && (
-                  <span className="text-[11px] bg-emerald-100 text-[#064E3B] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  <span className="text-[11px] bg-emerald-100 text-[#064E3B] font-semibold px-2.5 py-0.5 rounded-full border border-emerald-200">
                     {subParam} Active
                   </span>
                 )}
@@ -592,16 +596,15 @@ export default function Shop() {
                     const currentCat = activeCatObj?.slug || activeCatObj?.id || categoryParam;
                     navigate(`/category/${encodeURIComponent(currentCat)}`);
                   }}
-                  className={`min-w-[76px] sm:min-w-[88px] px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer ${
-                    !subParam
-                      ? "bg-[#064E3B] text-white ring-2 ring-[#064E3B]/20 scale-105"
-                      : "bg-slate-50 text-slate-700 border border-slate-200 hover:border-[#064E3B] hover:bg-white"
-                  }`}
+                  className={`min-w-[76px] sm:min-w-[88px] px-4 py-2 rounded-xl font-sans text-xs font-medium tracking-[0.04em] transition-all shadow-sm cursor-pointer ${!subParam
+                    ? "bg-[#064E3B] text-white ring-2 ring-[#064E3B]/20 scale-105"
+                    : "bg-slate-50 text-slate-700 border border-slate-200 hover:border-[#064E3B] hover:bg-white"
+                    }`}
                 >
-                  All Styles
+                  All {categoryDisplayName || "Styles"}
                 </button>
 
-                {/* Individual Cord Set Styles */}
+                {/* Individual Subcategories / Styles */}
                 {subcategoriesForActiveCat.map((style) => {
                   const isActive = subParam.toLowerCase() === style.toLowerCase();
                   const currentCat = activeCatObj?.slug || activeCatObj?.id || categoryParam;
@@ -616,11 +619,10 @@ export default function Shop() {
                           navigate(`/category/${encodeURIComponent(currentCat)}/${encodeURIComponent(style)}`);
                         }
                       }}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer ${
-                        isActive
-                          ? "bg-[#064E3B] text-white ring-2 ring-[#064E3B]/20 scale-105"
-                          : "bg-slate-50 text-slate-700 border border-slate-200 hover:border-[#064E3B] hover:bg-white"
-                      }`}
+                      className={`px-3.5 py-2 rounded-xl font-sans text-xs font-medium tracking-[0.04em] transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer ${isActive
+                        ? "bg-[#064E3B] text-white ring-2 ring-[#064E3B]/20 scale-105"
+                        : "bg-slate-50 text-slate-700 border border-slate-200 hover:border-[#064E3B] hover:bg-white"
+                        }`}
                     >
                       <span>{style}</span>
                       {isActive && <span className="text-[10px] text-amber-300">✓</span>}
@@ -630,59 +632,58 @@ export default function Shop() {
               </div>
             </div>
           </div>
-        ) : (
-          <div className="w-full bg-[#FFFFFF] rounded-2xl border border-slate-200 p-4 mb-6 shadow-sm">
-            <div className="flex flex-col items-center justify-center text-center">
-              <div className="flex items-center gap-2 mb-2.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#064E3B]" />
-                <span className="font-display text-xs sm:text-sm font-bold text-[#064E3B] uppercase tracking-wider">
-                  Filter by Size
-                </span>
-                {selectedSizes.length > 0 && (
-                  <span className="text-[11px] bg-emerald-100 text-[#064E3B] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    {selectedSizes.join(", ")} Active
-                  </span>
-                )}
-              </div>
+        )}
 
-              <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
-                {/* All Sizes Button */}
-                <button
-                  type="button"
-                  onClick={() => setSelectedSizes([])}
-                  className={`min-w-[76px] sm:min-w-[88px] px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer ${
-                    selectedSizes.length === 0
+        {/* Filter by Size */}
+        <div className="w-full bg-[#FFFFFF] rounded-2xl border border-slate-200 p-4 mb-6 shadow-sm">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="flex items-center gap-2 mb-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#064E3B]" />
+              <span className="font-display text-xs sm:text-sm font-medium text-[#064E3B] uppercase tracking-[0.16em]">
+                Filter by Size
+              </span>
+              {selectedSizes.length > 0 && (
+                <span className="text-[11px] bg-emerald-100 text-[#064E3B] font-semibold px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  {selectedSizes.join(", ")} Active
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+              {/* All Sizes Button */}
+              <button
+                type="button"
+                onClick={() => setSelectedSizes([])}
+                className={`min-w-[76px] sm:min-w-[88px] px-4 py-2 rounded-xl font-sans text-xs font-medium tracking-[0.04em] transition-all shadow-sm cursor-pointer ${selectedSizes.length === 0
+                  ? "bg-[#064E3B] text-white ring-2 ring-[#064E3B]/20 scale-105"
+                  : "bg-slate-50 text-slate-700 border border-slate-200 hover:border-[#064E3B] hover:bg-white"
+                  }`}
+              >
+                All Sizes
+              </button>
+
+              {/* Individual Size Pills */}
+              {allSizes.map((sz) => {
+                const isActive = selectedSizes.includes(sz) || (sz === "XXL" && selectedSizes.includes("2XL"));
+                const label = sz === "XXL" ? "XXL / 2XL" : sz;
+                return (
+                  <button
+                    key={sz}
+                    type="button"
+                    onClick={() => toggleSize(sz)}
+                    className={`min-w-[56px] sm:min-w-[64px] px-3.5 py-2 rounded-xl font-sans text-xs font-medium tracking-[0.04em] transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer ${isActive
                       ? "bg-[#064E3B] text-white ring-2 ring-[#064E3B]/20 scale-105"
                       : "bg-slate-50 text-slate-700 border border-slate-200 hover:border-[#064E3B] hover:bg-white"
-                  }`}
-                >
-                  All Sizes
-                </button>
-
-                {/* Individual Size Pills */}
-                {allSizes.map((sz) => {
-                  const isActive = selectedSizes.includes(sz) || (sz === "XXL" && selectedSizes.includes("2XL"));
-                  const label = sz === "XXL" ? "XXL / 2XL" : sz;
-                  return (
-                    <button
-                      key={sz}
-                      type="button"
-                      onClick={() => toggleSize(sz)}
-                      className={`min-w-[56px] sm:min-w-[64px] px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer ${
-                        isActive
-                          ? "bg-[#064E3B] text-white ring-2 ring-[#064E3B]/20 scale-105"
-                          : "bg-slate-50 text-slate-700 border border-slate-200 hover:border-[#064E3B] hover:bg-white"
                       }`}
-                    >
-                      <span>{label}</span>
-                      {isActive && <span className="text-[10px] text-amber-300">✓</span>}
-                    </button>
-                  );
-                })}
-              </div>
+                  >
+                    <span>{label}</span>
+                    {isActive && <span className="text-[10px] text-amber-300">✓</span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
-        )}
+        </div>
 
         {/* Active Filter Chips */}
         {hasActiveFilters && (
@@ -762,95 +763,85 @@ export default function Shop() {
             <div className="bg-[#FFFFFF] p-5 rounded-2xl border border-[#E8E2D5] shadow-xs">
               <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E8E2D5]">
                 <h3 className="font-display text-xs font-bold text-[#064E3B] uppercase tracking-[0.18em]">
-                  {categoryParam ? "Active Collection" : "Collections"}
+                  Collections
                 </h3>
                 {categoryParam && (
                   <button
                     onClick={() => navigate("/shop")}
                     className="text-[11px] font-semibold text-[#C9A227] hover:underline cursor-pointer"
                   >
-                    ← All Categories
+                    Clear Selection
                   </button>
                 )}
               </div>
 
               <div className="space-y-1 text-xs">
-                {categoryParam ? (
-                  // When a specific category is selected (e.g. Cord set), hide other categories!
-                  <div>
-                    <div className="p-2.5 rounded-xl bg-[#064E3B] text-white font-semibold flex items-center justify-between mb-2 shadow-xs">
-                      <span className="font-bold">{categoryDisplayName}</span>
-                      <span className="text-amber-300 text-xs">✓ Active</span>
-                    </div>
+                <button
+                  onClick={() => navigate("/shop")}
+                  className={`block w-full text-left py-2 px-3 rounded-xl transition-colors cursor-pointer ${!categoryParam
+                    ? "bg-[#064E3B] text-[#FAF8F1] font-semibold shadow-xs"
+                    : "text-[#171A18] hover:text-[#064E3B] hover:bg-[#F3EFE3]/60"
+                    }`}
+                >
+                  ✦ All Products
+                </button>
 
-                    {/* Styles/Subcategories under the active category */}
-                    {subcategoriesForActiveCat.length > 0 && (
-                      <div className="mt-3 pt-2.5 border-t border-[#E8E2D5]/70 space-y-1">
-                        <span className="text-[10px] font-bold text-[#5C635E] uppercase tracking-wider block px-1 mb-1.5">
-                          Filter by Style
-                        </span>
-                        <button
-                          onClick={() => {
-                            const catKey = activeCatObj?.slug || activeCatObj?.id || categoryParam;
-                            navigate(`/category/${encodeURIComponent(catKey)}`);
-                          }}
-                          className={`block w-full text-left py-1.5 px-3 rounded-lg text-xs transition-colors cursor-pointer ${
-                            !subParam
-                              ? "bg-emerald-50 text-[#064E3B] font-bold border border-emerald-200"
-                              : "text-slate-700 hover:bg-slate-50 hover:text-[#064E3B]"
-                          }`}
-                        >
-                          All Styles
-                        </button>
-                        {subcategoriesForActiveCat.map((sub) => {
-                          const isSubActive = subParam.toLowerCase() === sub.toLowerCase();
-                          const catKey = activeCatObj?.slug || activeCatObj?.id || categoryParam;
-                          return (
-                            <button
-                              key={sub}
-                              onClick={() => {
-                                if (isSubActive) {
-                                  navigate(`/category/${encodeURIComponent(catKey)}`);
-                                } else {
-                                  navigate(`/category/${encodeURIComponent(catKey)}/${encodeURIComponent(sub)}`);
-                                }
-                              }}
-                              className={`block w-full text-left py-1.5 px-3 rounded-lg text-xs transition-colors cursor-pointer ${
-                                isSubActive
-                                  ? "bg-[#064E3B] text-white font-bold shadow-xs"
-                                  : "text-slate-700 hover:bg-slate-50 hover:text-[#064E3B]"
-                              }`}
-                            >
-                              {sub}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  // When no category is selected, show all categories
-                  <>
-                    <button
-                      onClick={() => navigate("/shop")}
-                      className={`block w-full text-left py-2 px-3 rounded-xl transition-colors ${!filterParam
-                        ? "bg-[#064E3B] text-[#FAF8F1] font-semibold"
-                        : "text-[#171A18] hover:text-[#064E3B] hover:bg-[#F3EFE3]/60"
-                        }`}
-                    >
-                      ✦ All Products
-                    </button>
-                    {categories.map((cat) => (
+                {/* All Categories - Always visible & accessible */}
+                {categories.map((cat) => {
+                  const isCatActive = isCategoryMatch(cat, categoryParam);
+                  const catTarget = cat.slug || cat.id || cat.name;
+
+                  return (
+                    <div key={cat.id || cat.slug || cat.name} className="space-y-1">
                       <button
-                        key={cat.id || cat.slug || cat.name}
-                        onClick={() => navigate(`/category/${encodeURIComponent(cat.slug || cat.id || cat.name)}`)}
-                        className="block w-full text-left py-2 px-3 rounded-xl transition-colors text-[#171A18] hover:text-[#064E3B] hover:bg-[#F3EFE3]/60 cursor-pointer"
+                        onClick={() => navigate(`/category/${encodeURIComponent(catTarget)}`)}
+                        className={`block w-full text-left py-2 px-3 rounded-xl transition-colors cursor-pointer flex items-center justify-between ${isCatActive
+                          ? "bg-[#064E3B] text-[#FAF8F1] font-semibold shadow-xs"
+                          : "text-[#171A18] hover:text-[#064E3B] hover:bg-[#F3EFE3]/60"
+                          }`}
                       >
-                        {cat.name}
+                        <span className="font-medium">{cat.name}</span>
+                        {isCatActive && <span className="text-amber-300 text-xs">✓ Active</span>}
                       </button>
-                    ))}
-                  </>
-                )}
+
+                      {/* Styles/Subcategories under the active category */}
+                      {isCatActive && subcategoriesForActiveCat.length > 0 && (
+                        <div className="ml-3 pl-2.5 border-l-2 border-[#064E3B]/20 py-1 space-y-1 animate-fade-in">
+                          <button
+                            onClick={() => navigate(`/category/${encodeURIComponent(catTarget)}`)}
+                            className={`block w-full text-left py-1.5 px-2.5 rounded-lg text-xs transition-colors cursor-pointer ${!subParam
+                              ? "bg-emerald-50 text-[#064E3B] font-bold border border-emerald-200"
+                              : "text-slate-600 hover:text-[#064E3B] hover:bg-slate-50"
+                              }`}
+                          >
+                            All {cat.name}
+                          </button>
+                          {subcategoriesForActiveCat.map((sub) => {
+                            const isSubActive = subParam.toLowerCase() === sub.toLowerCase();
+                            return (
+                              <button
+                                key={sub}
+                                onClick={() => {
+                                  if (isSubActive) {
+                                    navigate(`/category/${encodeURIComponent(catTarget)}`);
+                                  } else {
+                                    navigate(`/category/${encodeURIComponent(catTarget)}/${encodeURIComponent(sub)}`);
+                                  }
+                                }}
+                                className={`block w-full text-left py-1.5 px-2.5 rounded-lg text-xs transition-colors cursor-pointer ${isSubActive
+                                  ? "bg-[#064E3B] text-white font-bold shadow-xs"
+                                  : "text-slate-600 hover:text-[#064E3B] hover:bg-slate-50"
+                                  }`}
+                              >
+                                {sub}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

@@ -129,9 +129,8 @@ export default function ProductCard({ product }: Props) {
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src = FALLBACK_PRODUCT_IMG;
               }}
-              className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-300 ease-out ${
-                secondaryImage && isHovered ? "opacity-0" : "opacity-100"
-              }`}
+              className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-300 ease-out ${secondaryImage && isHovered ? "opacity-0" : "opacity-100"
+                }`}
               loading="lazy"
             />
 
@@ -143,9 +142,8 @@ export default function ProductCard({ product }: Props) {
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).style.display = "none";
                 }}
-                className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-300 ease-out ${
-                  isHovered ? "opacity-100" : "opacity-0"
-                }`}
+                className={`absolute inset-0 h-full w-full object-cover object-top transition-opacity duration-300 ease-out ${isHovered ? "opacity-100" : "opacity-0"
+                  }`}
                 loading="lazy"
               />
             )}
@@ -154,7 +152,7 @@ export default function ProductCard({ product }: Props) {
           {/* Offer Badge Only (Showing just the number followed by %) */}
           {dynamicDiscount > 0 && (
             <div className="pointer-events-none absolute left-2 top-2 sm:left-2.5 sm:top-2.5 z-10">
-              <span className="rounded-full border border-[#C9A227]/40 bg-[#064E3B] px-2 py-0.5 sm:px-2.5 text-[9px] sm:text-[10px] font-bold text-[#FAF8F1] shadow-2xs font-sans tracking-tight">
+              <span className="rounded-full border border-[#C9A227]/40 bg-[#064E3B] px-2 py-0.5 sm:px-2.5 text-[9px] sm:text-[10px] font-semibold text-[#FAF8F1] shadow-2xs font-sans tracking-wide">
                 {dynamicDiscount}%
               </span>
             </div>
@@ -164,13 +162,11 @@ export default function ProductCard({ product }: Props) {
           <button
             type="button"
             onClick={handleToggleWishlist}
-            className={`absolute right-2.5 top-2.5 sm:right-3.5 sm:top-3.5 z-10 transition-transform duration-200 hover:scale-125 cursor-pointer ${
-              wishlistAnimate ? "animate-heart-pop" : ""
-            } ${
-              isWishlisted
+            className={`absolute right-2.5 top-2.5 sm:right-3.5 sm:top-3.5 z-10 transition-transform duration-200 hover:scale-125 cursor-pointer ${wishlistAnimate ? "animate-heart-pop" : ""
+              } ${isWishlisted
                 ? "text-rose-600 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]"
                 : "text-white/95 hover:text-rose-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.55)]"
-            }`}
+              }`}
             aria-label="Wishlist"
             title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
           >
@@ -194,7 +190,7 @@ export default function ProductCard({ product }: Props) {
             <button
               type="button"
               onClick={handleOpenQuickView}
-              className="w-full rounded-xl border border-[#E8E2D5] bg-[#FFFFFF]/95 py-2 text-[11px] font-bold uppercase tracking-wider text-[#171A18] shadow-md transition-all hover:bg-[#064E3B] hover:text-[#FAF8F1] hover:border-[#064E3B] cursor-pointer"
+              className="w-full rounded-xl border border-[#E8E2D5] bg-[#FFFFFF]/95 py-2 font-button text-[11px] font-semibold tracking-[0.04em] text-[#171A18] shadow-md transition-all hover:bg-[#064E3B] hover:text-[#FAF8F1] hover:border-[#064E3B] cursor-pointer"
             >
               Quick View
             </button>
@@ -206,18 +202,18 @@ export default function ProductCard({ product }: Props) {
               to={`/product/${product.id}`}
               className="absolute inset-0 z-[5] flex items-center justify-center bg-white/80 backdrop-blur-[1px] cursor-pointer"
             >
-              <span className="rounded-full bg-slate-900 px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-md">
+              <span className="rounded-full bg-slate-900 px-3.5 py-1 font-sans text-[10px] font-medium uppercase tracking-[0.12em] text-white shadow-md">
                 Out of Stock
               </span>
             </Link>
           )}
         </div>
 
-        {/* Product Details & Bottom Bar (Reduced clean sans-serif text) */}
-        <div className="flex flex-col justify-between flex-1 bg-[#FFFFFF] p-2.5 sm:p-3 rounded-b-2xl font-sans">
+        {/* Product Details & Bottom Bar (Refined Pretendard & SUIT text) */}
+        <div className="flex flex-col justify-between flex-1 bg-[#FFFFFF] p-2.5 sm:p-3 rounded-b-2xl font-body">
           <div className="mb-1.5">
             <Link to={`/product/${product.id}`} className="block group/title cursor-pointer">
-              <h3 className="font-sans line-clamp-1 text-xs sm:text-[13px] font-medium leading-tight text-slate-800 transition-colors group-hover/title:text-[#064E3B] tracking-tight">
+              <h3 className="font-product line-clamp-1 text-xs sm:text-[13.5px] font-medium leading-snug text-[#171A18] transition-colors group-hover/title:text-[#064E3B] tracking-[-0.01em]">
                 {product.name}
               </h3>
             </Link>
@@ -228,17 +224,17 @@ export default function ProductCard({ product }: Props) {
             {/* Price on Left */}
             <Link to={`/product/${product.id}`} className="flex flex-col cursor-pointer min-w-0">
               <div className="flex items-baseline gap-1">
-                <span className="font-sans text-xs sm:text-sm font-bold text-[#064E3B] tracking-tight">
+                <span className="font-price text-xs sm:text-[14px] font-bold text-[#064E3B] tracking-[-0.02em]">
                   ₹{effectiveFinalPrice.toLocaleString("en-IN")}
                 </span>
                 {basePrice > effectiveFinalPrice && (
-                  <span className="text-[10px] font-normal text-slate-400 line-through">
+                  <span className="font-price text-[10px] font-normal text-slate-400 line-through">
                     ₹{basePrice.toLocaleString("en-IN")}
                   </span>
                 )}
               </div>
               {product.stock > 0 && product.stock <= 5 && (
-                <span className="text-[8px] font-medium text-amber-700">
+                <span className="font-body text-[8px] font-medium text-amber-700">
                   Only {product.stock} left
                 </span>
               )}
@@ -249,7 +245,7 @@ export default function ProductCard({ product }: Props) {
               {is350Offer ? (
                 <Link
                   to={`/product/${product.id}`}
-                  className="py-1 px-2.5 rounded-lg border border-[#064E3B] text-[#064E3B] hover:bg-emerald-50 text-[10px] sm:text-[11px] font-medium transition-colors inline-flex items-center justify-center cursor-pointer"
+                  className="py-1 px-2.5 rounded-lg border border-[#064E3B] text-[#064E3B] hover:bg-emerald-50 font-button text-[10px] sm:text-[11px] font-semibold tracking-[0.02em] transition-colors inline-flex items-center justify-center cursor-pointer"
                 >
                   View Details
                 </Link>
@@ -258,7 +254,7 @@ export default function ProductCard({ product }: Props) {
                   type="button"
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
-                  className="py-1 px-2.5 sm:px-3 rounded-lg bg-[#064E3B] hover:bg-[#0B3D2E] text-white text-[10px] sm:text-[11px] font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs hover:shadow-xs cursor-pointer flex items-center justify-center gap-1"
+                  className="py-1 px-2.5 sm:px-3 rounded-lg bg-[#064E3B] hover:bg-[#0B3D2E] text-white font-button text-[10px] sm:text-[11px] font-semibold tracking-[0.02em] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs hover:shadow-xs cursor-pointer flex items-center justify-center gap-1"
                 >
                   <span>🛒</span>
                   <span>{isOutOfStock ? "Out of Stock" : "Add to Cart"}</span>

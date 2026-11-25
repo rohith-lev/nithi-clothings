@@ -1,0 +1,3550 @@
+{
+  "company": "Levroun India Pvt Ltd",
+  "catalog_title": "Product Catalogue",
+  "source_files": [
+    "catalog-nithi-collections.zip",
+    "catalog-nithi-collections (1).zip"
+  ],
+  "product_count": 152,
+  "classification_note": "Categories and subcategories follow the supplied collection labels; sizes are extracted only where explicitly stated in the product title, collection or description. Otherwise size is Not Specified.",
+  "items": [
+    {
+      "id": "budget-friendly-cotton-unstitched-salwar-material",
+      "title": "Budget friendly Cotton Unstitched salwar material",
+      "description": "*Cotton chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹550\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹550.00",
+      "collection": "Unstitched Salwar Material",
+      "collections": [
+        "Unstitched Salwar Material"
+      ],
+      "image": "images/budget-friendly-cotton-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1257,
+        "height": 1600,
+        "bytes": 320448,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/budget-friendly-cotton-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "budget-friendly-cotton-unstitched-salwar-material-collection",
+      "title": "Budget friendly Cotton Unstitched salwar material collections",
+      "description": "*Cotton chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹550\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹550.00",
+      "collection": "Unstitched Salwar Material",
+      "collections": [
+        "Unstitched Salwar Material"
+      ],
+      "image": "images/budget-friendly-cotton-unstitched-salwar-material-collection.jpg",
+      "imageInfo": {
+        "width": 1242,
+        "height": 1600,
+        "bytes": 281871,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/budget-friendly-cotton-unstitched-salwar-material-collection.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "battik-unstitched-salwar-material-collections",
+      "title": "Battik unstitched salwar material collections",
+      "description": "*Batik cotton chudi material*\n\nFabric : Batik cotton\n\n*Top* : 2.35 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.25 meter\n\n*Price* : ₹699\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹699.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battik-unstitched-salwar-material-collections.jpg",
+      "imageInfo": {
+        "width": 896,
+        "height": 1092,
+        "bytes": 104960,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battik-unstitched-salwar-material-collections.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "kalamkari-2-piece-set",
+      "title": "Kalamkari 2 piece set",
+      "description": "*Kalamkari 2 piece set chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹550\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹580.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/kalamkari-2-piece-set.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 236444,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/kalamkari-2-piece-set.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "ikkat-cotton-unstitched-salwar-material",
+      "title": "Ikkat Cotton Unstitched salwar material",
+      "description": "*Ikkat model cotton chudi material*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.25 meter\n\n*Price* : ₹699\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹699.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/ikkat-cotton-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 226486,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/ikkat-cotton-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "premium-kanchi-soft-silk-unstitched-salwar-material",
+      "title": "Premium Kanchi soft silk Unstitched salwar material",
+      "description": "*Premium Kanchi soft silk salwar material*\n\n*Fabric* : Soft Silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.0 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹1299\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹1,299.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/premium-kanchi-soft-silk-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 896,
+        "height": 1195,
+        "bytes": 84771,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/premium-kanchi-soft-silk-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "kalamkari-design-unstitched-salwar-material-collections",
+      "title": "Kalamkari design Unstitched salwar material collections",
+      "description": "*Kalamkari cotton chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹850\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹850.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/kalamkari-design-unstitched-salwar-material-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 179265,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/kalamkari-design-unstitched-salwar-material-collections.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "cotton-unstitched-salwar-material-collections",
+      "title": "Cotton Unstitched salwar material collections",
+      "description": "*Cotton chudi material with grand shawl*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.4 meter\n\n*Price* : ₹999\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹999.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/cotton-unstitched-salwar-material-collections.jpg",
+      "imageInfo": {
+        "width": 896,
+        "height": 1195,
+        "bytes": 90830,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/cotton-unstitched-salwar-material-collections.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "mangalagiri-cotton-salwar-material",
+      "title": "Mangalagiri cotton salwar material",
+      "description": "*Mangalagiri cotton chudi material*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.25 meter\n\n*Price* : ₹750\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹750.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/mangalagiri-cotton-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 263403,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/mangalagiri-cotton-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "battik-unstitched-salwar-material",
+      "title": "Battik Unstitched salwar material",
+      "description": "*Batik cotton chudi material*\n\nFabric : Batik cotton\n\n*Top* : 2.35 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.25 meter\n\n*Price* : ₹650\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu",
+      "price": "₹650.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battik-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1280,
+        "height": 960,
+        "bytes": 245523,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battik-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "battik-unstitched-salwar-material-collections-2",
+      "title": "Battik Unstitched salwar material collections",
+      "description": "*Batik cotton chudi material*\n\nFabric : Batik cotton\n\n*Top* : 2.35 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.25 meter\n\n*Price* : ₹650\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹650.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battik-unstitched-salwar-material-collections-2.jpg",
+      "imageInfo": {
+        "width": 1086,
+        "height": 1448,
+        "bytes": 347890,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battik-unstitched-salwar-material-collections-2.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "kalamkari-unstitched-salwar-material",
+      "title": "Kalamkari Unstitched salwar material",
+      "description": "*Dual shade kalamkari cotton chudi material*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹830\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu",
+      "price": "₹830.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/kalamkari-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1599,
+        "height": 1599,
+        "bytes": 385233,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/kalamkari-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "handloom-cotton-unstitched-salwar-material",
+      "title": "Handloom cotton Unstitched salwar material",
+      "description": "*Handloom Cotton chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.4 meter\n\n*Price* : ₹850\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹850.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/handloom-cotton-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 217796,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/handloom-cotton-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "handloom-cotton-unstitched-salwar-material-2",
+      "title": "Handloom cotton Unstitched salwar material",
+      "description": "*Handloom Cotton chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.4 meter\n\n*Price* : ₹799\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹799.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/handloom-cotton-unstitched-salwar-material-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 141843,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/handloom-cotton-unstitched-salwar-material-2.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "mangalagiri-cotton-unstitched-salwar-material",
+      "title": "Mangalagiri cotton Unstitched salwar material",
+      "description": "*Mangalagiri cotton chudi material*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.25 meter\n\n*Price* : ₹750\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹750.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/mangalagiri-cotton-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 231173,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/mangalagiri-cotton-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "premium-kanchi-soft-silk-unstitched-salwar-material-2",
+      "title": "Premium Kanchi soft silk Unstitched salwar material",
+      "description": "*Premium Kanchi soft silk salwar material*\n\n*Fabric* : Soft Silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.0 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹1199\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹1,199.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/premium-kanchi-soft-silk-unstitched-salwar-material-2.jpg",
+      "imageInfo": {
+        "width": 896,
+        "height": 1195,
+        "bytes": 79924,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/premium-kanchi-soft-silk-unstitched-salwar-material-2.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "tie-dye-embroidery-unstitched-salwar-material",
+      "title": "Tie & Dye Embroidery unstitched salwar material",
+      "description": "*Tie & dye Unstitched salwar material*\n\n*Fabric* : Cotton\n\n*Top* : 2.35 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹799\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹799.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/tie-dye-embroidery-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 287183,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/tie-dye-embroidery-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "bhagalpur-cotton-unstitched-salwar-material",
+      "title": "Bhagalpur cotton Unstitched salwar material",
+      "description": "*Bhagalpuri cotton chudi material*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.4 meter\n\n*Price* : ₹799\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹799.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/bhagalpur-cotton-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1248,
+        "height": 1600,
+        "bytes": 305514,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/bhagalpur-cotton-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "bhagalpuri-unstitched-salwar-material-collections",
+      "title": "Bhagalpuri Unstitched salwar material collections",
+      "description": "*Bhagalpuri cotton chudi material*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹899\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹899.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/bhagalpuri-unstitched-salwar-material-collections.jpg",
+      "imageInfo": {
+        "width": 896,
+        "height": 1195,
+        "bytes": 119978,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/bhagalpuri-unstitched-salwar-material-collections.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "mangalagiri-cotton-chudi-material",
+      "title": "Mangalagiri cotton chudi material",
+      "description": "*Mangalagiri cotton chudi material*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.25 meter\n\n*Price* : ₹750\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹750.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/mangalagiri-cotton-chudi-material.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 108624,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/mangalagiri-cotton-chudi-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "jute-cotton-with-tassur-silk-unstitched-salwar-material",
+      "title": "Jute cotton with tassur silk Unstitched salwar material",
+      "description": "*Jute cotton with tassure silk chudi material*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹899\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹899.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/jute-cotton-with-tassur-silk-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 596,
+        "height": 1280,
+        "bytes": 118942,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/jute-cotton-with-tassur-silk-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "katan-silk-unstitched-salwar-material",
+      "title": "Katan Silk Unstitched salwar material",
+      "description": "*Katan silk chudi material*\n\n*Fabric* : Silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹1070\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹1,070.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/katan-silk-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 661,
+        "height": 1280,
+        "bytes": 154857,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/katan-silk-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "raw-silk-unstitched-salwar-material",
+      "title": "Raw silk Unstitched salwar material",
+      "description": "*Slub cotton (Raw silk) cotton chudi material*\n\nFabric : Raw silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹799\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹799.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/raw-silk-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1495,
+        "height": 1599,
+        "bytes": 125691,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/raw-silk-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "tissue-unstitched-salwar-material",
+      "title": "Tissue unstitched salwar material",
+      "description": "*Tissue chudi material*\n\n*Fabric* : Tissue\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹799\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹799.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/tissue-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 239755,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/tissue-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "sungudi-cotton-unstitched-salwar-material-collections",
+      "title": "Sungudi cotton Unstitched salwar material collections",
+      "description": "*Sungudi cotton chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹920\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹920.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/sungudi-cotton-unstitched-salwar-material-collections.jpg",
+      "imageInfo": {
+        "width": 896,
+        "height": 1195,
+        "bytes": 87545,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/sungudi-cotton-unstitched-salwar-material-collections.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "katan-silk-unstitched-salwar-material-collections",
+      "title": "Katan silk Unstitched salwar material collections",
+      "description": "*Katan silk chudi material*\n\n*Fabric* : Silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹1070\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹1,070.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/katan-silk-unstitched-salwar-material-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 221174,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/katan-silk-unstitched-salwar-material-collections.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "katan-silk-unstitched-salwar-material-2",
+      "title": "Katan silk Unstitched salwar material",
+      "description": "*Katan silk chudi material*\n\n*Fabric* : Silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹1070\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹1,070.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/katan-silk-unstitched-salwar-material-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 215304,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/katan-silk-unstitched-salwar-material-2.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "ikkat-handloom-cotton-salwar-material",
+      "title": "Ikkat Handloom cotton salwar material",
+      "description": "*Handloom Ikkat chudi material*\n\nFabric : Handloom Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹899\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹899.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/ikkat-handloom-cotton-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1054,
+        "height": 1280,
+        "bytes": 160084,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/ikkat-handloom-cotton-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "ikkat-handloom-cotton-unstitched-salwar-material",
+      "title": "Ikkat Handloom cotton Unstitched salwar material",
+      "description": "*Handloom Ikkat chudi material*\n\nFabric : Handloom Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹899\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹899.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/ikkat-handloom-cotton-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1199,
+        "height": 1600,
+        "bytes": 152415,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/ikkat-handloom-cotton-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "premium-kanchi-cotton-2-piece-set-salwar-material",
+      "title": "Premium Kanchi cotton 2 piece set salwar material",
+      "description": "*Premium Kanchi cotton 2 piece set salwar material*\n\n*Fabric* : Cotton\n\n*Top* : 3 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹1199\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹1,199.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/premium-kanchi-cotton-2-piece-set-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 198423,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/premium-kanchi-cotton-2-piece-set-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "soft-battik-salwar-material",
+      "title": "Soft Battik Salwar material",
+      "description": "*Soft Batik chudi material*\n\nFabric : Batik\n\n*Top* : 2.35 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.25 meter\n\n*Price* : ₹599\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹599.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/soft-battik-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1280,
+        "height": 1280,
+        "bytes": 246680,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/soft-battik-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "poochampally-sico-unstitched-salwar-material",
+      "title": "Poochampally sico unstitched salwar material",
+      "description": "*Poochampally silk chudi material*\n\n*Fabric* : Silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.0 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹1150\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹1,150.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/poochampally-sico-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 221097,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/poochampally-sico-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "semi-mangalagiri-silk-salwar-material",
+      "title": "Semi Mangalagiri silk salwar material",
+      "description": "*Semi Mangalagiri silk salwar material*\n\nFabric : Silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹999\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹999.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/semi-mangalagiri-silk-salwar-material.jpg",
+      "imageInfo": {
+        "width": 372,
+        "height": 556,
+        "bytes": 24566,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/semi-mangalagiri-silk-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "kalamkari-unstitched-salwar-material-2",
+      "title": "Kalamkari Unstitched salwar material",
+      "description": "*Kalamkari cotton chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.25 meter\n\n*Price* : ₹750\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹750.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/kalamkari-unstitched-salwar-material-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 244346,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/kalamkari-unstitched-salwar-material-2.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "bhagalpuri-cotton-chudi-material",
+      "title": "Bhagalpuri cotton chudi material",
+      "description": "*Bhagalpuri cotton chudi material*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.4 meter\n\n*Price* : ₹799\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹799.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/bhagalpuri-cotton-chudi-material.jpg",
+      "imageInfo": {
+        "width": 1239,
+        "height": 1600,
+        "bytes": 295841,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/bhagalpuri-cotton-chudi-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "kalamkari-kalahasti-2-piece-set",
+      "title": "Kalamkari Kalahasti 2 piece set",
+      "description": "*Kalamkari Kalahasti print 2 piece set chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹699\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹699.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/kalamkari-kalahasti-2-piece-set.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 319423,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/kalamkari-kalahasti-2-piece-set.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "pochampally-sico-unstitched-salwar-material",
+      "title": "Pochampally sico unstitched salwar material",
+      "description": "*Poochampally silk chudi material*\n\n*Fabric* : Silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.0 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹1150\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹1,150.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/pochampally-sico-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1578,
+        "height": 1600,
+        "bytes": 330049,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/pochampally-sico-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "katan-silk-discharge-print-unstitched-salwar-material",
+      "title": "Katan silk discharge print Unstitched salwar material",
+      "description": "*Katan silk discharge print chudi material*\n\n*Fabric* : Silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹999\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹999.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/katan-silk-discharge-print-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1086,
+        "height": 1448,
+        "bytes": 133272,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/katan-silk-discharge-print-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "katan-silk-discharge-print",
+      "title": "Katan silk discharge print",
+      "description": "*Katan silk discharge print chudi material*\n\n*Fabric* : Silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹999\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹999.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/katan-silk-discharge-print.jpg",
+      "imageInfo": {
+        "width": 1066,
+        "height": 1600,
+        "bytes": 256087,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/katan-silk-discharge-print.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "tissue-unstitched-salwar-material-2",
+      "title": "Tissue unstitched salwar material",
+      "description": "*Tissue chudi material*\n\n*Fabric* : Tissue\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹899\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹899.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/tissue-unstitched-salwar-material-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 239886,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/tissue-unstitched-salwar-material-2.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "sungudi-cotton-unstitched-salwar-material",
+      "title": "Sungudi cotton Unstitched salwar material",
+      "description": "*Sungudi cotton chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹920\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹920.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/sungudi-cotton-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1086,
+        "height": 1392,
+        "bytes": 140516,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/sungudi-cotton-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "khadi-cotton-unstitched-salwar-material",
+      "title": "Khadi cotton Unstitched salwar material",
+      "description": "*Khadi cotton chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹920\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹920.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/khadi-cotton-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 309456,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/khadi-cotton-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "katan-viscose-unstitched-salwar-material",
+      "title": "Katan viscose unstitched salwar material",
+      "description": "*Katan viscose salwar material*\n\n*Fabric* : Silk\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹950\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹950.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/katan-viscose-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1359,
+        "height": 1600,
+        "bytes": 312570,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/katan-viscose-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "narayanpet-2-piece-set-salwar-material-collections",
+      "title": "Narayanpet 2 piece set salwar material collections",
+      "description": "*Narayanpet 2 piece set chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 4.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹1099\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹1,099.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/narayanpet-2-piece-set-salwar-material-collections.jpg",
+      "imageInfo": {
+        "width": 1086,
+        "height": 1448,
+        "bytes": 125547,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/narayanpet-2-piece-set-salwar-material-collections.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "narayanpet-2-piece-set-salwar-material",
+      "title": "Narayanpet 2 piece set salwar material",
+      "description": "*Narayanpet 2 piece set chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 4.5 meter\n\n*Dupatta* : 2.5 meter\n\n*Price* : ₹1099\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹1,099.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/narayanpet-2-piece-set-salwar-material.jpg",
+      "imageInfo": {
+        "width": 896,
+        "height": 1195,
+        "bytes": 84723,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/narayanpet-2-piece-set-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "cotton-unstitched-salwar-material",
+      "title": "Cotton Unstitched salwar material",
+      "description": "*Cotton chudi material*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹899\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹899.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/cotton-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 226875,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/cotton-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "linen-cotton-unstitched-salwar-material",
+      "title": "Linen cotton Unstitched salwar material",
+      "description": "*Linen Cotton material 3 piece set*\n\n*Top* : 2.50 meter\n\n*Bottom* : 2.0 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹799\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹799.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/linen-cotton-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 238710,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/linen-cotton-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "printed-mangalagiri-cotton-unstitched-salwar-material",
+      "title": "Printed Mangalagiri cotton Unstitched salwar material",
+      "description": "*Printed Mangalagiri cotton chudi material*\n\nFabric : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2.5 meter\n\n*Dupatta* : 2.3 meter\n\n*Price* : ₹799\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹799.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/printed-mangalagiri-cotton-unstitched-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 230365,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/printed-mangalagiri-cotton-unstitched-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "kota-cotton-2-piece-set",
+      "title": "Kota cotton 2 piece set",
+      "description": "*Kota cotton 2 piece set chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Dupatta* : 2.4 meter\n\n*Price* : ₹799\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹799.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/kota-cotton-2-piece-set.jpg",
+      "imageInfo": {
+        "width": 1265,
+        "height": 1600,
+        "bytes": 299514,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/kota-cotton-2-piece-set.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "chanderi-silk-cotton-salwar-material",
+      "title": "Chanderi silk cotton salwar material",
+      "description": "*Chanderi silk chudi material*\n\nFabric : Chanderi silk Cotton\n\n*Top* : 2.5 meter (Chanderi silk)\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.25 meter (Shiffon with work)\n\n*Price* : ₹799\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹799.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/chanderi-silk-cotton-salwar-material.jpg",
+      "imageInfo": {
+        "width": 1280,
+        "height": 1051,
+        "bytes": 218216,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/chanderi-silk-cotton-salwar-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "poochampally-cotton-chudi-material",
+      "title": "Poochampally cotton chudi material",
+      "description": "*Poochampally Cotton chudi material*\n\n*Fabric* : Cotton\n\n*Top* : 2.5 meter\n\n*Bottom* : 2 meter\n\n*Dupatta* : 2.4 meter\n\n*Price* : ₹899\n\nFree shipping for Online payment within Tamilnadu.\n\nFor Cash on Delivery extra 70rs shipping charge within Tamilnadu.",
+      "price": "₹899.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/poochampally-cotton-chudi-material.jpg",
+      "imageInfo": {
+        "width": 1280,
+        "height": 1280,
+        "bytes": 225141,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/poochampally-cotton-chudi-material.jpg"
+      ],
+      "_source_kind": "Salwar",
+      "_source_zip": "catalog-nithi-collections.zip",
+      "category": "Salwar Material",
+      "subcategory": "Unstitched Salwar Material",
+      "size": "Not Specified"
+    },
+    {
+      "id": "elite-xl-zip-model-nighty-collections",
+      "title": "Elite XL Zip Model Nighty collections",
+      "description": "XL Size Elite zip Cotton nighty Price:340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": "Xl Zip Model Nighty Collection",
+      "collections": [
+        "Xl Zip Model Nighty Collection"
+      ],
+      "image": "images/elite-xl-zip-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 319305,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-zip-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Zip Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-xl-zip-model-nighty-collections-2",
+      "title": "Elite XL Zip Model Nighty collections",
+      "description": "XL Size Elite zip Cotton nighty Price:340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹340.00",
+      "collection": "Xl Zip Model Nighty Collection",
+      "collections": [
+        "Xl Zip Model Nighty Collection"
+      ],
+      "image": "images/elite-xl-zip-model-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 143327,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-zip-model-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Zip Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-xl-piping-nighty-collections",
+      "title": "Elite XL Piping Nighty collections",
+      "description": "XL Size Elite Cotton piping nighty Price: 340rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹340.00",
+      "collection": "Xl Piping Model Collections",
+      "collections": [
+        "Xl Piping Model Collections"
+      ],
+      "image": "images/elite-xl-piping-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 179576,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-piping-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Piping Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-xl-piping-model-nighty-collections",
+      "title": "Elite XL Piping model Nighty collections",
+      "description": "XL Size Elite Cotton piping nighty Price: 340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹340.00",
+      "collection": "Xl Piping Model Collections",
+      "collections": [
+        "Xl Piping Model Collections"
+      ],
+      "image": "images/elite-xl-piping-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 194829,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-piping-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Piping Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-xl-piping-model-nighty-collections-2",
+      "title": "Elite XL Piping model Nighty collections",
+      "description": "XL Size Elite Cotton piping nighty Price: 340rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹340.00",
+      "collection": "Xl Piping Model Collections",
+      "collections": [
+        "Xl Piping Model Collections"
+      ],
+      "image": "images/elite-xl-piping-model-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 185553,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-piping-model-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Piping Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-xxl-zip-model-nighty-collections",
+      "title": "Elite XXL Zip model Nighty collections",
+      "description": "XXL Size Elite zip Cotton nighty Price:340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹340.00",
+      "collection": "Xxl Zip Nighty Collections",
+      "collections": [
+        "Xxl Zip Nighty Collections"
+      ],
+      "image": "images/elite-xxl-zip-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 119922,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-zip-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Zip Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xxl-without-zip-model-collections",
+      "title": "Elite XXL Without Zip model collections",
+      "description": "XXL Size Elite Piping model nighty Price: 340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": "Xxl Without Zip Collections",
+      "collections": [
+        "Xxl Without Zip Collections"
+      ],
+      "image": "images/elite-xxl-without-zip-model-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 181469,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-without-zip-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Without Zip Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xxl-without-zip-collections",
+      "title": "Elite XXL Without zip collections",
+      "description": "XXL Size Elite Piping model nighty Price: 340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": "Xxl Without Zip Collections",
+      "collections": [
+        "Xxl Without Zip Collections"
+      ],
+      "image": "images/elite-xxl-without-zip-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 199528,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-without-zip-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Without Zip Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xxl-without-zip-model-collections-2",
+      "title": "Elite XXL Without zip model collections",
+      "description": "XXL Size Elite Piping model nighty Price: 340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": "Xxl Without Zip Collections",
+      "collections": [
+        "Xxl Without Zip Collections"
+      ],
+      "image": "images/elite-xxl-without-zip-model-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 241797,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-without-zip-model-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Without Zip Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xl-titanic-model-nighty-collections",
+      "title": "Elite XL Titanic model nighty collections",
+      "description": "XL Size Elite Titanic model nighty Price: 340rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": "Xl & Xxl Titanic Collections",
+      "collections": [
+        "Xl & Xxl Titanic Collections"
+      ],
+      "image": "images/elite-xl-titanic-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 187399,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-titanic-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Titanic Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-xl-elastic-model-nighty-collections",
+      "title": "Elite XL Elastic model nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": "Xl & Xxl Elastic Collections",
+      "collections": [
+        "Xl & Xxl Elastic Collections"
+      ],
+      "image": "images/elite-xl-elastic-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 208108,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-elastic-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Elastic Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-3xl-piping-nighty-collections",
+      "title": "Elite 3XL Piping nighty collections",
+      "description": "3XL Size Elite Piping model nighty Price: 350rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": "3xl Piping Model Collections",
+      "collections": [
+        "3xl Piping Model Collections"
+      ],
+      "image": "images/elite-3xl-piping-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 170777,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-3xl-piping-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Piping Nighty",
+      "size": "3XL"
+    },
+    {
+      "id": "elite-3xl-piping-model-nighty-collections",
+      "title": "Elite 3XL Piping model nighty collections",
+      "description": "3XL Size Elite Piping model nighty Price: 350rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": "3xl Piping Model Collections",
+      "collections": [
+        "3xl Piping Model Collections"
+      ],
+      "image": "images/elite-3xl-piping-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 131259,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-3xl-piping-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Piping Nighty",
+      "size": "3XL"
+    },
+    {
+      "id": "elite-3xl-zip-model-nighty-collections",
+      "title": "Elite 3XL Zip model Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": "3xl Zip Model Collections",
+      "collections": [
+        "3xl Zip Model Collections"
+      ],
+      "image": "images/elite-3xl-zip-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 345717,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-3xl-zip-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Zip Nighty",
+      "size": "3XL"
+    },
+    {
+      "id": "l-size-night-dress-zip-model",
+      "title": "L Size Night dress Zip model",
+      "description": "L Size Elite Zip Night suit collections  Price : 375rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹375.00",
+      "collection": "Night Dress Collections",
+      "collections": [
+        "Night Dress Collections"
+      ],
+      "image": "images/l-size-night-dress-zip-model.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 207515,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/l-size-night-dress-zip-model.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Night Dress",
+      "size": "L"
+    },
+    {
+      "id": "l-size-night-dress-zip-model-collections",
+      "title": "L Size Night dress Zip model collections",
+      "description": "L Size Elite Zip Night suit collections  Price : 375rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹375.00",
+      "collection": "Night Dress Collections",
+      "collections": [
+        "Night Dress Collections"
+      ],
+      "image": "images/l-size-night-dress-zip-model-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 120969,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/l-size-night-dress-zip-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Night Dress",
+      "size": "L"
+    },
+    {
+      "id": "elite-60-inch-xl-piping-model-collections",
+      "title": "Elite 60 inch XL Piping model collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": "60 Inch Nighty Collections",
+      "collections": [
+        "60 Inch Nighty Collections"
+      ],
+      "image": "images/elite-60-inch-xl-piping-model-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 150781,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-60-inch-xl-piping-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "60 Inch Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-60inch-xl-piping-model-collections",
+      "title": "Elite 60inch XL Piping model collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": "60 Inch Nighty Collections",
+      "collections": [
+        "60 Inch Nighty Collections"
+      ],
+      "image": "images/elite-60inch-xl-piping-model-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 140176,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-60inch-xl-piping-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "60 Inch Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "long-zip-xl-feeding-nighty-collections",
+      "title": "Long Zip XL Feeding Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": "Feeding Nighty Collections",
+      "collections": [
+        "Feeding Nighty Collections"
+      ],
+      "image": "images/long-zip-xl-feeding-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 193869,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/long-zip-xl-feeding-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Feeding Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-3xl-piping-model-nighty-collections-2",
+      "title": "Elite 3XL Piping Model Nighty collections",
+      "description": "3XL Size Elite Piping model nighty Price: 399rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹399.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-3xl-piping-model-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 205384,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-3xl-piping-model-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "3XL"
+    },
+    {
+      "id": "xxl-double-side-vertical-zip-feeding-nighty",
+      "title": "XXL Double side Vertical zip feeding Nighty",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/xxl-double-side-vertical-zip-feeding-nighty.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 226490,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/xxl-double-side-vertical-zip-feeding-nighty.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xxl-without-zip-collections-2",
+      "title": "Elite XXL Without Zip collections",
+      "description": "XXL Size Elite Piping model nighty Price: 340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xxl-without-zip-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 181264,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-without-zip-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xxl-zip-model-nighty-collections-2",
+      "title": "Elite XXL Zip model Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xxl-zip-model-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 410267,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-zip-model-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "tie-dye-xl-piping-model-collections",
+      "title": "Tie & Dye XL Piping model collections",
+      "description": "XL Size Tie - Dye Piping Nighty Price: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/tie-dye-xl-piping-model-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 144225,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/tie-dye-xl-piping-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "queen-xxl-zip-model-nighty-collections",
+      "title": "Queen XXL Zip model Nighty collections",
+      "description": "XXL Size Queen quality Zip model nighty Price: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xxl-zip-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 180820,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xxl-zip-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-60inch-xxl-piping-model-collections",
+      "title": "Elite 60inch XXL Piping model collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-60inch-xxl-piping-model-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 185071,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-60inch-xxl-piping-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-60inch-xxl-zip-collections",
+      "title": "Elite 60inch XXL Zip collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹399.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-60inch-xxl-zip-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 316114,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-60inch-xxl-zip-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xxl-titanic-model-collections",
+      "title": "Elite XXL Titanic model collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xxl-titanic-model-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 285566,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-titanic-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "collar-xxl-zip-model-nighty-collections",
+      "title": "Collar XXL Zip model Nighty collections",
+      "description": "XXL Size Collar zip Cotton nighty Price:340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹340.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/collar-xxl-zip-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 204108,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/collar-xxl-zip-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Collar Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "queen-xl-zip-nighty-collections",
+      "title": "Queen XL Zip Nighty collections",
+      "description": "XL Size Queen zip Cotton nighty \nPrice: 390rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹390.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xl-zip-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 310458,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xl-zip-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-collar-xl-nighty-collections",
+      "title": "Elite Collar XL Nighty collections",
+      "description": "XL Size Collar Zip Cotton nighty \nPrice: 370rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-collar-xl-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 286152,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-collar-xl-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Collar Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "queen-xl-zip-nighty-collections-2",
+      "title": "Queen XL Zip Nighty collections",
+      "description": "XL Size Queen zip Cotton nighty \nPrice: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xl-zip-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 256822,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xl-zip-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-xxl-elastic-model-nighty-collections",
+      "title": "Elite XXL Elastic model nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xxl-elastic-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 135557,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-elastic-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xxl-elastic-model-nighty-collections-2",
+      "title": "Elite XXL Elastic model Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xxl-elastic-model-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 202570,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-elastic-model-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "queen-xxl-zip-model-nighty-collections-2",
+      "title": "Queen XXL Zip model Nighty collections",
+      "description": "XXL Size Queen quality Zip model nighty Price: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xxl-zip-model-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 324730,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xxl-zip-model-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "queen-xl-piping-model-collections",
+      "title": "Queen XL Piping model collections",
+      "description": "XL Size Queen quality Piping model nighty Price: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xl-piping-model-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 278818,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xl-piping-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-60inch-xxl-zip-collections-2",
+      "title": "Elite 60inch XXL Zip collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-60inch-xxl-zip-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 236457,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-60inch-xxl-zip-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "tie-dye-xxl-without-zip-collections",
+      "title": "Tie & Dye XXL without zip collections",
+      "description": "XXL Size Tie & dye Piping model nighty Price: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/tie-dye-xxl-without-zip-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 109806,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/tie-dye-xxl-without-zip-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "long-zip-xxl-feeding-nighty-collections",
+      "title": "Long Zip XXL feeding Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹380.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/long-zip-xxl-feeding-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 235855,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/long-zip-xxl-feeding-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "battik-xl-zip-nighty-collections",
+      "title": "Battik XL Zip Nighty collections",
+      "description": "XL Size Battik zip Cotton nighty \nPrice: 370rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battik-xl-zip-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 163700,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battik-xl-zip-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "xl-double-side-vertical-zip-feeding-nighty",
+      "title": "XL Double side Vertical zip feeding Nighty",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/xl-double-side-vertical-zip-feeding-nighty.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 189985,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/xl-double-side-vertical-zip-feeding-nighty.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "collar-xxl-zip-model-nighty-collections-2",
+      "title": "Collar XXL Zip model Nighty collections",
+      "description": "XXL Size Collar Zip Cotton nighty Price:340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹340.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/collar-xxl-zip-model-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 178821,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/collar-xxl-zip-model-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Collar Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-60inch-xxl-piping-model-collections-2",
+      "title": "Elite 60inch XXL Piping model collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹399.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-60inch-xxl-piping-model-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 316099,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-60inch-xxl-piping-model-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xxl-titanic-model-nighty-collections",
+      "title": "Elite XXL Titanic model Nighty collections",
+      "description": "XXL Size Elite Titanic model nighty Price: 340rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xxl-titanic-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 180088,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-titanic-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "battik-xxl-zip-model-nighty-collections",
+      "title": "Battik XXL Zip model nighty collections",
+      "description": "XXL Size Battik Zip model nighty \nPrice: 370rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battik-xxl-zip-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 158175,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battik-xxl-zip-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "collar-xxl-zip-model-nighty-collections-3",
+      "title": "Collar XXL Zip model Nighty collections",
+      "description": "XXL Size Collar Zip Cotton nighty Price:370rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/collar-xxl-zip-model-nighty-collections-3.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 306193,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/collar-xxl-zip-model-nighty-collections-3.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Collar Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "tie-dye-xl-zip-model-nighty-collections",
+      "title": "Tie & Dye XL Zip model Nighty collections",
+      "description": "XL Size Tie & Dye zip Cotton nighty \nPrice: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/tie-dye-xl-zip-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 195022,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/tie-dye-xl-zip-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "xl-night-dress-collar-model-collections",
+      "title": "XL Night dress Collar model collections",
+      "description": "XL Size Elite Collar Night suit collections Price: 375rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹375.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/xl-night-dress-collar-model-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 269187,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/xl-night-dress-collar-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Collar Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-xl-piping-model-nighty-collections-3",
+      "title": "Elite XL Piping model Nighty collections",
+      "description": "XL Size Elite Cotton piping nighty Price: 340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": null,
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xl-piping-model-nighty-collections-3.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 168967,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-piping-model-nighty-collections-3.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "xxl-size-night-dress-zip-model-collections",
+      "title": "XXL size Night dress Zip model collections",
+      "description": "XXL Size Elite Zip Night suit collections Price: 375rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹375.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/xxl-size-night-dress-zip-model-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 254698,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/xxl-size-night-dress-zip-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "battick-xxl-without-zip-collections",
+      "title": "Battick XXL without zip collections",
+      "description": "Battick  XXL Size Piping model nighty Price: 370rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battick-xxl-without-zip-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 154048,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battick-xxl-without-zip-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xl-feeding-frock-model-nighty",
+      "title": "Elite XL Feeding Frock model Nighty",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xl-feeding-frock-model-nighty.jpg",
+      "imageInfo": {
+        "width": 1303,
+        "height": 1600,
+        "bytes": 201771,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-feeding-frock-model-nighty.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-60inch-xl-zip-collections",
+      "title": "Elite 60inch XL zip collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-60inch-xl-zip-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 245282,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-60inch-xl-zip-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "collar-xl-nighty-collections",
+      "title": "Collar XL Nighty collections",
+      "description": "XL Size Collar Zip Cotton nighty \nPrice: 340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹340.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/collar-xl-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 332610,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/collar-xl-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Collar Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "tie-dye-xxl-zip-model-nighty-collections",
+      "title": "Tie & Dye XXL Zip model Nighty collections",
+      "description": "XXL Size Tie & Dye Zip Cotton nighty Price:360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/tie-dye-xxl-zip-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 161007,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/tie-dye-xxl-zip-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "queen-xxl-without-zip-collections",
+      "title": "Queen XXL without zip collections",
+      "description": "Queen XXL Size Piping model nighty Price: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xxl-without-zip-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 197397,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xxl-without-zip-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "queen-xl-piping-model-collections-2",
+      "title": "Queen XL Piping model collections",
+      "description": "XL Size Queen quality Piping model nighty Price: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xl-piping-model-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 168503,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xl-piping-model-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "xl-night-dress-zip-model-collections",
+      "title": "XL Night dress Zip model collections",
+      "description": "XL Size Elite Zip Night suit collections Price: 375rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹375.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/xl-night-dress-zip-model-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 278776,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/xl-night-dress-zip-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "queen-xl-piping-nighty-collections",
+      "title": "Queen XL Piping nighty collections",
+      "description": "XL Size Queen quality Piping model nighty Price: 390rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹390.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xl-piping-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 300534,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xl-piping-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "xl-night-dress-without-zip-model-collections",
+      "title": "XL Night dress Without zip model collections",
+      "description": "XL Size Elite Without Zip Night suit collections Price: 375rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹375.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/xl-night-dress-without-zip-model-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 257161,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/xl-night-dress-without-zip-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "xxl-size-collar-night-dress-collections",
+      "title": "XXL size Collar Night dress collections",
+      "description": "XXL Size Elite Collar Night suit collections Price: 375rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹375.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/xxl-size-collar-night-dress-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 249109,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/xxl-size-collar-night-dress-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Collar Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "long-zip-xxl-feeding-nighty-collections-2",
+      "title": "Long Zip XXL feeding Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/long-zip-xxl-feeding-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 191973,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/long-zip-xxl-feeding-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xxl-feeding-frock-model-nighty",
+      "title": "Elite XXL feeding Frock model Nighty",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xxl-feeding-frock-model-nighty.jpg",
+      "imageInfo": {
+        "width": 1009,
+        "height": 1280,
+        "bytes": 113815,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-feeding-frock-model-nighty.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xxl-feeding-frock-model-nighty-2",
+      "title": "Elite XXL feeding Frock model nighty",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xxl-feeding-frock-model-nighty-2.jpg",
+      "imageInfo": {
+        "width": 961,
+        "height": 1280,
+        "bytes": 86067,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-feeding-frock-model-nighty-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "xl-double-side-vertical-zip-feeding-nighty-2",
+      "title": "XL Double side Vertical zip feeding nighty",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/xl-double-side-vertical-zip-feeding-nighty-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 159615,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/xl-double-side-vertical-zip-feeding-nighty-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "battik-xl-piping-model-collections",
+      "title": "Battik XL Piping model collections",
+      "description": "XL Size Battik quality Piping model nighty Price: 370rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battik-xl-piping-model-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 152994,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battik-xl-piping-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "battik-xl-piping-model-collections-2",
+      "title": "Battik XL Piping model collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹420.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battik-xl-piping-model-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 280886,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battik-xl-piping-model-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "long-zip-xl-feeding-nighty-collections-2",
+      "title": "Long Zip XL Feeding Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹380.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/long-zip-xl-feeding-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 326400,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/long-zip-xl-feeding-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "queen-xxl-zip-model-nighty-collections-3",
+      "title": "Queen XXL Zip model Nighty collections",
+      "description": "XXL Size Queen quality Zip model nighty Price: 390rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹390.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xxl-zip-model-nighty-collections-3.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 361364,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xxl-zip-model-nighty-collections-3.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "queen-xxl-zip-model-nighty-collections-4",
+      "title": "Queen XXL Zip model Nighty collections",
+      "description": "XXL Size Queen quality Zip model nighty Price: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xxl-zip-model-nighty-collections-4.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 189661,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xxl-zip-model-nighty-collections-4.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "collar-xl-nighty-collections-2",
+      "title": "Collar XL Nighty collections",
+      "description": "XL Size Collar Zip Cotton nighty \nPrice: 340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/collar-xl-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 367773,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/collar-xl-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Collar Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "xxl-size-night-dress-without-zip-model-collections",
+      "title": "XXL size Night dress Without zip model collections",
+      "description": "XXL Size Elite Without Zip Night suit collections Price: 375rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹375.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/xxl-size-night-dress-without-zip-model-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 206463,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/xxl-size-night-dress-without-zip-model-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "tie-dye-xl-zip-model-nighty-collections-2",
+      "title": "Tie & Dye XL Zip model nighty collections",
+      "description": "XL Size Tie & Dye zip Cotton nighty \nPrice: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/tie-dye-xl-zip-model-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 193483,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/tie-dye-xl-zip-model-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "battick-xxl-without-zip-nighty-collections",
+      "title": "Battick XXL Without zip nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹420.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battick-xxl-without-zip-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 297156,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battick-xxl-without-zip-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xl-zip-model-nighty-collections-3",
+      "title": "Elite XL Zip Model Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xl-zip-model-nighty-collections-3.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 384727,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-zip-model-nighty-collections-3.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "queen-xxl-without-zip-collections-2",
+      "title": "Queen XXL without zip collections",
+      "description": "Queen XXL Size Piping model nighty Price: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xxl-without-zip-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 219067,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xxl-without-zip-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "collar-xxl-zip-model-nighty-collections-4",
+      "title": "Collar XXL Zip model Nighty collections",
+      "description": "XXL Size Collar Zip Cotton nighty Price:340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/collar-xxl-zip-model-nighty-collections-4.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 356782,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/collar-xxl-zip-model-nighty-collections-4.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Collar Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-3xl-zip-model-nighty-collections-2",
+      "title": "Elite 3XL Zip model Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹399.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-3xl-zip-model-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 182224,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-3xl-zip-model-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "3XL"
+    },
+    {
+      "id": "elite-60inch-xxl-piping-model-collections-3",
+      "title": "Elite 60inch XXL Piping Model collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-60inch-xxl-piping-model-collections-3.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 183081,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-60inch-xxl-piping-model-collections-3.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "tie-dye-xl-piping-model-nighty-collections",
+      "title": "Tie & Dye XL Piping model Nighty collections",
+      "description": "XL Size Tie - Dye Piping Nighty Price: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/tie-dye-xl-piping-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 131923,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/tie-dye-xl-piping-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "tie-dye-xl-zip-model-nighty-collections-3",
+      "title": "Tie & Dye XL Zip model nighty collections",
+      "description": "XL Size Tie & Dye zip Cotton nighty Price:360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/tie-dye-xl-zip-model-nighty-collections-3.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 127969,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/tie-dye-xl-zip-model-nighty-collections-3.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "battik-xxl-zip-model-nighty-collections-2",
+      "title": "Battik XXL Zip model Nighty collections",
+      "description": "XXL Size Battik Zip model nighty \nPrice: 370rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battik-xxl-zip-model-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 177601,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battik-xxl-zip-model-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "tie-dye-xxl-without-zip-collections-2",
+      "title": "Tie & Dye XXL without Zip collections",
+      "description": "XXL Size Tie & dye Piping model nighty Price: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/tie-dye-xxl-without-zip-collections-2.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 140045,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/tie-dye-xxl-without-zip-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "elite-xl-zip-model-nighty-collections-4",
+      "title": "Elite XL Zip Model Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xl-zip-model-nighty-collections-4.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 305435,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-zip-model-nighty-collections-4.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "collar-xxl-zip-nighty-collections",
+      "title": "Collar XXL Zip nighty collections",
+      "description": "XXL Size Collar Zip Cotton nighty Price:370rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/collar-xxl-zip-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 234772,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/collar-xxl-zip-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Collar Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "battik-xl-zip-model-nighty-collections",
+      "title": "Battik XL Zip Model Nighty collections",
+      "description": "XL Size Battik zip Cotton nighty \nPrice: 370rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battik-xl-zip-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 183450,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battik-xl-zip-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-xxl-feeding-frock-model-nighty-3",
+      "title": "Elite XXL Feeding Frock model nighty",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xxl-feeding-frock-model-nighty-3.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 140032,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xxl-feeding-frock-model-nighty-3.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "queen-xl-piping-model-nighty-collections",
+      "title": "Queen XL Piping model Nighty collections",
+      "description": "XL Size Queen quality Piping model nighty Price: 390rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹390.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xl-piping-model-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 225389,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xl-piping-model-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "3xl-tie-dye-without-zip-nighty-collections",
+      "title": "3XL Tie & Dye Without zip nighty collections",
+      "description": "3XL Size Tie & Dye  Piping model nighty Price: 370rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/3xl-tie-dye-without-zip-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 125194,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/3xl-tie-dye-without-zip-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "3XL"
+    },
+    {
+      "id": "xxl-size-night-dress-zip-model-collections-2",
+      "title": "XXL Size Night dress Zip model collections",
+      "description": "XXL Size Elite Zip Night suit collections Price: 375rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹375.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/xxl-size-night-dress-zip-model-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 299717,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/xxl-size-night-dress-zip-model-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "queen-xl-zip-nighty-collections-3",
+      "title": "Queen XL Zip Nighty collections",
+      "description": "XL Size Queen zip Cotton nighty \nPrice: 360rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕",
+      "price": "₹360.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xl-zip-nighty-collections-3.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 363643,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xl-zip-nighty-collections-3.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-60inch-xl-zip-collections-2",
+      "title": "Elite 60inch XL zip collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹399.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-60inch-xl-zip-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 376307,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-60inch-xl-zip-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "l-size-night-dress-without-zip-collections",
+      "title": "L Size Night dress Without zip collections",
+      "description": "L Size Elite Without Zip Night suit collections  Price : 375rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹375.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/l-size-night-dress-without-zip-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 225002,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/l-size-night-dress-without-zip-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "L"
+    },
+    {
+      "id": "elite-3xl-piping-model-nighty-collections-3",
+      "title": "Elite 3XL Piping Model nighty collections",
+      "description": "3XL Size Elite Piping model nighty Price: 350rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹350.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-3xl-piping-model-nighty-collections-3.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 164452,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-3xl-piping-model-nighty-collections-3.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "3XL"
+    },
+    {
+      "id": "queen-xxl-without-zip-nighty-collections",
+      "title": "Queen XXL without zip nighty collections",
+      "description": "Queen XXL Size Piping model nighty Price: 390rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹390.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/queen-xxl-without-zip-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 279023,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/queen-xxl-without-zip-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "xl-night-dress-without-zip-collections",
+      "title": "XL Night dress Without Zip collections",
+      "description": "XL Size Elite Without Zip Night suit collections Price: 375rs👆\n\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹60 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹375.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/xl-night-dress-without-zip-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 207590,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/xl-night-dress-without-zip-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "elite-60inch-4xl-zip-collections",
+      "title": "Elite 60inch 4XL Zip collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹450.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-60inch-4xl-zip-collections.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 273059,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-60inch-4xl-zip-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "4XL"
+    },
+    {
+      "id": "elite-xl-zip-nighty-collections",
+      "title": "Elite XL Zip Nighty collections",
+      "description": "XL Size Elite zip Cotton nighty Price:340rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹340.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/elite-xl-zip-nighty-collections.jpg",
+      "imageInfo": {
+        "width": 960,
+        "height": 1280,
+        "bytes": 145259,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/elite-xl-zip-nighty-collections.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "battik-xl-zip-model-nighty-collections-2",
+      "title": "Battik XL Zip Model Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹420.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battik-xl-zip-model-nighty-collections-2.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 251297,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battik-xl-zip-model-nighty-collections-2.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XL"
+    },
+    {
+      "id": "collar-xxl-zip-model-nighty-collections-5",
+      "title": "Collar XXL zip model nighty collections",
+      "description": "XXL Size Collar Zip Cotton nighty Price:370rs👆\n\n💕 *BUY ANY 3 COTTON NIGHTIES* 💕\n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕\n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n🍬 *COMBO OFFER:*🍬\n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬\n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬\n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹370.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/collar-xxl-zip-model-nighty-collections-5.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 286319,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/collar-xxl-zip-model-nighty-collections-5.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Collar Nighty",
+      "size": "XXL"
+    },
+    {
+      "id": "battik-xxl-zip-model-nighty-collections-3",
+      "title": "Battik XXL Zip model Nighty collections",
+      "description": "💕 *BUY ANY 3 COTTON NIGHTIES* 💕 \n\n💕 *FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*💕 \n\n💕*₹70 EXTRA SHIPPING CHARGE FOR CASH ON DELIVERY* 💕\n\n\n\n🍬 *COMBO OFFER:*🍬 \n\n🍬 *BUY ANY 5 COTTON NIGHTIES* 🍬 \n\n🍬 *TOTAL FLAT ₹75 DISCOUNT WITH FREE SHIPPING WITHIN TAMILNADU FOR ONLINE PAYMENT*🍬 \n\n🍬 *FREE SHIPPING WITHIN TAMILNADU FOR CASH ON DELIVERY* 🍬",
+      "price": "₹420.00",
+      "collection": null,
+      "collections": [],
+      "image": "images/battik-xxl-zip-model-nighty-collections-3.jpg",
+      "imageInfo": {
+        "width": 1200,
+        "height": 1600,
+        "bytes": 271131,
+        "type": "image/jpeg"
+      },
+      "images": [
+        "images/battik-xxl-zip-model-nighty-collections-3.jpg"
+      ],
+      "_source_kind": "Nighty",
+      "_source_zip": "catalog-nithi-collections (1).zip",
+      "category": "Night Dress",
+      "subcategory": "Other Nighty",
+      "size": "XXL"
+    }
+  ]
+}

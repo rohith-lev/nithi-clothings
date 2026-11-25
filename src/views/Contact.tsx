@@ -28,8 +28,8 @@ export default function Contact() {
       />
       <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h1 className="font-display text-4xl sm:text-5xl font-bold text-[#064E3B] mb-6">Contact Us</h1>
-          <p className="text-lg text-[#5C635E] max-w-2xl mx-auto leading-relaxed">
+          <h1 className="font-display text-4xl sm:text-5xl font-normal text-[#064E3B] mb-6 tracking-[-0.02em]">Contact Us</h1>
+          <p className="font-sans text-base sm:text-lg text-[#5C635E] max-w-2xl mx-auto leading-relaxed font-normal">
             We are here to assist you. Whether you have a question about our collections, need styling advice, 
             or want to inquire about an order, our concierge is ready to help.
           </p>
@@ -39,7 +39,7 @@ export default function Contact() {
           {/* Contact Information */}
           <div className="space-y-8 bg-white p-8 rounded-3xl border border-[#E8E2D5] shadow-xs">
             <div>
-              <h3 className="font-display text-xl font-bold text-[#064E3B] mb-2">Boutique & Atelier Address</h3>
+              <h3 className="font-display text-xl font-normal text-[#064E3B] mb-2 tracking-tight">Boutique & Atelier Address</h3>
               <p className="font-bold text-[#1A1008] text-sm">Nithi Collections</p>
               <p className="text-sm text-[#5C635E] leading-relaxed mt-1">
                 385/2, Near South Indian Bank,<br />
@@ -59,7 +59,7 @@ export default function Contact() {
             </div>
 
             <div>
-              <h3 className="font-display text-xl font-bold text-[#064E3B] mb-2">Direct Contact</h3>
+              <h3 className="font-display text-xl font-normal text-[#064E3B] mb-2 tracking-tight">Direct Contact</h3>
               <div className="text-sm text-[#5C635E] space-y-2">
                 <p className="flex items-center gap-2">
                   <span className="font-semibold text-stone-700">Phone:</span>

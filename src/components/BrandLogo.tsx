@@ -22,8 +22,8 @@ export default function BrandLogo({
   const primaryTextColor = isGoldOnly
     ? "text-[#C9A227]"
     : isLight
-    ? "text-[#FAF8F1]"
-    : "text-[#064E3B]";
+      ? "text-[#FAF8F1]"
+      : "text-[#064E3B]";
 
   const sizeConfig = {
     sm: {
@@ -63,11 +63,10 @@ export default function BrandLogo({
     >
       {/* Official Brand Monogram & Crest Logo */}
       <div
-        className={`relative ${sizeConfig.img} rounded-xl sm:rounded-2xl overflow-hidden shrink-0 shadow-sm border ${
-          isLight
-            ? "border-[#C9A227]/40 ring-2 ring-[#C9A227]/20 bg-white"
-            : "border-[#064E3B]/20 ring-1 ring-[#C9A227]/30 bg-white"
-        } transition-transform duration-300 group-hover:scale-105 p-0.5`}
+        className={`relative ${sizeConfig.img} rounded-xl sm:rounded-2xl overflow-hidden shrink-0 shadow-sm border ${isLight
+          ? "border-[#C9A227]/40 ring-2 ring-[#C9A227]/20 bg-white"
+          : "border-[#064E3B]/20 ring-1 ring-[#C9A227]/30 bg-white"
+          } transition-transform duration-300 group-hover:scale-105 p-0.5`}
       >
         <img
           src={typeof logoImg === "string" ? logoImg : (logoImg as { src?: string })?.src || ""}
@@ -81,13 +80,13 @@ export default function BrandLogo({
       {!emblemOnly && (
         <div className="flex flex-col justify-center leading-none min-w-0">
           <span
-            className={`font-display font-bold uppercase whitespace-nowrap text-[13px] xs:text-sm sm:text-base lg:text-xl tracking-[0.08em] xs:tracking-[0.12em] sm:tracking-[0.16em] lg:tracking-[0.18em] ${primaryTextColor} transition-colors group-hover:text-[#C9A227]`}
+            className={`font-logo font-bold uppercase whitespace-nowrap text-[13px] xs:text-sm sm:text-base lg:text-lg tracking-[0.06em] xs:tracking-[0.08em] sm:tracking-[0.1em] ${primaryTextColor} transition-colors group-hover:text-[#C9A227]`}
           >
             Nithi Collections
           </span>
           {showTagline && (
             <span
-              className={`hidden sm:flex font-body uppercase font-medium mt-1 ${sizeConfig.tagline} text-[#C9A227] items-center gap-1 sm:gap-1.5 whitespace-nowrap`}
+              className={`hidden sm:flex font-nav font-medium uppercase mt-1 ${sizeConfig.tagline} text-[#C9A227] items-center gap-1 sm:gap-1.5 whitespace-nowrap tracking-[0.18em] sm:tracking-[0.22em]`}
             >
               <span className="w-1.5 sm:w-2.5 h-[1px] bg-[#C9A227]/60" />
               <span>Her Elegance, Our Signature</span>

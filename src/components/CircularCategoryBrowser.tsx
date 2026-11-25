@@ -51,7 +51,7 @@ export default function CircularCategoryBrowser({
   onSelectCategory,
   onSelectSubcategory,
   showSubcategories = true,
-  title = "Select Category",
+  title = "Collections",
   subtitle = "Explore our handcrafted collections designed for daily luxury",
 }: Props) {
   const normSelectedCategory = (selectedCategory || "").toLowerCase().trim();
@@ -296,7 +296,7 @@ export default function CircularCategoryBrowser({
               const parts = subName.split(" - ");
               parentGroup = parts[0].trim();
               const itemPart = parts.slice(1).join(" - ").trim();
-              
+
               const grpKey = parentGroup.toLowerCase().trim();
               if (parentGroup && !subMap.has(grpKey)) {
                 subMap.set(grpKey, {
@@ -342,131 +342,8 @@ export default function CircularCategoryBrowser({
     );
   };
 
-  // When a specific category is active, hide the generic "Select Category" prompt and circular list,
-  // showing only the relevant collection header, style pills, and a clear "← All Categories" button.
-  if (normSelectedCategory && activeCategoryObj) {
-    return (
-      <div className="w-full my-2 sm:my-3">
-        <div className="bg-[#FFFFFF] rounded-2xl p-4 sm:p-5 border border-[#E8E2D5] shadow-xs relative overflow-hidden">
-          {/* Active Collection Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E8E2D5]/70 pb-3">
-            <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-[#FAF8F1] border border-[#E8E2D5] shrink-0">
-                <img
-                  src={getResolvedCategoryImage(activeCategoryObj)}
-                  alt={activeCategoryObj.name}
-                  className="w-full h-full object-cover object-top"
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="font-display text-base sm:text-lg font-bold text-[#064E3B] tracking-tight">
-                    {activeCategoryObj.name} Collection
-                  </h2>
-                  <span className="text-[11px] bg-[#064E3B]/10 text-[#064E3B] border border-[#064E3B]/20 px-2 py-0.5 rounded-full font-bold">
-                    Active
-                  </span>
-                </div>
-                <p className="text-xs text-[#5C635E] mt-0.5">
-                  Browsing handcrafted styles in {activeCategoryObj.name}
-                </p>
-              </div>
-            </div>
-
-            {/* Back to All Categories Button */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                onSelectCategory("");
-              }}
-              className="text-xs font-semibold text-[#064E3B] hover:text-[#C9A227] transition-colors cursor-pointer self-start sm:self-auto flex items-center gap-1.5 bg-[#FAF8F1] hover:bg-[#F3EFE3] px-3.5 py-1.5 rounded-full border border-[#E8E2D5] shadow-2xs"
-            >
-              <span>← All Categories</span>
-            </button>
-          </div>
-
-          {/* Subcategory / Style Filters for this Collection */}
-          {showSubcategories && activeSubcategories.length > 0 && (
-            <div className="pt-3">
-              <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none snap-x touch-pan-x flex-wrap">
-                {/* All in Category Pill */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (onSelectSubcategory) onSelectSubcategory("");
-                  }}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                    !normSelectedSubcategory
-                      ? "bg-[#064E3B] text-white border-[#064E3B] shadow-sm ring-2 ring-[#064E3B]/20"
-                      : "bg-[#FAF8F1] text-slate-700 border-[#E8E2D5] hover:border-[#064E3B] hover:bg-white"
-                  }`}
-                >
-                  <span>All {activeCategoryObj.name}</span>
-                  {!normSelectedSubcategory && <span className="text-[10px] text-amber-300">✓</span>}
-                </button>
-
-                {/* Subcategory Pills */}
-                {activeSubcategories.map((sub, sIdx) => {
-                  if (!sub || !sub.name) return null;
-                  const subName = sub.name.trim();
-                  const subClean = subName.toLowerCase().replace(/[^a-z0-9]/g, "");
-                  const selectedSubClean = normSelectedSubcategory.replace(/[^a-z0-9]/g, "");
-
-                  const isSubSelected =
-                    Boolean(normSelectedSubcategory) &&
-                    (subClean === selectedSubClean ||
-                      subName.toLowerCase() === normSelectedSubcategory ||
-                      (sub.id && sub.id.toLowerCase() === normSelectedSubcategory) ||
-                      (subClean.length >= 4 && selectedSubClean.includes(subClean)) ||
-                      (selectedSubClean.length >= 4 && subClean.includes(selectedSubClean)));
-
-                  const matchingCount = Array.isArray(products)
-                    ? products.filter((p) => {
-                        if (!p || p.status === "OUT OF STOCK" || p.status === "DISCONTINUED") return false;
-                        if (!isCategoryMatch(activeCategoryObj, p.category || "")) return false;
-                        return matchesSubcategory(p.subcategory, subName, p);
-                      }).length
-                    : 0;
-
-                  return (
-                    <button
-                      key={sub.id || subName || sIdx}
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (onSelectSubcategory) onSelectSubcategory(subName);
-                      }}
-                      className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all border cursor-pointer ${
-                        isSubSelected
-                          ? "bg-[#064E3B] text-white border-[#064E3B] shadow-sm ring-2 ring-[#064E3B]/20"
-                          : "bg-[#FAF8F1] text-slate-700 border-[#E8E2D5] hover:border-[#064E3B] hover:bg-white"
-                      }`}
-                    >
-                      <span>{subName}</span>
-                      {matchingCount > 0 && (
-                        <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                            isSubSelected
-                              ? "bg-white/20 text-white"
-                              : "bg-[#E8E2D5] text-slate-600"
-                          }`}
-                        >
-                          {matchingCount}
-                        </span>
-                      )}
-                      {isSubSelected && <span className="text-[10px] text-amber-300">✓</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
+  // Always show the full collections/categories list (no isolated active-core-section early return),
+  // keeping all categories visible and accessible while displaying subcategories cleanly underneath when a category is selected.
 
   return (
     <div className="w-full space-y-2 my-2 sm:my-3">
@@ -476,17 +353,30 @@ export default function CircularCategoryBrowser({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-1.5 border-b border-[#E8E2D5]/70 pb-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#C9A227]" />
-              <h2 className="font-display text-sm sm:text-base font-bold text-[#064E3B] tracking-tight">
+              <span className="w-2 h-2 rounded-full bg-[#C9A227]" />
+              <h2 className="font-collection text-base sm:text-lg font-medium text-[#064E3B] tracking-[-0.015em]">
                 {title}
               </h2>
             </div>
             {subtitle && (
-              <p className="text-xs text-[#5C635E] mt-0.5 hidden sm:block">
+              <p className="font-body text-xs text-[#5C635E] mt-0.5 hidden sm:block font-normal">
                 {subtitle}
               </p>
             )}
           </div>
+          {normSelectedCategory && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                onSelectCategory("");
+                if (onSelectSubcategory) onSelectSubcategory("");
+              }}
+              className="font-sans text-xs font-medium text-[#064E3B] hover:text-[#C9A227] transition-colors cursor-pointer self-start sm:self-auto flex items-center gap-1.5 bg-[#FAF8F1] hover:bg-[#F3EFE3] px-3.5 py-1 rounded-full border border-[#E8E2D5] shadow-2xs"
+            >
+              <span>✕ All Categories</span>
+            </button>
+          )}
         </div>
 
         {/* Circular Categories List Container with Increased Spacing & Enlarged Icons */}
@@ -497,23 +387,22 @@ export default function CircularCategoryBrowser({
             onClick={(e) => {
               e.preventDefault();
               onSelectCategory("");
+              if (onSelectSubcategory) onSelectSubcategory("");
             }}
             className="group flex flex-col items-center shrink-0 w-24 sm:w-28 text-center snap-start transition-all active:scale-95 cursor-pointer focus:outline-none"
             aria-pressed={!normSelectedCategory}
           >
             <div
-              className={`w-22 h-22 sm:w-26 sm:h-26 rounded-full transition-all duration-300 relative flex items-center justify-center ${
-                !normSelectedCategory
-                  ? "p-[3px] bg-[#064E3B] shadow-lg scale-105 ring-4 ring-[#C9A227]/40 shadow-[0_0_15px_rgba(201,162,39,0.25)]"
-                  : "p-[2px] bg-[#FAF8F1] border-2 border-[#E8E2D5] hover:border-[#C9A227] hover:shadow-lg hover:scale-105"
-              }`}
+              className={`w-22 h-22 sm:w-26 sm:h-26 rounded-full transition-all duration-300 relative flex items-center justify-center ${!normSelectedCategory
+                ? "p-[3px] bg-[#064E3B] shadow-lg scale-105 ring-4 ring-[#C9A227]/40 shadow-[0_0_15px_rgba(201,162,39,0.25)]"
+                : "p-[2px] bg-[#FAF8F1] border-2 border-[#E8E2D5] hover:border-[#C9A227] hover:shadow-lg hover:scale-105"
+                }`}
             >
               <div
-                className={`w-full h-full rounded-full flex flex-col items-center justify-center font-display font-bold text-xs transition-colors ${
-                  !normSelectedCategory
-                    ? "bg-[#064E3B] text-white"
-                    : "bg-white text-[#064E3B] group-hover:text-[#0B3D2E]"
-                }`}
+                className={`w-full h-full rounded-full flex flex-col items-center justify-center font-display font-bold text-xs transition-colors ${!normSelectedCategory
+                  ? "bg-[#064E3B] text-white"
+                  : "bg-white text-[#064E3B] group-hover:text-[#0B3D2E]"
+                  }`}
               >
                 <span className="text-base text-amber-300">✦</span>
                 <span className="text-[11px] sm:text-xs font-semibold">All Items</span>
@@ -525,17 +414,16 @@ export default function CircularCategoryBrowser({
               )}
             </div>
             <span
-              className={`mt-2 text-xs sm:text-sm line-clamp-1 transition-colors px-0.5 ${
-                !normSelectedCategory
-                  ? "text-[#064E3B] font-bold"
-                  : "text-slate-700 font-medium group-hover:text-[#064E3B]"
-              }`}
+              className={`mt-2 text-xs sm:text-sm line-clamp-1 transition-colors px-0.5 ${!normSelectedCategory
+                ? "text-[#064E3B] font-bold"
+                : "text-slate-700 font-medium group-hover:text-[#064E3B]"
+                }`}
             >
               All Items
             </span>
           </button>
 
-          {/* Dynamic Category Circles */}
+          {/* Dynamic Category Circles - Always Visible and Clickable */}
           {categories.map((cat, idx) => {
             if (!cat || !cat.name || !cat.name.trim()) return null;
             const isSelected = isCategoryMatch(cat, normSelectedCategory);
@@ -549,17 +437,23 @@ export default function CircularCategoryBrowser({
                 title={cat.name}
                 onClick={(e) => {
                   e.preventDefault();
-                  onSelectCategory(targetIdentifier);
+                  // Tapping the active category toggles it off; tapping any other category switches cleanly
+                  if (isSelected) {
+                    onSelectCategory("");
+                    if (onSelectSubcategory) onSelectSubcategory("");
+                  } else {
+                    onSelectCategory(targetIdentifier);
+                    if (onSelectSubcategory) onSelectSubcategory("");
+                  }
                 }}
                 className="group flex flex-col items-center shrink-0 w-24 sm:w-28 text-center snap-start transition-all active:scale-95 cursor-pointer focus:outline-none"
                 aria-pressed={isSelected}
               >
                 <div
-                  className={`w-22 h-22 sm:w-26 sm:h-26 rounded-full transition-all duration-300 relative ${
-                    isSelected
-                      ? "p-[3px] bg-[#064E3B] shadow-lg scale-105 ring-4 ring-[#C9A227]/40 shadow-[0_0_15px_rgba(201,162,39,0.25)]"
-                      : "p-[2px] bg-[#FAF8F1] border-2 border-[#E8E2D5] hover:border-[#C9A227] hover:shadow-lg hover:scale-105"
-                  }`}
+                  className={`w-22 h-22 sm:w-26 sm:h-26 rounded-full transition-all duration-300 relative ${isSelected
+                    ? "p-[3px] bg-[#064E3B] shadow-lg scale-105 ring-4 ring-[#C9A227]/40 shadow-[0_0_15px_rgba(201,162,39,0.25)]"
+                    : "p-[2px] bg-[#FAF8F1] border-2 border-[#E8E2D5] hover:border-[#C9A227] hover:shadow-lg hover:scale-105"
+                    }`}
                 >
                   <div className="w-full h-full rounded-full overflow-hidden relative bg-[#FAF8F1]">
                     <img
@@ -576,9 +470,8 @@ export default function CircularCategoryBrowser({
                           CATEGORY_FALLBACK_IMAGES.default;
                         target.src = fallback;
                       }}
-                      className={`w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110 ${
-                        isSelected ? "brightness-100" : "brightness-95 group-hover:brightness-100"
-                      }`}
+                      className={`w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-110 ${isSelected ? "brightness-100" : "brightness-95 group-hover:brightness-100"
+                        }`}
                       loading="lazy"
                     />
                     {isSelected && (
@@ -592,11 +485,10 @@ export default function CircularCategoryBrowser({
                   )}
                 </div>
                 <span
-                  className={`mt-2 text-xs sm:text-sm line-clamp-1 transition-colors px-0.5 ${
-                    isSelected
-                      ? "text-[#064E3B] font-bold"
-                      : "text-slate-700 font-medium group-hover:text-[#064E3B]"
-                  }`}
+                  className={`mt-2 font-sans text-xs sm:text-[13px] line-clamp-1 transition-colors px-0.5 tracking-tight ${isSelected
+                    ? "text-[#064E3B] font-semibold"
+                    : "text-slate-700 font-medium group-hover:text-[#064E3B]"
+                    }`}
                 >
                   {cat.name}
                 </span>
@@ -604,6 +496,94 @@ export default function CircularCategoryBrowser({
             );
           })}
         </div>
+
+        {/* Subcategories / Style Pills displayed cleanly below the categories when a category is selected */}
+        {normSelectedCategory && activeCategoryObj && showSubcategories && activeSubcategories.length > 0 && (
+          <div className="mt-4 pt-3 border-t border-[#E8E2D5]/70 animate-fade-in">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2 h-2 rounded-full bg-[#064E3B]" />
+              <span className="font-collection text-xs sm:text-sm font-medium text-[#064E3B] uppercase tracking-[0.14em]">
+                {activeCategoryObj.name} Subcategories & Styles
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none snap-x touch-pan-x flex-nowrap sm:flex-wrap">
+              {/* All in Category Pill */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onSelectSubcategory) onSelectSubcategory("");
+                }}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-sans text-xs font-medium transition-all border shrink-0 cursor-pointer ${!normSelectedSubcategory
+                  ? "bg-[#064E3B] text-white border-[#064E3B] shadow-sm ring-2 ring-[#064E3B]/20"
+                  : "bg-[#FAF8F1] text-slate-700 border-[#E8E2D5] hover:border-[#064E3B] hover:bg-white"
+                  }`}
+              >
+                <span>All {activeCategoryObj.name}</span>
+                {!normSelectedSubcategory && <span className="text-[10px] text-amber-300">✓</span>}
+              </button>
+
+              {/* Individual Subcategory Pills */}
+              {activeSubcategories.map((sub, sIdx) => {
+                if (!sub || !sub.name) return null;
+                const subName = sub.name.trim();
+                const subClean = subName.toLowerCase().replace(/[^a-z0-9]/g, "");
+                const selectedSubClean = normSelectedSubcategory.replace(/[^a-z0-9]/g, "");
+
+                const isSubSelected =
+                  Boolean(normSelectedSubcategory) &&
+                  (subClean === selectedSubClean ||
+                    subName.toLowerCase() === normSelectedSubcategory ||
+                    (sub.id && sub.id.toLowerCase() === normSelectedSubcategory) ||
+                    (subClean.length >= 4 && selectedSubClean.includes(subClean)) ||
+                    (selectedSubClean.length >= 4 && subClean.includes(selectedSubClean)));
+
+                const matchingCount = Array.isArray(products)
+                  ? products.filter((p) => {
+                    if (!p || p.status === "OUT OF STOCK" || p.status === "DISCONTINUED") return false;
+                    if (!isCategoryMatch(activeCategoryObj, p.category || "")) return false;
+                    return matchesSubcategory(p.subcategory, subName, p);
+                  }).length
+                  : 0;
+
+                return (
+                  <button
+                    key={sub.id || subName || sIdx}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (onSelectSubcategory) {
+                        if (isSubSelected) {
+                          onSelectSubcategory("");
+                        } else {
+                          onSelectSubcategory(subName);
+                        }
+                      }
+                    }}
+                    className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all border shrink-0 cursor-pointer ${isSubSelected
+                      ? "bg-[#064E3B] text-white border-[#064E3B] shadow-sm ring-2 ring-[#064E3B]/20"
+                      : "bg-[#FAF8F1] text-slate-700 border-[#E8E2D5] hover:border-[#064E3B] hover:bg-white"
+                      }`}
+                  >
+                    <span>{subName}</span>
+                    {matchingCount > 0 && (
+                      <span
+                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${isSubSelected
+                          ? "bg-white/20 text-white"
+                          : "bg-[#E8E2D5] text-slate-600"
+                          }`}
+                      >
+                        {matchingCount}
+                      </span>
+                    )}
+                    {isSubSelected && <span className="text-[10px] text-amber-300">✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type { Category } from "../types/store";
 import { useStoreCategories } from "../services/storefront";
 
@@ -37,9 +37,43 @@ export default function MobileFilterDrawer({
 }: MobileFilterDrawerProps) {
   const categories = useStoreCategories();
 
-  const activeCatObj = categories.find(
-    (c) => c.id === selectedCategory || c.slug === selectedCategory || c.name.toLowerCase() === selectedCategory.toLowerCase()
-  );
+  const activeCatObj = useMemo(() => {
+    if (!selectedCategory) return null;
+    const target = selectedCategory.toLowerCase().trim();
+    const targetClean = target.replace(/[^a-z0-9]/g, "");
+    return (
+      categories.find((c) => {
+        const cName = (c.name || "").toLowerCase().trim();
+        const cSlug = (c.slug || "").toLowerCase().trim();
+        const cId = (c.id || "").toLowerCase().trim();
+        const cClean = cName.replace(/[^a-z0-9]/g, "");
+        if (cName === target || cSlug === target || cId === target || cClean === targetClean) return true;
+        if (targetClean.startsWith("night") && !targetClean.includes("dress") && cClean.startsWith("night") && !cClean.includes("dress")) return true;
+        if (targetClean.includes("kurti") && cClean.includes("kurti")) return true;
+        if ((targetClean.includes("salwar") || targetClean.includes("chudi")) && (cClean.includes("salwar") || cClean.includes("chudi"))) return true;
+        if ((targetClean.includes("cord") || targetClean.includes("coord")) && (cClean.includes("cord") || cClean.includes("coord"))) return true;
+        return false;
+      }) || null
+    );
+  }, [categories, selectedCategory]);
+
+  const subcategoriesList = useMemo(() => {
+    if (!activeCatObj) return [];
+    const set = new Set<string>();
+    if (Array.isArray(activeCatObj.subcategories)) {
+      for (const sub of activeCatObj.subcategories) {
+        let name = typeof sub === "string" ? sub : sub?.name;
+        if (name && typeof name === "string") {
+          name = name.trim();
+          if (name.includes(" - ")) {
+            name = name.split(" - ").slice(1).join(" - ").trim();
+          }
+          if (name) set.add(name);
+        }
+      }
+    }
+    return Array.from(set);
+  }, [activeCatObj]);
 
   useEffect(() => {
     if (isOpen) {
@@ -59,8 +93,8 @@ export default function MobileFilterDrawer({
   const isCordSet = Boolean(
     selectedCategory &&
     (selectedCategory.toLowerCase().includes("cord") ||
-     selectedCategory.toLowerCase().includes("coord") ||
-     (activeCatObj && (activeCatObj.name.toLowerCase().includes("cord") || activeCatObj.name.toLowerCase().includes("coord"))))
+      selectedCategory.toLowerCase().includes("coord") ||
+      (activeCatObj && (activeCatObj.name.toLowerCase().includes("cord") || activeCatObj.name.toLowerCase().includes("coord"))))
   );
 
   return (
@@ -72,14 +106,14 @@ export default function MobileFilterDrawer({
         {/* Drawer Header */}
         <div className="flex items-center justify-between border-b border-[#E8E2D5] pb-3">
           <div>
-            <h3 className="font-display text-lg font-bold text-[#064E3B]">Filter & Sort</h3>
-            <p className="text-[11px] text-[#5C635E]">{totalResults} products found</p>
+            <h3 className="font-collection text-lg font-medium text-[#064E3B]">Filter & Sort</h3>
+            <p className="font-body text-[11px] text-[#5C635E]">{totalResults} products found</p>
           </div>
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={onClearAll}
-              className="text-xs font-semibold text-[#C9A227] hover:underline"
+              className="font-button text-xs font-semibold text-[#C9A227] hover:underline"
             >
               Reset
             </button>
@@ -111,11 +145,10 @@ export default function MobileFilterDrawer({
                   key={sz}
                   type="button"
                   onClick={() => onToggleSize(sz)}
-                  className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer ${
-                    selectedSizes.includes(sz)
-                      ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1]"
-                      : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#064E3B]"
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer ${selectedSizes.includes(sz)
+                    ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1]"
+                    : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#064E3B]"
+                    }`}
                 >
                   {sz === "XXL" ? "XXL / 2XL" : sz}
                 </button>
@@ -142,11 +175,10 @@ export default function MobileFilterDrawer({
                 key={s.id}
                 type="button"
                 onClick={() => onSortChange(s.id)}
-                className={`py-2 px-3 rounded-lg border text-left transition-colors cursor-pointer ${
-                  sort === s.id
-                    ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
-                    : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#064E3B]"
-                }`}
+                className={`py-2 px-3 rounded-lg border text-left transition-colors cursor-pointer ${sort === s.id
+                  ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
+                  : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#064E3B]"
+                  }`}
               >
                 {s.label}
               </button>
@@ -158,7 +190,7 @@ export default function MobileFilterDrawer({
         <div>
           <div className="flex items-center justify-between mb-2">
             <label className="text-xs font-bold uppercase tracking-wider text-[#064E3B]">
-              {selectedCategory ? "Active Collection" : "Collections"}
+              Collections
             </label>
             {selectedCategory && (
               <button
@@ -169,86 +201,101 @@ export default function MobileFilterDrawer({
                 }}
                 className="text-[11px] font-semibold text-[#C9A227] hover:underline cursor-pointer"
               >
-                ← All Categories
+                Clear Selection
               </button>
             )}
           </div>
 
           <div className="flex flex-wrap gap-1.5">
-            {selectedCategory ? (
-              // When a specific category is selected, hide other categories!
-              <div className="w-full space-y-2">
-                <div className="px-3.5 py-2 rounded-xl bg-[#064E3B] text-[#FAF8F1] font-bold text-xs flex items-center justify-between">
-                  <span>{activeCatObj ? activeCatObj.name : selectedCategory}</span>
-                  <span className="text-amber-300">✓ Active</span>
-                </div>
-              </div>
-            ) : (
-              <>
+            <button
+              type="button"
+              onClick={() => {
+                onSelectCategory("");
+                if (onSelectSubcategory) onSelectSubcategory("");
+              }}
+              className={`px-3 py-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${!selectedCategory
+                ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
+                : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#064E3B]"
+                }`}
+            >
+              All Categories
+            </button>
+            {categories.map((c) => {
+              const isSelected = Boolean(
+                activeCatObj &&
+                (activeCatObj.id === c.id ||
+                  activeCatObj.slug === c.slug ||
+                  activeCatObj.name.toLowerCase() === c.name.toLowerCase())
+              );
+              const target = c.slug || c.id || c.name;
+
+              return (
                 <button
+                  key={c.id || c.slug || c.name}
                   type="button"
                   onClick={() => {
-                    onSelectCategory("");
-                    if (onSelectSubcategory) onSelectSubcategory("");
-                  }}
-                  className="px-3 py-1.5 rounded-lg border text-xs transition-colors cursor-pointer border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
-                >
-                  All Categories
-                </button>
-                {categories.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => {
-                      onSelectCategory(c.id);
+                    if (isSelected) {
+                      onSelectCategory("");
                       if (onSelectSubcategory) onSelectSubcategory("");
-                    }}
-                    className="px-3 py-1.5 rounded-lg border border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] text-xs transition-colors cursor-pointer hover:border-[#064E3B]"
-                  >
-                    {c.name}
-                  </button>
-                ))}
-              </>
-            )}
+                    } else {
+                      onSelectCategory(target);
+                      if (onSelectSubcategory) onSelectSubcategory("");
+                    }
+                  }}
+                  className={`px-3 py-1.5 rounded-lg border text-xs transition-colors cursor-pointer flex items-center gap-1 ${isSelected
+                    ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold shadow-xs"
+                    : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#064E3B]"
+                    }`}
+                >
+                  <span>{c.name}</span>
+                  {isSelected && <span className="text-amber-300 text-xs">✓</span>}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Styles / Subcategories (when Category is active) */}
-        {activeCatObj && (
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-[#C9A227] mb-2">
-              Filter by Style ({activeCatObj.name})
+        {activeCatObj && subcategoriesList.length > 0 && (
+          <div className="animate-fade-in pt-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-[#064E3B] mb-2">
+              Filter by Style / Subcategory ({activeCatObj.name})
             </label>
             <div className="flex flex-wrap gap-1.5">
               <button
                 type="button"
                 onClick={() => onSelectSubcategory && onSelectSubcategory("")}
-                className={`px-3 py-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${
-                  !selectedSubcategory
-                    ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
-                    : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18]"
-                }`}
+                className={`px-3 py-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${!selectedSubcategory
+                  ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold shadow-xs"
+                  : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#064E3B]"
+                  }`}
               >
-                All Styles
+                All {activeCatObj.name}
               </button>
-              {(activeCatObj.subcategories || []).map((sub) => {
-                const subName = sub.name;
+              {subcategoriesList.map((subName: string) => {
                 const isSelected =
-                  selectedSubcategory === sub.id ||
+                  Boolean(selectedSubcategory) &&
                   selectedSubcategory.toLowerCase() === subName.toLowerCase();
 
                 return (
                   <button
-                    key={sub.id || subName}
+                    key={subName}
                     type="button"
-                    onClick={() => onSelectSubcategory && onSelectSubcategory(subName)}
-                    className={`px-3 py-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${
-                      isSelected
-                        ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold"
-                        : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18]"
-                    }`}
+                    onClick={() => {
+                      if (!onSelectSubcategory) return;
+                      if (isSelected) {
+                        onSelectSubcategory("");
+                      } else {
+                        onSelectSubcategory(subName);
+                      }
+                    }}
+                    className={`px-3 py-1.5 rounded-lg border text-xs transition-colors cursor-pointer flex items-center gap-1 ${isSelected
+                      ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] font-semibold shadow-xs"
+                      : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#064E3B]"
+                      }`}
                   >
-                    {subName}
+                    <span>{subName}</span>
+                    {isSelected && <span className="text-amber-300 text-xs">✓</span>}
                   </button>
                 );
               })}

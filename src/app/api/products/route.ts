@@ -276,7 +276,18 @@ export async function POST(request: NextRequest) {
             description: "",
             subcategories: [],
             isCustom: true,
+            isActive: true,
+            showOnHome: true,
           });
+        } else {
+          // Ensure existing category is active and shown on storefront
+          categoryDoc.isActive = true;
+          categoryDoc.showOnHome = true;
+          if (!categoryDoc.image || categoryDoc.image.includes("[object") || categoryDoc.image.includes("unsplash")) {
+            if (savedProduct.coverImage) {
+              categoryDoc.image = savedProduct.coverImage;
+            }
+          }
         }
 
         if (savedProduct.subcategory && typeof savedProduct.subcategory === "string" && savedProduct.subcategory.trim()) {
@@ -298,8 +309,8 @@ export async function POST(request: NextRequest) {
               id: `sub-${subName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
               name: subName,
               parentGroup,
+              image: savedProduct.coverImage || "",
             });
-            // Must markModified so Mongoose detects nested array mutation
             categoryDoc.markModified("subcategories");
           }
         }

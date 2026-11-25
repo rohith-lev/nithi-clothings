@@ -72,7 +72,7 @@ export default function ComboOfferPopup() {
               <div className="flex items-center gap-2.5">
                 <span className="text-xl">🎁</span>
                 <div>
-                  <h3 className="font-display text-base font-bold text-white">Active Combo Offers</h3>
+                  <h3 className="font-collection text-base font-medium text-white">Active Combo Offers</h3>
                   <p className="text-[11px] text-blue-200">Automatically applied at checkout!</p>
                 </div>
               </div>

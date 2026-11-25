@@ -137,8 +137,8 @@ export default function ProductDetail() {
     typeStock >= 0
       ? typeStock
       : sizeStock > 0
-      ? sizeStock
-      : Number(product?.stock ?? 0);
+        ? sizeStock
+        : Number(product?.stock ?? 0);
   const productOutOfStock = product && product.status === "OUT OF STOCK";
   const selectionOutOfStock = productOutOfStock || stock <= 0;
   const isWishlisted = product ? state.wishlist.includes(product.id) : false;
@@ -387,31 +387,26 @@ export default function ProductDetail() {
 
             {/* Short headline above name */}
             {(product.shortDescription || "").trim() && (
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#5C635E]">
+              <p className="font-nav text-xs font-medium uppercase tracking-[0.16em] text-[#5C635E]">
                 {product.shortDescription}
               </p>
             )}
 
-            <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-[#064E3B] leading-[1.15] tracking-tight">
+            <h1 className="font-product text-2xl sm:text-3xl lg:text-4xl font-medium text-[#064E3B] leading-[1.18] tracking-[-0.015em]">
               {product.name}
             </h1>
 
             {/* Price card */}
             <div className="bg-[#FFFFFF] p-4 sm:p-5 rounded-2xl border border-[#E8E2D5] shadow-xs space-y-2">
               <div className="flex flex-wrap items-baseline gap-3">
-                <span className="font-display text-3xl sm:text-4xl font-bold text-[#064E3B]">
+                <span className="font-price text-3xl sm:text-4xl font-bold text-[#064E3B] tracking-[-0.02em]">
                   ₹{(effectivePrice * quantity).toLocaleString("en-IN")}
                 </span>
                 {mrp > effectivePrice && (
-                  <span className="text-base text-[#5C635E] line-through">₹{(mrp * quantity).toLocaleString("en-IN")}</span>
-                )}
-                {discountPercent > 0 && (
-                  <span className="rounded-full bg-[#C9A227]/15 border border-[#C9A227]/40 px-3 py-1 text-xs font-bold text-[#A8811A]">
-                    {discountPercent}% OFF
-                  </span>
+                  <span className="font-price text-base text-[#5C635E] line-through font-normal">₹{(mrp * quantity).toLocaleString("en-IN")}</span>
                 )}
               </div>
-              <div className="flex items-center justify-between text-xs pt-1 text-[#5C635E] border-t border-[#E8E2D5]/50">
+              <div className="flex items-center justify-between font-sans text-xs pt-1 text-[#5C635E] border-t border-[#E8E2D5]/50">
                 <span>Inclusive of all taxes</span>
                 {savingsAmount > 0 && (
                   <span className="font-semibold text-emerald-700">You save ₹{savingsAmount.toLocaleString("en-IN")}</span>
@@ -460,13 +455,12 @@ export default function ProductDetail() {
                           type="button"
                           disabled={out}
                           onClick={() => { setSelectedTypeIdx(realIdx); setSelectedImage(0); setQuantity(1); }}
-                          className={`rounded-2xl border px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer ${
-                            isSel
-                              ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] ring-2 ring-[#C9A227]/50 scale-[1.03]"
-                              : out
+                          className={`rounded-2xl border px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer ${isSel
+                            ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] ring-2 ring-[#C9A227]/50 scale-[1.03]"
+                            : out
                               ? "border-stone-200 bg-stone-100 text-stone-400 opacity-60 cursor-not-allowed"
                               : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#C9A227]"
-                          }`}
+                            }`}
                         >
                           <span className="block">{t.name}</span>
                           <span className={`block text-[10px] mt-0.5 ${isSel ? "text-[#DFC15E]" : out ? "text-rose-500" : "text-[#5C635E]"}`}>
@@ -506,13 +500,12 @@ export default function ProductDetail() {
                       type="button"
                       onClick={() => !isSoldOut && setSelectedSize(szName)}
                       disabled={isSoldOut}
-                      className={`flex min-w-[76px] flex-col items-center rounded-2xl border px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer ${
-                        isSelected
-                          ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] ring-2 ring-[#C9A227]/50 scale-105 shadow-md"
-                          : isSoldOut
+                      className={`flex min-w-[76px] flex-col items-center rounded-2xl border px-4 py-2.5 text-xs font-bold transition-all shadow-2xs cursor-pointer ${isSelected
+                        ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] ring-2 ring-[#C9A227]/50 scale-105 shadow-md"
+                        : isSoldOut
                           ? "border-stone-200 bg-stone-100 text-stone-400 opacity-60 cursor-not-allowed"
                           : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#C9A227] hover:bg-stone-50"
-                      }`}
+                        }`}
                     >
                       <span className="font-display text-sm font-bold">{szName}{isSelected && <span className="text-[10px] text-[#DFC15E]"> ✓</span>}</span>
                       <span className={`text-[10px] mt-0.5 ${isSoldOut ? "text-rose-500" : isSelected ? "text-[#FAF8F1]/80" : "text-emerald-700"}`}>
@@ -525,231 +518,231 @@ export default function ProductDetail() {
             </div>
 
             {/* Quantity + subtotal */}
-            <div className="flex items-center justify-between p-4 bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] shadow-2xs">
-              <div className="flex items-center gap-3">
-                <span className="text-xs font-bold uppercase tracking-wider">Quantity:</span>
-                <div className="flex items-center border border-[#E8E2D5] rounded-xl bg-[#FAF8F1] overflow-hidden">
-                  <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3.5 py-1.5 text-sm font-bold hover:bg-[#E8E2D5] cursor-pointer">−</button>
-                  <span className="px-4 py-1.5 text-sm font-bold border-x border-[#E8E2D5]">{quantity}</span>
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(Math.min(stock > 0 ? stock : 10, quantity + 1))}
-                    disabled={selectionOutOfStock || quantity >= stock}
-                    className="px-3.5 py-1.5 text-sm font-bold hover:bg-[#E8E2D5] disabled:opacity-30 cursor-pointer"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-              <div className="text-right">
-                <span className="text-[10px] uppercase font-bold text-[#5C635E] block tracking-wider">Subtotal</span>
-                <span className="font-display font-bold text-base text-[#064E3B]">₹{(effectivePrice * quantity).toLocaleString("en-IN")}</span>
+          <div className="flex items-center justify-between p-4 bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] shadow-2xs">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold uppercase tracking-wider">Quantity:</span>
+              <div className="flex items-center border border-[#E8E2D5] rounded-xl bg-[#FAF8F1] overflow-hidden">
+                <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3.5 py-1.5 text-sm font-bold hover:bg-[#E8E2D5] cursor-pointer">−</button>
+                <span className="px-4 py-1.5 text-sm font-bold border-x border-[#E8E2D5]">{quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity(Math.min(stock > 0 ? stock : 10, quantity + 1))}
+                  disabled={selectionOutOfStock || quantity >= stock}
+                  className="px-3.5 py-1.5 text-sm font-bold hover:bg-[#E8E2D5] disabled:opacity-30 cursor-pointer"
+                >
+                  +
+                </button>
               </div>
             </div>
-
-            {/* Add to cart / Buy now (Omitted for ₹350 offer) */}
-            {is350Offer ? (
-              <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-center space-y-2">
-                <span className="text-xs font-bold text-amber-800 uppercase tracking-wider block">
-                  ✦ Special Catalog Promotion
-                </span>
-                <p className="text-xs text-amber-900">
-                  This exclusive ₹350 collection item is featured for catalog showroom browsing.
-                </p>
-                <Link
-                  to="/shop"
-                  className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#064E3B] text-white text-xs font-bold hover:bg-[#0B3D2E] transition-colors shadow-xs"
-                >
-                  <span>Explore Available Collections</span>
-                  <span>→</span>
-                </Link>
-              </div>
-            ) : (
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={handleAddToCart}
-                  disabled={selectionOutOfStock}
-                  className={`flex-1 rounded-xl py-3.5 px-4 text-xs sm:text-sm font-bold uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                    selectionOutOfStock
-                      ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                      : "border-2 border-[#064E3B] text-[#064E3B] bg-white hover:bg-emerald-50 active:scale-[0.99]"
-                  }`}
-                >
-                  {selectionOutOfStock ? "Out of Stock" : "Add to Bag"}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleBuyNow}
-                  disabled={selectionOutOfStock}
-                  className={`flex-1 rounded-xl py-3.5 px-4 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all shadow-sm cursor-pointer ${
-                    selectionOutOfStock
-                      ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                      : "bg-[#064E3B] hover:bg-[#0B3D2E] text-white active:scale-[0.99]"
-                  }`}
-                >
-                  Buy Now
-                </button>
-              </div>
-            )}
-
-            {/* Customer Reassurance Guarantees */}
-            <div className="grid grid-cols-2 gap-2.5 pt-1">
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E8E2D5] text-[11px] font-semibold text-stone-700 shadow-2xs">
-                <span className="text-base">🚚</span>
-                <span>Free Delivery Above ₹999</span>
-              </div>
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E8E2D5] text-[11px] font-semibold text-stone-700 shadow-2xs">
-                <span className="text-base">💵</span>
-                <span>Cash on Delivery</span>
-              </div>
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E8E2D5] text-[11px] font-semibold text-stone-700 shadow-2xs">
-                <span className="text-base">🔄</span>
-                <span>Easy 7-Day Exchange</span>
-              </div>
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E8E2D5] text-[11px] font-semibold text-stone-700 shadow-2xs">
-                <span className="text-base">🌿</span>
-                <span>100% Breathable Fabric</span>
-              </div>
-            </div>
-
-            {/* Accordions: description (only when non-empty), specifications, shipping, refund */}
-            <div className="border-t border-[#E8E2D5] pt-4 space-y-3">
-              {(product.description || "").trim().length > 0 && (
-                <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] overflow-hidden shadow-2xs">
-                  <button
-                    type="button"
-                    onClick={() => setActiveAccordion(activeAccordion === "description" ? "" : "description")}
-                    className="w-full p-4 text-left flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#064E3B] cursor-pointer"
-                  >
-                    <span>Full Product Description</span>
-                    <span>{activeAccordion === "description" ? "−" : "+"}</span>
-                  </button>
-                  {activeAccordion === "description" && (
-                    <div className="px-4 pb-4 text-xs text-[#5C635E] leading-relaxed border-t border-[#E8E2D5]/50 pt-3">
-                      <p className="whitespace-pre-line">{product.description}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Specifications (only non-empty fields shown) */}
-              {specs.length > 0 && (
-                <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] overflow-hidden shadow-2xs">
-                  <button
-                    type="button"
-                    onClick={() => setActiveAccordion(activeAccordion === "specs" ? "" : "specs")}
-                    className="w-full p-4 text-left flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#064E3B] cursor-pointer"
-                  >
-                    <span>Product Specifications</span>
-                    <span>{activeAccordion === "specs" ? "−" : "+"}</span>
-                  </button>
-                  {activeAccordion === "specs" && (
-                    <div className="border-t border-[#E8E2D5]/50">
-                      <table className="w-full text-xs">
-                        <tbody className="divide-y divide-[#E8E2D5]/60">
-                          {specs.map((sp) => (
-                            <tr key={sp.label}>
-                              <td className="px-4 py-2.5 font-bold text-[#171A18] w-40">{sp.label}</td>
-                              <td className="px-4 py-2.5 text-[#5C635E]">{sp.value}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] overflow-hidden shadow-2xs">
-                <button
-                  type="button"
-                  onClick={() => setActiveAccordion(activeAccordion === "shipping" ? "" : "shipping")}
-                  className="w-full p-4 text-left flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#064E3B] cursor-pointer"
-                >
-                  <span>Shipping Information</span>
-                  <span>{activeAccordion === "shipping" ? "−" : "+"}</span>
-                </button>
-                {activeAccordion === "shipping" && (
-                  <div className="px-4 pb-4 pt-3 text-xs text-[#5C635E] leading-relaxed border-t border-[#E8E2D5]/50 space-y-1.5">
-                    <p>• Dispatch within 24–48 hours of confirmed payment.</p>
-                    <p>• Tamil Nadu: 2–3 business days. Rest of India: 4–6 business days.</p>
-                    <p>• Free shipping on qualifying orders; COD available across India.</p>
-                    <Link to="/shipping-policy" className="inline-block mt-1 font-bold text-[#064E3B] underline">Read full Shipping Information →</Link>
-                  </div>
-                )}
-              </div>
-
-              <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] overflow-hidden shadow-2xs">
-                <button
-                  type="button"
-                  onClick={() => setActiveAccordion(activeAccordion === "refund" ? "" : "refund")}
-                  className="w-full p-4 text-left flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#064E3B] cursor-pointer"
-                >
-                  <span>Refund & Return Information</span>
-                  <span>{activeAccordion === "refund" ? "−" : "+"}</span>
-                </button>
-                {activeAccordion === "refund" && (
-                  <div className="px-4 pb-4 pt-3 text-xs text-[#5C635E] leading-relaxed border-t border-[#E8E2D5]/50 space-y-1.5">
-                    <p>• 7-day easy exchange on unused products with original packaging.</p>
-                    <p>• Refunds issued to the original payment method within 5–7 business days of quality check.</p>
-                    <Link to="/refund-policy" className="inline-block mt-1 font-bold text-[#064E3B] underline">Read full Refund & Return Policy →</Link>
-                  </div>
-                )}
-              </div>
+            <div className="text-right">
+              <span className="text-[10px] uppercase font-bold text-[#5C635E] block tracking-wider">Subtotal</span>
+              <span className="font-price font-bold text-base text-[#064E3B]">₹{(effectivePrice * quantity).toLocaleString("en-IN")}</span>
             </div>
           </div>
-        </div>
 
-        {/* Related products */}
-        {relatedProducts.length > 0 && (
-          <div className="mt-16">
-            <h2 className="font-display text-xl font-bold text-[#064E3B] mb-5">You May Also Like</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {relatedProducts.map((p) => <ProductCard key={p.id} product={p} />)}
-            </div>
-          </div>
-        )}
-
-        <RecentlyViewedSection products={recentProducts} />
-
-        {/* Mobile Sticky Action Bar */}
-        <div className="lg:hidden fixed bottom-14 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-stone-200 shadow-2xl px-3 py-2.5 flex items-center justify-between gap-2.5">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-display font-bold text-sm sm:text-base text-[#064E3B]">
-                ₹{(effectivePrice * quantity).toLocaleString("en-IN")}
+          {/* Add to cart / Buy now (Omitted for ₹350 offer) */}
+          {is350Offer ? (
+            <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-center space-y-2">
+              <span className="text-xs font-bold text-amber-800 uppercase tracking-wider block">
+                ✦ Special Catalog Promotion
               </span>
-              {mrp > effectivePrice && (
-                <span className="text-[10px] text-stone-400 line-through">
-                  ₹{mrp.toLocaleString("en-IN")}
-                </span>
-              )}
+              <p className="text-xs text-amber-900">
+                This exclusive ₹350 collection item is featured for catalog showroom browsing.
+              </p>
+              <Link
+                to="/shop"
+                className="inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#064E3B] text-white font-button text-xs font-semibold hover:bg-[#0B3D2E] transition-colors shadow-xs"
+              >
+                <span>Explore Available Collections</span>
+                <span>→</span>
+              </Link>
             </div>
-            <p className="text-[10px] text-stone-600 truncate">
-              {activeType?.name ? `${activeType.name} • ` : ""}{selectedSize} • Qty {quantity}
-            </p>
+          ) : (
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={selectionOutOfStock}
+                className={`flex-1 rounded-xl py-3.5 px-4 font-button text-xs sm:text-sm font-semibold tracking-[0.02em] shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  selectionOutOfStock
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    : "border-2 border-[#064E3B] text-[#064E3B] bg-white hover:bg-emerald-50 active:scale-[0.99]"
+                }`}
+              >
+                {selectionOutOfStock ? "Out of Stock" : "Add to Bag"}
+              </button>
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                disabled={selectionOutOfStock}
+                className={`flex-1 rounded-xl py-3.5 px-4 font-button text-xs sm:text-sm font-semibold tracking-[0.02em] transition-all shadow-sm cursor-pointer ${
+                  selectionOutOfStock
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    : "bg-[#064E3B] hover:bg-[#0B3D2E] text-white active:scale-[0.99]"
+                }`}
+              >
+                Buy Now
+              </button>
+            </div>
+          )}
+
+                  {/* Customer Reassurance Guarantees */}
+                  <div className="grid grid-cols-2 gap-2.5 pt-1">
+                    <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E8E2D5] text-[11px] font-semibold text-stone-700 shadow-2xs">
+                      <span className="text-base">🚚</span>
+                      <span>Free Delivery Above ₹999</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E8E2D5] text-[11px] font-semibold text-stone-700 shadow-2xs">
+                      <span className="text-base">💵</span>
+                      <span>Cash on Delivery</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E8E2D5] text-[11px] font-semibold text-stone-700 shadow-2xs">
+                      <span className="text-base">🔄</span>
+                      <span>Easy 7-Day Exchange</span>
+                    </div>
+                    <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white border border-[#E8E2D5] text-[11px] font-semibold text-stone-700 shadow-2xs">
+                      <span className="text-base">🌿</span>
+                      <span>100% Breathable Fabric</span>
+                    </div>
+                  </div>
+
+                  {/* Accordions: description (only when non-empty), specifications, shipping, refund */}
+                  <div className="border-t border-[#E8E2D5] pt-4 space-y-3">
+                    {(product.description || "").trim().length > 0 && (
+                      <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] overflow-hidden shadow-2xs">
+                        <button
+                          type="button"
+                          onClick={() => setActiveAccordion(activeAccordion === "description" ? "" : "description")}
+                          className="w-full p-4 text-left flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#064E3B] cursor-pointer"
+                        >
+                          <span>Full Product Description</span>
+                          <span>{activeAccordion === "description" ? "−" : "+"}</span>
+                        </button>
+                        {activeAccordion === "description" && (
+                          <div className="px-4 pb-4 text-xs text-[#5C635E] leading-relaxed border-t border-[#E8E2D5]/50 pt-3">
+                            <p className="whitespace-pre-line">{product.description}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Specifications (only non-empty fields shown) */}
+                    {specs.length > 0 && (
+                      <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] overflow-hidden shadow-2xs">
+                        <button
+                          type="button"
+                          onClick={() => setActiveAccordion(activeAccordion === "specs" ? "" : "specs")}
+                          className="w-full p-4 text-left flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#064E3B] cursor-pointer"
+                        >
+                          <span>Product Specifications</span>
+                          <span>{activeAccordion === "specs" ? "−" : "+"}</span>
+                        </button>
+                        {activeAccordion === "specs" && (
+                          <div className="border-t border-[#E8E2D5]/50">
+                            <table className="w-full text-xs">
+                              <tbody className="divide-y divide-[#E8E2D5]/60">
+                                {specs.map((sp) => (
+                                  <tr key={sp.label}>
+                                    <td className="px-4 py-2.5 font-bold text-[#171A18] w-40">{sp.label}</td>
+                                    <td className="px-4 py-2.5 text-[#5C635E]">{sp.value}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] overflow-hidden shadow-2xs">
+                      <button
+                        type="button"
+                        onClick={() => setActiveAccordion(activeAccordion === "shipping" ? "" : "shipping")}
+                        className="w-full p-4 text-left flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#064E3B] cursor-pointer"
+                      >
+                        <span>Shipping Information</span>
+                        <span>{activeAccordion === "shipping" ? "−" : "+"}</span>
+                      </button>
+                      {activeAccordion === "shipping" && (
+                        <div className="px-4 pb-4 pt-3 text-xs text-[#5C635E] leading-relaxed border-t border-[#E8E2D5]/50 space-y-1.5">
+                          <p>• Dispatch within 24–48 hours of confirmed payment.</p>
+                          <p>• Tamil Nadu: 2–3 business days. Rest of India: 4–6 business days.</p>
+                          <p>• Free shipping on qualifying orders; COD available across India.</p>
+                          <Link to="/shipping-policy" className="inline-block mt-1 font-bold text-[#064E3B] underline">Read full Shipping Information →</Link>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D5] overflow-hidden shadow-2xs">
+                      <button
+                        type="button"
+                        onClick={() => setActiveAccordion(activeAccordion === "refund" ? "" : "refund")}
+                        className="w-full p-4 text-left flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#064E3B] cursor-pointer"
+                      >
+                        <span>Refund & Return Information</span>
+                        <span>{activeAccordion === "refund" ? "−" : "+"}</span>
+                      </button>
+                      {activeAccordion === "refund" && (
+                        <div className="px-4 pb-4 pt-3 text-xs text-[#5C635E] leading-relaxed border-t border-[#E8E2D5]/50 space-y-1.5">
+                          <p>• 7-day easy exchange on unused products with original packaging.</p>
+                          <p>• Refunds issued to the original payment method within 5–7 business days of quality check.</p>
+                          <Link to="/refund-policy" className="inline-block mt-1 font-bold text-[#064E3B] underline">Read full Refund & Return Policy →</Link>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Related products */}
+              {relatedProducts.length > 0 && (
+                <div className="mt-16">
+                  <h2 className="font-display text-xl font-bold text-[#064E3B] mb-5">You May Also Like</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {relatedProducts.map((p) => <ProductCard key={p.id} product={p} />)}
+                  </div>
+                </div>
+              )}
+
+              <RecentlyViewedSection products={recentProducts} />
+
+              {/* Mobile Sticky Action Bar */}
+              <div className="lg:hidden fixed bottom-14 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-stone-200 shadow-2xl px-3 py-2.5 flex items-center justify-between gap-2.5">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="font-display font-bold text-sm sm:text-base text-[#064E3B]">
+                      ₹{(effectivePrice * quantity).toLocaleString("en-IN")}
+                    </span>
+                    {mrp > effectivePrice && (
+                      <span className="text-[10px] text-stone-400 line-through">
+                        ₹{mrp.toLocaleString("en-IN")}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-stone-600 truncate">
+                    {activeType?.name ? `${activeType.name} • ` : ""}{selectedSize} • Qty {quantity}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleAddToCart}
+                    disabled={selectionOutOfStock}
+                    className="px-3 py-2 rounded-xl bg-[#064E3B] text-[#FAF8F1] text-[11px] font-bold uppercase tracking-wider disabled:opacity-50 active:scale-95 transition-transform cursor-pointer"
+                  >
+                    Add to Bag
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBuyNow}
+                    disabled={selectionOutOfStock}
+                    className="px-3.5 py-2 rounded-xl bg-[#C9A227] text-[#171A18] text-[11px] font-bold uppercase tracking-wider shadow-sm disabled:opacity-50 active:scale-95 transition-transform cursor-pointer"
+                  >
+                    Buy Now
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              disabled={selectionOutOfStock}
-              className="px-3 py-2 rounded-xl bg-[#064E3B] text-[#FAF8F1] text-[11px] font-bold uppercase tracking-wider disabled:opacity-50 active:scale-95 transition-transform cursor-pointer"
-            >
-              Add to Bag
-            </button>
-            <button
-              type="button"
-              onClick={handleBuyNow}
-              disabled={selectionOutOfStock}
-              className="px-3.5 py-2 rounded-xl bg-[#C9A227] text-[#171A18] text-[11px] font-bold uppercase tracking-wider shadow-sm disabled:opacity-50 active:scale-95 transition-transform cursor-pointer"
-            >
-              Buy Now
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+          );
 }

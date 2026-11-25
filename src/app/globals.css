@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Marcellus&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+@import url('https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/static/woff2/SUIT.css');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&display=swap');
 @import 'tailwindcss';
 
 @theme inline {
@@ -19,21 +21,37 @@
   --radius-sm: calc(var(--radius) - 2px);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) + 2px);
-  --font-display: var(--font-serif);
-  --font-body: var(--font-sans);
+
+  /* Primary Display Font: Playfair Display (Classic High-End Editorial & Vogue Fashion) */
+  --font-pretendard: var(--font-pretendard);
+  --font-suit: var(--font-suit);
+  --font-editorial: var(--font-editorial);
+  --font-hero: var(--font-hero);
+  --font-nav: var(--font-nav);
+  --font-product: var(--font-product);
+  --font-price: var(--font-price);
+  --font-button: var(--font-button);
+  --font-body: var(--font-body);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+  --font-display: var(--font-display);
 }
 
 :root {
-  --background: #FDFBF7; /* Refined clean light golden-tinted warm background */
+  --background: #FDFBF7;
+  /* Refined clean light golden-tinted warm background */
   --background-secondary: #F7F3EB;
-  --foreground: #0F172A;
+  --foreground: #171A18;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
-  --primary: #064E3B; /* Logo Emerald / Forest Green */
+  --card-foreground: #171A18;
+  --primary: #064E3B;
+  /* Logo Emerald / Forest Green */
   --primary-foreground: #FFFFFF;
-  --secondary: #0B3D2E; /* Deep Logo Forest */
+  --secondary: #0B3D2E;
+  /* Deep Logo Forest */
   --secondary-foreground: #FFFFFF;
-  --accent: #C9A227; /* Logo Antique Gold */
+  --accent: #C9A227;
+  /* Logo Antique Gold */
   --accent-light: #DFC15E;
   --accent-foreground: #0B3D2E;
   --muted: #F6F2EA;
@@ -41,11 +59,27 @@
   --border: #E8E2D5;
   --ring: #064E3B;
   --radius: 0.75rem;
-  --font-serif: 'Marcellus', 'Playfair Display', Georgia, serif;
-  --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Font Stacks */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-editorial: 'Playfair Display', Georgia, serif;
+  --font-hero: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-pretendard: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Segoe UI', sans-serif;
+  --font-suit: 'SUIT', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Roles */
+  --font-nav: var(--font-suit);
+  --font-button: var(--font-suit);
+  --font-product: var(--font-pretendard);
+  --font-price: var(--font-pretendard);
+  --font-body: var(--font-pretendard);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }
 
@@ -62,13 +96,83 @@ body {
   scrollbar-color: #C9A227 transparent;
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background-color: #D8D0C0; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background-color: #C9A227; }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
 
-.font-display { font-family: var(--font-serif); }
-.font-body { font-family: var(--font-sans); }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #D8D0C0;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #C9A227;
+}
+
+/* Contemporary Seoul Boutique Typography System Classes */
+.font-logo {
+  font-family: var(--font-pretendard);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.font-hero {
+  font-family: var(--font-hero);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.font-collection,
+.font-editorial,
+.font-display,
+.font-serif {
+  font-family: var(--font-editorial);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.font-nav {
+  font-family: var(--font-suit);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.font-product {
+  font-family: var(--font-pretendard);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.font-price {
+  font-family: var(--font-pretendard);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.font-button {
+  font-family: var(--font-suit);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.font-body,
+.font-sans {
+  font-family: var(--font-pretendard);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
+button,
+input[type="button"],
+input[type="submit"] {
+  font-family: var(--font-suit);
+  font-weight: 600;
+}
 
 .gold-gradient-text {
   background: linear-gradient(135deg, #A8811A 0%, #D4AF37 50%, #F3D068 100%);
@@ -116,41 +220,91 @@ body {
 }
 
 @keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
-.animate-spin-slow { animation: spin-slow 24s linear infinite; }
+
+.animate-spin-slow {
+  animation: spin-slow 24s linear infinite;
+}
 
 @keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
+
 .animate-marquee {
   display: flex;
   width: max-content;
   animation: marquee 35s linear infinite;
 }
-.animate-marquee:hover { animation-play-state: paused; }
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
 
 @keyframes heart-pop {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.35); }
-  70% { transform: scale(0.9); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.35);
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
-.animate-heart-pop { animation: heart-pop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+.animate-heart-pop {
+  animation: heart-pop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
 
 @keyframes cart-bounce {
-  0%, 100% { transform: scale(1); }
-  30% { transform: scale(1.25) translateY(-3px); }
-  60% { transform: scale(0.95); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  30% {
+    transform: scale(1.25) translateY(-3px);
+  }
+
+  60% {
+    transform: scale(0.95);
+  }
 }
-.animate-cart-bounce { animation: cart-bounce 0.5s ease-out; }
+
+.animate-cart-bounce {
+  animation: cart-bounce 0.5s ease-out;
+}
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
+
 .skeleton-shimmer {
   background: linear-gradient(90deg, #F3EFE3 25%, #FAF8F1 50%, #F3EFE3 75%);
   background-size: 200% 100%;
@@ -158,19 +312,36 @@ body {
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.animate-fade-in-up { animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
+
+  *,
+  ::before,
+  ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .animate-spin-slow, .animate-marquee { animation: none !important; }
+
+  .animate-spin-slow,
+  .animate-marquee {
+    animation: none !important;
+  }
 }
 
 @media print {
@@ -178,12 +349,16 @@ body {
     background: #ffffff !important;
     color: #000000 !important;
   }
+
   body * {
     visibility: hidden;
   }
-  #printable-shipping-slip, #printable-shipping-slip * {
+
+  #printable-shipping-slip,
+  #printable-shipping-slip * {
     visibility: visible;
   }
+
   #printable-shipping-slip {
     position: absolute;
     left: 0;
@@ -199,9 +374,15 @@ body {
     display: block !important;
     z-index: 99999;
   }
-  .no-print, header, nav, aside, footer {
+
+  .no-print,
+  header,
+  nav,
+  aside,
+  footer {
     display: none !important;
   }
+
   @page {
     size: A4 portrait;
     margin: 10mm;

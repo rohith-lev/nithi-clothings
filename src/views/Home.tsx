@@ -154,20 +154,20 @@ export default function Home() {
           <div className="max-w-2xl text-white space-y-6">
             {/* Top retail badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm shadow-sm transition-transform duration-500 hover:scale-105">
-              <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-pulse" />
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-200">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C9A227] animate-pulse" />
+              <span className="font-nav text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.16em] text-amber-200">
                 100% Pure Combed Cotton & Everyday Wear
               </span>
             </div>
 
             {/* Headline */}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.12] text-white tracking-tight">
+            <h1 className="font-hero text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-semibold leading-[1.12] text-white tracking-[-0.025em]">
               Everyday Comfort <br />
-              <span className="text-[#DFC15E] font-normal">Crafted In Pure Cotton</span>
+              <span className="font-editorial text-[#DFC15E] italic font-normal">Crafted In Pure Cotton</span>
             </h1>
 
             {/* Supporting Copy */}
-            <p className="text-sm sm:text-base text-slate-200 max-w-lg leading-relaxed font-light">
+            <p className="font-body text-sm sm:text-base text-slate-200 max-w-lg leading-relaxed font-normal">
               Shop online for premium pure cotton nighties, nursing zip nighties, cord sets, and daily ethnic wear designed for soft, breathable comfort.
             </p>
 
@@ -175,14 +175,14 @@ export default function Home() {
             <div className="flex flex-wrap items-center gap-4 pt-2">
               <Link
                 to="/shop"
-                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-[#064E3B] text-white font-bold text-xs uppercase tracking-wider shadow-lg hover:bg-[#0B3D2E] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
+                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-[#064E3B] text-white font-button font-semibold text-xs sm:text-[13px] tracking-[0.02em] shadow-lg hover:bg-[#0B3D2E] hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 border border-emerald-600/30"
               >
                 <span>Shop All Collections</span>
                 <span className="ml-2">→</span>
               </Link>
               <Link
                 to="/shop?category=nighty"
-                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-white/10 text-white border border-white/30 font-semibold text-xs uppercase tracking-wider backdrop-blur-sm hover:bg-white hover:text-[#064E3B] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
+                className="inline-flex items-center justify-center px-7 py-3.5 rounded-full bg-white/10 text-white border border-white/30 font-button font-semibold text-xs sm:text-[13px] tracking-[0.02em] backdrop-blur-sm hover:bg-white hover:text-[#064E3B] transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 <span>Nighty Special</span>
               </Link>
@@ -191,16 +191,16 @@ export default function Home() {
             {/* Trust Badges in Hero */}
             <div className="pt-8 border-t border-white/15 grid grid-cols-3 gap-4 max-w-md">
               <div className="transition-transform duration-300 hover:-translate-y-1">
-                <span className="font-display text-2xl lg:text-3xl font-bold text-[#DFC15E]">100%</span>
-                <p className="text-[10px] text-slate-300 uppercase tracking-wider mt-0.5">Pure Cotton</p>
+                <span className="font-hero text-2xl lg:text-3xl font-semibold text-[#DFC15E] tracking-tight">100%</span>
+                <p className="font-nav text-[10px] text-slate-300 uppercase tracking-[0.14em] mt-1 font-medium">Pure Cotton</p>
               </div>
               <div className="transition-transform duration-300 hover:-translate-y-1">
-                <span className="font-display text-2xl lg:text-3xl font-bold text-amber-300">50k+</span>
-                <p className="text-[10px] text-slate-300 uppercase tracking-wider mt-0.5">Happy Shoppers</p>
+                <span className="font-hero text-2xl lg:text-3xl font-semibold text-amber-300 tracking-tight">50k+</span>
+                <p className="font-nav text-[10px] text-slate-300 uppercase tracking-[0.14em] mt-1 font-medium">Happy Shoppers</p>
               </div>
               <div className="transition-transform duration-300 hover:-translate-y-1">
-                <span className="font-display text-2xl lg:text-3xl font-bold text-amber-300">Pan-India</span>
-                <p className="text-[10px] text-slate-300 uppercase tracking-wider mt-0.5">COD Delivery</p>
+                <span className="font-hero text-2xl lg:text-3xl font-semibold text-amber-300 tracking-tight">Pan-India</span>
+                <p className="font-nav text-[10px] text-slate-300 uppercase tracking-[0.14em] mt-1 font-medium">COD Delivery</p>
               </div>
             </div>
           </div>
@@ -210,15 +210,15 @@ export default function Home() {
         <div className="hidden lg:block absolute right-12 xl:right-20 top-1/2 -translate-y-1/2 z-20 pointer-events-none animate-hero-float">
           <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl shadow-2xl max-w-xs text-white space-y-3">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-pulse" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300">Special Focus</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C9A227] animate-pulse" />
+              <span className="font-sans text-[10px] font-medium uppercase tracking-[0.22em] text-amber-300">Special Focus</span>
             </div>
-            <p className="font-display text-lg font-semibold leading-snug">
+            <p className="font-display text-lg font-normal leading-snug">
               Combed Cotton Nighties & Daily Wear
             </p>
-            <div className="flex items-center justify-between text-[11px] text-white/80 pt-2 border-t border-white/15">
+            <div className="flex items-center justify-between text-[11px] text-white/80 pt-2 border-t border-white/15 font-sans">
               <span>Standard Retail Quality</span>
-              <span className="text-amber-300 font-bold">100% Cotton</span>
+              <span className="text-amber-300 font-medium">100% Cotton</span>
             </div>
           </div>
         </div>
@@ -229,12 +229,12 @@ export default function Home() {
         <div className="text-center max-w-2xl mx-auto mb-2 sm:mb-3 reveal-up">
           <div className="flex items-center justify-center gap-2 mb-1">
             <span className="w-8 h-[1px] bg-[#C9A227]" />
-            <span className="text-[10px] sm:text-[11px] uppercase tracking-wider text-[#064E3B] font-semibold">
+            <span className="font-nav text-[10px] sm:text-[11px] uppercase tracking-[0.16em] text-[#C9A227] font-medium">
               Storefront Categories
             </span>
             <span className="w-8 h-[1px] bg-[#C9A227]" />
           </div>
-          <h2 className="font-display text-xl sm:text-2xl font-bold text-[#064E3B] tracking-tight">
+          <h2 className="font-collection text-2xl sm:text-3xl lg:text-4xl font-medium text-[#064E3B] tracking-[-0.015em]">
             Select Category
           </h2>
         </div>
@@ -251,7 +251,7 @@ export default function Home() {
               navigate(`/shop?category=${encodeURIComponent(targetIdentifier)}`);
             }
           }}
-          title="Select Category"
+          title="Collections"
           subtitle="Explore our retail collections designed for daily comfort"
         />
       </section>
@@ -263,20 +263,20 @@ export default function Home() {
             <div className="reveal-left">
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="w-6 h-[1px] bg-[#C9A227]" />
-                <span className="text-xs uppercase tracking-wider text-[#064E3B] font-semibold">
+                <span className="font-nav text-xs uppercase tracking-[0.16em] text-[#C9A227] font-medium">
                   Latest Drops
                 </span>
               </div>
-              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-[#064E3B] tracking-tight">
+              <h2 className="font-collection text-2xl sm:text-3xl lg:text-4xl font-medium text-[#064E3B] tracking-[-0.015em]">
                 New Arrivals
               </h2>
             </div>
             <Link
               to="/shop?filter=new"
-              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#064E3B] hover:text-[#0B3D2E] transition-colors pb-1 border-b border-[#064E3B] reveal-right"
+              className="inline-flex items-center gap-1.5 font-button text-xs font-semibold tracking-[0.04em] text-[#064E3B] hover:text-[#0B3D2E] transition-colors pb-1 border-b border-[#064E3B] reveal-right"
             >
               <span>View All</span>
-              <span>→</span>
+              <span className="font-sans">→</span>
             </Link>
           </div>
 
@@ -296,20 +296,20 @@ export default function Home() {
           <div className="reveal-left">
             <div className="flex items-center gap-2 mb-1.5">
               <span className="w-6 h-[1px] bg-[#C9A227]" />
-              <span className="text-xs uppercase tracking-wider text-[#064E3B] font-semibold">
+              <span className="font-nav text-xs uppercase tracking-[0.16em] text-[#C9A227] font-medium">
                 Customer Favorites
               </span>
             </div>
-            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-[#064E3B] tracking-tight">
+            <h2 className="font-collection text-2xl sm:text-3xl lg:text-4xl font-medium text-[#064E3B] tracking-[-0.015em]">
               Trending Now
             </h2>
           </div>
           <Link
             to="/shop?filter=sale"
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#064E3B] hover:text-[#0B3D2E] transition-colors pb-1 border-b border-[#064E3B] reveal-right"
+            className="inline-flex items-center gap-1.5 font-button text-xs font-semibold tracking-[0.04em] text-[#064E3B] hover:text-[#0B3D2E] transition-colors pb-1 border-b border-[#064E3B] reveal-right"
           >
             <span>Explore Offers</span>
-            <span>→</span>
+            <span className="font-sans">→</span>
           </Link>
         </div>
 
@@ -329,17 +329,17 @@ export default function Home() {
             <div className="reveal-left">
               <div className="flex items-center gap-2 mb-1.5">
                 <span className="w-6 h-[1px] bg-[#C9A227]" />
-                <span className="text-xs uppercase tracking-wider text-[#064E3B] font-semibold">
+                <span className="font-nav text-xs uppercase tracking-[0.16em] text-[#C9A227] font-medium">
                   Popular Picks
                 </span>
               </div>
-              <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-[#064E3B] tracking-tight">
+              <h2 className="font-collection text-2xl sm:text-3xl lg:text-4xl font-medium text-[#064E3B] tracking-[-0.015em]">
                 Featured Collections
               </h2>
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 text-xs font-semibold uppercase tracking-wider shadow-2xs reveal-right">
+            <div className="flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 font-button text-xs font-semibold tracking-[0.02em] shadow-2xs reveal-right">
               <button
                 type="button"
                 onClick={() => setActiveTab("featured")}
@@ -394,10 +394,10 @@ export default function Home() {
               <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4">
                 {pillar.icon}
               </div>
-              <h3 className="font-display text-base font-bold text-[#064E3B] mb-2">
+              <h3 className="font-hero text-base sm:text-lg font-semibold text-[#064E3B] mb-2 tracking-tight">
                 {pillar.title}
               </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="font-body text-xs sm:text-[13px] text-slate-600 leading-relaxed font-normal">
                 {pillar.desc}
               </p>
             </div>

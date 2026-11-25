@@ -175,11 +175,10 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                     key={i}
                     type="button"
                     onClick={() => setSelectedImageIndex(i)}
-                    className={`aspect-[3/4] w-14 shrink-0 overflow-hidden rounded-xl border transition-all ${
-                      galleryImages[selectedImageIndex] === img
-                        ? "border-[#064E3B] ring-2 ring-[#C9A227]"
-                        : "border-[#E8E2D5] opacity-60 hover:opacity-100"
-                    }`}
+                    className={`aspect-[3/4] w-14 shrink-0 overflow-hidden rounded-xl border transition-all ${galleryImages[selectedImageIndex] === img
+                      ? "border-[#064E3B] ring-2 ring-[#C9A227]"
+                      : "border-[#E8E2D5] opacity-60 hover:opacity-100"
+                      }`}
                   >
                     <img
                       src={img}
@@ -198,34 +197,34 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
           {/* Right: Info & Controls */}
           <div className="space-y-4">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#C9A227]">
+              <span className="font-nav text-[10px] font-medium uppercase tracking-[0.16em] text-[#C9A227]">
                 {product.category || "Nithi Collection"}
               </span>
-              <h2 className="font-display text-xl sm:text-2xl font-bold text-[#064E3B] leading-tight mt-0.5">
+              <h2 className="font-product text-xl sm:text-2xl font-medium text-[#064E3B] leading-snug mt-1 tracking-[-0.01em]">
                 {product.name}
               </h2>
-              <p className="text-[11px] font-mono text-[#5C635E] mt-0.5">
+              <p className="font-body text-[11px] text-[#5C635E] mt-0.5 tracking-wide">
                 SKU: {product.sku || product.code}
               </p>
             </div>
 
             {/* Pricing */}
             <div className="flex items-baseline gap-2.5 pb-2 border-b border-[#E8E2D5]">
-              <span className="font-display text-2xl font-bold text-[#064E3B]">
+              <span className="font-price text-2xl font-bold text-[#064E3B] tracking-[-0.02em]">
                 ₹{(effectivePrice * quantity).toLocaleString("en-IN")}
               </span>
               {basePrice > effectivePrice && (
-                <span className="text-xs text-[#5C635E] line-through">
+                <span className="font-price text-xs text-[#5C635E] line-through font-normal">
                   ₹{(basePrice * quantity).toLocaleString("en-IN")}
                 </span>
               )}
               {dynamicDiscount > 0 && (
-                <span className="rounded-full bg-[#C9A227]/15 px-2.5 py-0.5 text-xs font-bold text-[#A8811A]">
+                <span className="font-sans rounded-full bg-[#C9A227]/15 px-2.5 py-0.5 text-xs font-semibold text-[#A8811A]">
                   Save ₹{((basePrice - effectivePrice) * quantity).toLocaleString("en-IN")} ({dynamicDiscount}%)
                 </span>
               )}
               {quantity > 1 && (
-                <span className="text-[11px] font-semibold text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
+                <span className="font-sans text-[11px] font-medium text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
                   ₹{effectivePrice} × {quantity}
                 </span>
               )}
@@ -258,11 +257,11 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                 {(product.sizeOptions && product.sizeOptions.length > 0
                   ? product.sizeOptions
                   : (product.sizes || ["Free Size"]).map((sz) => ({
-                      size: sz,
-                      price: product.price,
-                      mrp: product.mrp,
-                      stock: product.stock,
-                    }))
+                    size: sz,
+                    price: product.price,
+                    mrp: product.mrp,
+                    stock: product.stock,
+                  }))
                 ).map((szOpt) => {
                   const szName = szOpt.size;
                   const isSelected = selectedSize.toLowerCase() === szName.toLowerCase();
@@ -275,27 +274,25 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                       type="button"
                       onClick={() => !isSoldOut && setSelectedSize(szName)}
                       disabled={isSoldOut}
-                      className={`flex flex-col items-center justify-center rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all min-w-[55px] ${
-                        isSelected
-                          ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] shadow-xs scale-105"
-                          : isSoldOut
+                      className={`flex flex-col items-center justify-center rounded-xl border px-3 py-1.5 text-xs font-semibold transition-all min-w-[55px] ${isSelected
+                        ? "border-[#064E3B] bg-[#064E3B] text-[#FAF8F1] shadow-xs scale-105"
+                        : isSoldOut
                           ? "border-stone-200 bg-stone-100 text-stone-400 opacity-60 cursor-not-allowed"
                           : "border-[#E8E2D5] bg-[#FFFFFF] text-[#171A18] hover:border-[#C9A227]"
-                      }`}
+                        }`}
                     >
                       <span className="flex items-center gap-1">
                         {szName} {isSelected && "✓"}
                       </span>
                       <span
-                        className={`text-[9px] ${
-                          isSelected
-                            ? "text-emerald-100"
-                            : isSoldOut
+                        className={`text-[9px] ${isSelected
+                          ? "text-emerald-100"
+                          : isSoldOut
                             ? "text-rose-500 line-through"
                             : remaining <= 5
-                            ? "text-amber-700 font-bold"
-                            : "text-stone-400"
-                        }`}
+                              ? "text-amber-700 font-bold"
+                              : "text-stone-400"
+                          }`}
                       >
                         {isSoldOut ? "Sold Out" : `${remaining} left`}
                       </span>
@@ -352,11 +349,10 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                     type="button"
                     onClick={handleAddToCart}
                     disabled={isOutOfStock}
-                    className={`flex-1 rounded-xl py-3.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md ${
-                      addedAnimation
-                        ? "bg-[#C9A227] text-[#171A18]"
-                        : "bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] disabled:opacity-50 cursor-pointer"
-                    }`}
+                    className={`flex-1 rounded-xl py-3.5 text-xs font-bold uppercase tracking-wider transition-all shadow-md ${addedAnimation
+                      ? "bg-[#C9A227] text-[#171A18]"
+                      : "bg-[#064E3B] text-[#FAF8F1] hover:bg-[#0B3D2E] disabled:opacity-50 cursor-pointer"
+                      }`}
                   >
                     {addedAnimation ? "✓ Added to Bag!" : isOutOfStock ? "Out of Stock" : "Add to Bag"}
                   </button>

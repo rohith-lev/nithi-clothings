@@ -390,7 +390,7 @@ export default function Checkout() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 lg:px-8 py-8 font-body">
-      <h1 className="font-display text-2xl lg:text-3xl font-bold text-[#171A18] mb-6">Checkout</h1>
+      <h1 className="font-collection text-2xl lg:text-3xl font-medium text-[#171A18] mb-6 tracking-[-0.015em]">Checkout</h1>
 
       {/* Step Progress */}
       <div className="flex items-center mb-8">
@@ -401,10 +401,10 @@ export default function Checkout() {
         ].map((s, i) => (
           <div key={s.n} className="flex items-center flex-1">
             <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${step >= s.n ? "bg-[#064E3B] text-[#FAF8F1]" : "bg-[#F3EFE3] text-[#6A6D65]"}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-sans text-sm font-semibold transition-colors ${step >= s.n ? "bg-[#064E3B] text-[#FAF8F1]" : "bg-[#F3EFE3] text-[#6A6D65]"}`}>
                 {step > s.n ? "✓" : s.n}
               </div>
-              <span className={`text-xs font-semibold hidden sm:block ${step >= s.n ? "text-[#064E3B]" : "text-[#6A6D65]"}`}>{s.label}</span>
+              <span className={`font-sans text-xs font-medium hidden sm:block ${step >= s.n ? "text-[#064E3B]" : "text-[#6A6D65]"}`}>{s.label}</span>
             </div>
             {i < 2 && <div className={`flex-1 h-0.5 mx-3 ${step > s.n ? "bg-[#064E3B]" : "bg-[#E8E2D5]"}`} />}
           </div>
@@ -417,7 +417,7 @@ export default function Checkout() {
           {step === 1 && (
             <div className="bg-white border border-[#E8E2D5] rounded-sm p-6 space-y-4 shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-2 border-b border-[#E8E2D5]">
-                <h2 className="font-display text-lg font-bold text-[#171A18]">Delivery Address & Contact Details</h2>
+                <h2 className="font-display text-lg sm:text-xl font-normal text-[#171A18] tracking-tight">Delivery Address & Contact Details</h2>
                 {isLoggedIn && customer ? (
                   <button
                     type="button"

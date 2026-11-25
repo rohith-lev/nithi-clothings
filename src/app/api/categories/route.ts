@@ -87,22 +87,77 @@ async function getSynchronizedCategories(activeOnly = false) {
     } as any);
   }
 
-  // Aggregate dynamic product types per category from the live product catalogue
+  // Aggregate dynamic product types and ensure all categories from active products exist
   const typeMap: Record<string, string[]> = {};
   try {
-    const products = await Product.find({ status: "ACTIVE" }, "category productTypes").lean();
+    const products = await Product.find({ status: "ACTIVE" }, "category subcategory productTypes coverImage images").lean();
     for (const p of products) {
-      if (!p.category || !Array.isArray(p.productTypes)) continue;
+      if (!p.category || typeof p.category !== "string" || !p.category.trim()) continue;
       const catKey = p.category.toLowerCase().trim();
-      if (!typeMap[catKey]) typeMap[catKey] = [];
-      for (const pt of p.productTypes) {
-        if (pt && pt.name && pt.active !== false && !typeMap[catKey].includes(pt.name.trim())) {
-          typeMap[catKey].push(pt.name.trim());
+      const pCat = p.category.trim();
+      const pCatSlug = pCat.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+      // Ensure category is present in dbCategories
+      let existingCat = dbCategories.find(
+        (c: any) =>
+          (c.name && c.name.toLowerCase().trim() === catKey) ||
+          (c.slug && c.slug.toLowerCase().trim() === pCatSlug)
+      );
+
+      if (!existingCat) {
+        existingCat = {
+          id: `cat-${pCatSlug}`,
+          name: pCat,
+          slug: pCatSlug,
+          image: p.coverImage || (p.images && p.images[0]) || "",
+          description: "",
+          subcategories: [],
+          isActive: true,
+          showOnHome: true,
+          priority: 50,
+          isCustom: true,
+        };
+        dbCategories.push(existingCat);
+      } else {
+        if (!existingCat.image || existingCat.image.includes("[object")) {
+          existingCat.image = p.coverImage || (p.images && p.images[0]) || "";
+        }
+      }
+
+      // Auto-register subcategory to category
+      if (p.subcategory && typeof p.subcategory === "string" && p.subcategory.trim()) {
+        let subName = p.subcategory.trim();
+        let parentGroup = "";
+        if (subName.includes(" - ")) {
+          const parts = subName.split(" - ");
+          parentGroup = parts[0].trim();
+          subName = parts.slice(1).join(" - ").trim();
+        }
+        if (!Array.isArray(existingCat.subcategories)) existingCat.subcategories = [];
+        const hasSub = existingCat.subcategories.some(
+          (s: any) => (typeof s === "string" ? s : s?.name || "").toLowerCase().trim() === subName.toLowerCase()
+        );
+        if (!hasSub) {
+          existingCat.subcategories.push({
+            id: `sub-${subName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+            name: subName,
+            parentGroup,
+          });
+        }
+      }
+
+      // Aggregate dynamic product types
+      if (Array.isArray(p.productTypes)) {
+        if (!typeMap[catKey]) typeMap[catKey] = [];
+        for (const pt of p.productTypes) {
+          if (pt && pt.name && pt.active !== false && !typeMap[catKey].includes(pt.name.trim())) {
+            typeMap[catKey].push(pt.name.trim());
+          }
         }
       }
     }
   } catch (err) {
-    console.warn("Could not aggregate product types for categories:", err);
+    console.warn("Could not aggregate product categories/types:", err);
   }
 
   // Format DB categories directly without re-inserting deleted/stale records

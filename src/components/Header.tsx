@@ -141,10 +141,10 @@ export default function Header() {
         <div className="flex items-center justify-between max-w-7xl mx-auto gap-4">
           {/* Smooth Scrolling Marquee Track */}
           <div className="flex-1 overflow-hidden whitespace-nowrap relative">
-            <div className="inline-flex items-center gap-8 animate-marquee text-[11px] font-medium tracking-normal">
+            <div className="inline-flex items-center gap-8 animate-marquee font-nav text-[11px] font-medium tracking-[0.08em] uppercase">
               {[1, 2].map((k) => (
                 <div key={k} className="inline-flex items-center gap-8 shrink-0">
-                  <span className="flex items-center gap-1.5 font-bold text-amber-300">
+                  <span className="flex items-center gap-1.5 font-semibold text-amber-300">
                     <span>🚚</span>
                     <span>FREE EXPRESS DELIVERY ON ORDERS ₹999+</span>
                   </span>
@@ -219,8 +219,8 @@ export default function Header() {
               <BrandLogo variant="dark" size="md" showTagline={true} />
             </div>
 
-            {/* Desktop Navigation — Categories first (database-driven) with clean normal tracking and larger text */}
-            <nav className="hidden lg:flex items-center gap-7 xl:gap-8 font-body text-base font-semibold tracking-normal text-slate-800">
+            {/* Desktop Navigation — Categories first (database-driven) with clean normal tracking and refined font */}
+            <nav className="hidden lg:flex items-center gap-7 xl:gap-8 font-nav text-[14.5px] font-medium tracking-[0.01em] text-slate-800">
               {/* Home Link */}
               <Link
                 to="/"
@@ -247,12 +247,12 @@ export default function Header() {
                 {/* Categories & Product Types Dropdown (admin-defined order) */}
                 <div className="absolute top-full -left-6 w-80 bg-[#FFFFFF] border border-[#E8E2D5] shadow-2xl rounded-2xl p-3.5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="p-2 border-b border-[#E8E2D5]/70 mb-1.5 flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-[#C9A227] tracking-[0.2em] uppercase block">
+                    <span className="font-sans text-[10px] font-semibold text-[#C9A227] tracking-[0.2em] uppercase block">
                       Product Categories
                     </span>
                     <Link
                       to="/shop"
-                      className="text-[10px] font-semibold text-[#064E3B] hover:underline"
+                      className="font-sans text-[10px] font-medium text-[#064E3B] hover:underline"
                     >
                       View All →
                     </Link>
@@ -266,7 +266,7 @@ export default function Header() {
                             to={`/shop?category=${encodeURIComponent(catSlug)}`}
                             className="flex items-center justify-between p-2 rounded-xl hover:bg-[#FAF8F1] transition-colors mobile-touch-zoom"
                           >
-                            <span className="font-display text-sm font-semibold text-[#064E3B] group-hover/item:text-[#C9A227] transition-colors">
+                            <span className="font-nav text-sm font-medium text-[#064E3B] group-hover/item:text-[#C9A227] transition-colors">
                               <InteractiveNavText text={cat.name} />
                             </span>
                             {cat.cleanSubcategories.length > 0 && (
@@ -433,7 +433,7 @@ export default function Header() {
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="lg:hidden bg-[#FAF8F1] border-t border-[#E8E2D5] px-4 py-4 space-y-4 max-h-[calc(100vh-5rem)] overflow-y-auto shadow-lg animate-fade-in">
-            <nav className="flex flex-col space-y-2 font-body text-base font-semibold tracking-normal text-[#171A18]">
+            <nav className="flex flex-col space-y-2 font-nav text-sm sm:text-base font-medium tracking-[0.01em] text-[#171A18]">
               {/* Home */}
               <Link
                 to="/"

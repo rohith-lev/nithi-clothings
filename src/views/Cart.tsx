@@ -62,7 +62,7 @@ export default function Cart() {
   return (
     <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6 font-body bg-[#FDFBF7]">
       <div className="flex items-center justify-between mb-4 sm:mb-5">
-        <h1 className="font-display text-2xl lg:text-3xl font-bold text-[#064E3B]">
+        <h1 className="font-collection text-2xl lg:text-3xl font-medium text-[#064E3B] tracking-[-0.015em]">
           Shopping Bag ({cartCount} {cartCount === 1 ? "Item" : "Items"})
         </h1>
         {state.items.length > 0 && (
@@ -133,7 +133,7 @@ export default function Cart() {
                         {item.product.category}
                       </span>
                       <Link to={`/product/${item.product.id}`}>
-                        <h3 className="font-display text-sm sm:text-base font-semibold text-[#171A18] hover:text-[#064E3B] transition-colors line-clamp-2 mt-0.5">
+                        <h3 className="font-sans text-sm sm:text-base font-medium text-[#171A18] hover:text-[#064E3B] transition-colors line-clamp-2 mt-0.5 tracking-tight">
                           {item.product.name}
                         </h3>
                       </Link>
@@ -200,11 +200,11 @@ export default function Cart() {
                     </div>
 
                     <div className="text-right">
-                      <span className="font-display text-base sm:text-lg font-bold text-[#064E3B]">
+                      <span className="font-sans text-base sm:text-lg font-semibold text-[#064E3B] tracking-tight">
                         ₹{itemTotal.toLocaleString("en-IN")}
                       </span>
                       {itemMrp > unitPrice && (
-                        <p className="text-[10px] text-[#5C635E] line-through">
+                        <p className="font-sans text-[10px] text-[#5C635E] line-through">
                           ₹{(itemMrp * item.quantity).toLocaleString("en-IN")}
                         </p>
                       )}
@@ -218,7 +218,7 @@ export default function Cart() {
 
         {/* Order Summary Box */}
         <div className="bg-[#FFFFFF] border border-[#E8E2D5] rounded-2xl p-6 shadow-xs space-y-5">
-          <h2 className="font-display text-lg font-bold text-[#064E3B] pb-3 border-b border-[#E8E2D5]">
+          <h2 className="font-display text-lg sm:text-xl font-normal text-[#064E3B] pb-3 border-b border-[#E8E2D5] tracking-tight">
             Order Summary
           </h2>
 
